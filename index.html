@@ -426,8 +426,22 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 function dbError(error){ throw new Error(error?.message || T("connError")); }
 function portfolioToDb(value){
   return (Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
-    const [title, ...url] = line.split("|"); return {title:title.trim(), link:url.join("|").trim()};
-  })).map(x => ({title:String(x.title || "").trim(), link:String(x.link || x.url || "").trim()})).filter(x => x.title);
+    const [title, ...url] = line.split("|");
+    return {title: title.trim(), link: url.join("|").trim()};
+  }))
+  .map(x => {
+    let link = String(x.link || x.url || "").trim();
+
+    if (link && !/^https?:\/\//i.test(link)) {
+      link = "https://" + link;
+    }
+
+    return {
+      title: String(x.title || "").trim(),
+      link
+    };
+  })
+  .filter(x => x.title && x.link);
 }
 function dbEditor(row){
   return {
