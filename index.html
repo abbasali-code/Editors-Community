@@ -508,9 +508,33 @@ async function api(method, url, body){
 }
 function editorPayload(b){
   const out = {};
-  ["name","role","short","bio","exp","projects","email","insta","city","availability","testimonial","color"].forEach(k => {if (b[k] !== undefined) out[k] = b[k];});
-  if (b.skills !== undefined) out.skills = Array.isArray(b.skills) ? b.skills : String(b.skills || "").split(",").map(x=>x.trim()).filter(Boolean);
-  if (b.portfolio !== undefined) out.portfolio = portfolioToDb(b.portfolio);
+
+  [
+    "name", "role", "short", "bio",
+    "email", "insta", "city", "availability",
+    "testimonial", "color"
+  ].forEach(k => {
+    if (b[k] !== undefined) out[k] = b[k];
+  });
+
+  // تبدیل فیلدهای عددی به عدد صحیح
+  ["exp", "projects"].forEach(k => {
+    if (b[k] !== undefined) {
+      const value = String(b[k]).trim();
+      out[k] = value === "" ? 0 : Math.max(0, Math.floor(Number(value) || 0));
+    }
+  });
+
+  if (b.skills !== undefined) {
+    out.skills = Array.isArray(b.skills)
+      ? b.skills
+      : String(b.skills || "").split(",").map(x => x.trim()).filter(Boolean);
+  }
+
+  if (b.portfolio !== undefined) {
+    out.portfolio = portfolioToDb(b.portfolio);
+  }
+
   return out;
 }
 async function load(){
