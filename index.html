@@ -430,7 +430,24 @@ function portfolioToDb(value){
   })).map(x => ({title:String(x.title || "").trim(), link:String(x.link || x.url || "").trim()})).filter(x => x.title);
 }
 function dbEditor(row){
-  return normEd({...row, portfolio:Array.isArray(row.portfolio) ? row.portfolio : []});
+  return {
+    ...row,
+    name: row.name || "",
+    role: row.role || "",
+    short: row.short || "",
+    bio: row.bio || "",
+    email: row.email || "",
+    insta: row.insta || row.instagram || "",
+    instagram: row.instagram || row.insta || "",
+    city: row.city || "",
+    availability: row.availability || "",
+    testimonial: row.testimonial || "",
+    color: row.color || "#3b82f6",
+    exp: Number(row.exp) || 0,
+    projects: Number(row.projects) || 0,
+    skills: Array.isArray(row.skills) ? row.skills : [],
+    portfolio: Array.isArray(row.portfolio) ? row.portfolio : []
+  };
 }
 async function api(method, url, body){
   body = body || {};
