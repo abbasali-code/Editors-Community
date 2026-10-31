@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>انجمن ادیتوران | ادیتورهای حرفه‌ای ایران</title>
+<meta name="description" content="انجمن ادیتوران؛ معرفی ادیتورهای حرفه‌ای ویدیو، عکس، صدا و موشن‌گرافیک با نمونه‌کار و پروفایل کامل.">
+<meta name="theme-color" content="#0c0a1d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237c3aed'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white'%3E✦%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jomhuria&family=Lalezar&family=Rakkas&family=Mirza:wght@400;700&family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&family=Vazirmatn:wght@300..900&display=swap">
+<style>
+:root{
+  --bg:#0c0a1d; --s1:#161231; --s2:#1f1842; --pri:#7c3aed; --pri2:#db2777; --acc:#f5b942;
+  --tx:#f5f3ff; --mu:#a9a0cc; --ln:rgba(169,160,204,.16); --gl:rgba(124,58,237,.35);
+  --fd:"Jomhuria",Tahoma,sans-serif; --fb:"Vazirmatn",Tahoma,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.95 var(--fb);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+::selection{background:var(--pri2);color:#fff}
+h1,h2,h3,h4{font-family:var(--fd);font-weight:400;line-height:1.25;margin:0}
+.wrap{width:92%;max-width:1180px;margin:0 auto}
+.hide{display:none!important}
+.bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 500px at 90% -10%,rgba(124,58,237,.18),transparent 60%),radial-gradient(700px 420px at -10% 110%,rgba(219,39,119,.12),transparent 60%)}
+.notice{background:#4c1d95;color:#fff;padding:10px 14px;text-align:center;font-size:14px;line-height:1.8}
+.notice.err{background:#7f1d1d}
+
+/* هدر */
+.top{position:sticky;top:0;z-index:50;background:rgba(12,10,29,.94);border-bottom:1px solid var(--ln)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--fd);font-size:38px;line-height:1}
+.brand .mk{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff;background:linear-gradient(135deg,var(--pri),var(--pri2))}
+.brand small{display:block;font:400 12px/1.4 var(--fb);color:var(--mu)}
+.nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.nav a{padding:6px 12px;border-radius:10px;color:var(--mu);font-family:var(--fd);font-size:24px;line-height:1.1}
+.nav a:hover{color:var(--tx);background:var(--s1)}
+.nav a.on{color:var(--acc)}
+.nav a.admlink{border:1px solid var(--ln);font-size:20px}
+.pbar{position:fixed;top:0;right:0;height:3px;width:100%;background:linear-gradient(90deg,var(--pri),var(--pri2),var(--acc));transform-origin:right;transform:scaleX(0);z-index:60}
+
+/* دکمه */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 24px 8px;border-radius:12px;border:1px solid transparent;background:linear-gradient(120deg,var(--pri),var(--pri2));color:#fff;font-family:var(--fd);font-size:26px;line-height:1.1;cursor:pointer;transition:transform .2s,filter .2s}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn.g{background:transparent;border-color:var(--ln);color:var(--tx)}
+.btn.g:hover{border-color:var(--acc);color:var(--acc)}
+.btn.gold{background:var(--acc);color:#1c1205}
+.btn.sm{padding:6px 14px 4px;font-size:21px;border-radius:9px}
+.btn.dg{background:transparent;border-color:rgba(248,113,113,.4);color:#fca5a5}
+.btn.dg:hover{background:rgba(248,113,113,.1)}
+.btn.full{width:100%}
+
+/* بخش‌ها */
+section{padding:90px 0 0}
+.hero{padding:70px 0 40px;border-bottom:1px solid var(--ln)}
+.eyebrow{display:inline-block;margin-bottom:20px;padding:4px 14px;border:1px solid var(--ln);border-radius:8px;color:var(--mu);font-size:14px;background:var(--s1)}
+.hero h1{font-size:clamp(84px,13vw,190px);line-height:1.02}
+.hero h1 .l2{background:linear-gradient(90deg,var(--pri),var(--pri2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 .l3{display:block;font-size:.42em;color:var(--acc);margin-top:6px}
+.hero p{max-width:620px;color:var(--mu);font-size:17px;margin:22px 0 28px}
+.acts{display:flex;gap:12px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:48px;border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+.stat{padding:24px 18px;background:var(--s1);text-align:center}
+.stat+.stat{border-right:1px solid var(--ln)}
+.stat b{display:block;font-family:var(--fd);font-weight:400;font-size:64px;line-height:1;color:var(--acc)}
+.stat span{color:var(--mu);font-size:14px}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:16px;margin-bottom:26px;border-bottom:1px solid var(--ln)}
+.sh .n{display:block;font-family:var(--fd);color:var(--acc);font-size:26px;line-height:1}
+.sh h2{font-size:clamp(56px,7vw,92px);line-height:1}
+.sh p{margin:0;max-width:380px;color:var(--mu);font-size:15px}
+.about{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.box{background:var(--s1);border:1px solid var(--ln);border-radius:14px;padding:28px}
+.box p{margin:0;color:var(--mu);font-size:15px;line-height:2.1}
+.pill{display:grid;gap:12px}
+.pill .box{padding:18px 22px}
+.pill h4{font-size:32px;margin-bottom:2px}
+.pill p{font-size:14px}
+
+/* ردیف‌های مستطیلی ادیتورها */
+.tools{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:4px 14px 2px;border:1px solid var(--ln);border-radius:8px;background:var(--s1);color:var(--mu);font-family:var(--fd);font-size:23px;line-height:1.2;cursor:pointer}
+.chip:hover{color:var(--tx);border-color:var(--pri2)}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.srch{flex:1;max-width:340px;min-width:220px;padding:10px 14px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);outline:none}
+.srch:focus{border-color:var(--pri2)}
+.erow{display:grid;grid-template-columns:64px 84px minmax(0,1.4fr) minmax(0,1fr) auto 26px;gap:20px;align-items:center;padding:18px 22px;margin-bottom:10px;background:var(--s1);border:1px solid var(--ln);border-radius:12px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.erow:hover,.erow:focus-visible{background:var(--s2);border-color:var(--pri);transform:translateX(-4px)}
+.erow .ix{font-family:var(--fd);font-size:34px;color:var(--mu);line-height:1}
+.erow .av{width:84px;height:84px;border-radius:14px;display:grid;place-items:center;font-family:var(--fd);font-size:40px;color:#fff;background:var(--c,#7c3aed)}
+.erow .nm b{display:block;font-family:var(--fd);font-weight:400;font-size:40px;line-height:1.1}
+.erow .nm i{font-style:normal;color:var(--acc);font-size:14px;display:block}
+.erow .nm small{color:var(--mu);font-size:13px;display:block;margin-top:2px;line-height:1.7}
+.erow .tg{display:flex;gap:6px;flex-wrap:wrap}
+.erow .tg em{font-style:normal;font-size:13px;padding:2px 10px;border-radius:6px;background:rgba(124,58,237,.16);color:#dccfff}
+.erow .go{font-size:24px;color:var(--mu)}
+.erow:hover .go{color:var(--acc)}
+.empty{padding:40px;text-align:center;color:var(--mu);border:1px dashed var(--ln);border-radius:12px;font-family:var(--fd);font-size:34px}
+
+/* خدمات، مراحل، نظرات، سوالات */
+.srow{display:grid;grid-template-columns:90px minmax(0,1fr) minmax(0,1.6fr);gap:22px;align-items:center;padding:22px 24px;margin-bottom:10px;background:var(--s1);border:1px solid var(--ln);border-radius:12px;transition:border-color .2s}
+.srow:hover{border-color:var(--acc)}
+.srow .k{font-family:var(--fd);font-size:56px;color:var(--pri2);line-height:1}
+.srow h3{font-size:40px}
+.srow p{margin:0;color:var(--mu);font-size:15px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+.step{padding:26px 22px;background:var(--s1)}
+.step+.step{border-right:1px solid var(--ln)}
+.step .n{font-family:var(--fd);font-size:60px;line-height:1;color:var(--acc)}
+.step h3{font-size:34px;margin:6px 0 4px}
+.step p{margin:0;color:var(--mu);font-size:14px}
+.tg2{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tcard{margin:0;padding:24px;background:var(--s1);border:1px solid var(--ln);border-radius:12px;display:flex;flex-direction:column;gap:12px}
+.tcard blockquote{margin:0;color:var(--tx);font-size:15px;line-height:2}
+.tcard figcaption b{display:block;font-family:var(--fd);font-weight:400;font-size:30px;line-height:1.1}
+.tcard figcaption span{color:var(--mu);font-size:13px}
+details.q{background:var(--s1);border:1px solid var(--ln);border-radius:12px;margin-bottom:10px;padding:0 22px}
+details.q[open]{border-color:var(--pri)}
+details.q summary{cursor:pointer;list-style:none;padding:16px 0 12px;font-family:var(--fd);font-size:32px;line-height:1.2;display:flex;justify-content:space-between;align-items:center}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary::after{content:"+";font-size:36px;color:var(--acc)}
+details.q[open] summary::after{content:"−"}
+details.q p{margin:0 0 18px;color:var(--mu);font-size:15px;line-height:2}
+.cta{padding:56px 36px;text-align:center;border-radius:16px;background:linear-gradient(135deg,#2b1466,#150d33 60%,#3a0f2a);border:1px solid rgba(124,58,237,.4)}
+.cta h2{font-size:clamp(64px,9vw,118px);line-height:1}
+.cta p{color:#d9d1f5;max-width:560px;margin:8px auto 24px}
+.cta .acts{justify-content:center}
+.cta .info{margin-top:22px;color:#cfc6ef;font-size:14px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padding:44px 0 26px}
+.fg{display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px}
+.fg h4{font-size:36px;margin-bottom:8px}
+.fg p,.fg a{display:block;margin:0 0 6px;color:var(--mu);font-size:14px}
+.fg a:hover{color:var(--acc)}
+.copy{margin-top:30px;padding-top:16px;border-top:1px solid var(--ln);color:var(--mu);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+/* پروفایل ادیتور */
+.back{display:inline-block;margin-top:28px;color:var(--mu);font-size:15px}
+.back:hover{color:var(--acc)}
+.ph{display:grid;grid-template-columns:200px minmax(0,1fr);margin-top:16px;border:1px solid var(--ln);border-radius:14px;overflow:hidden;background:var(--s1)}
+.ph .big{display:grid;place-items:center;background:var(--c,#7c3aed);font-family:var(--fd);font-size:120px;color:#fff;line-height:1;min-height:200px}
+.ph .inf{padding:26px 30px}
+.ph h1{font-size:clamp(70px,9vw,120px);line-height:1}
+.ph .role{color:var(--acc);font-size:24px;margin:4px 0 8px;font-family:var(--fd)}
+.ph .short{color:var(--mu);margin:0}
+.blk{margin-top:12px;padding:26px 30px;background:var(--s1);border:1px solid var(--ln);border-radius:14px}
+.blk h3{font-size:42px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--ln)}
+.blk p{margin:0;color:var(--mu);line-height:2.1}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed var(--ln);font-size:14px}
+.kv span:first-child{color:var(--mu)}
+.kv span:last-child{direction:ltr;text-align:left;word-break:break-all}
+.bar{margin-bottom:14px}
+.bar .h{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+.bar .h span:last-child{color:var(--acc)}
+.bar .t{height:6px;background:var(--s2);border-radius:4px;overflow:hidden}
+.bar .t i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pri),var(--pri2));transition:width 1s ease}
+.pf a,.pf span{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid var(--ln);border-radius:10px;margin-bottom:8px;background:var(--s2)}
+.pf a:hover{border-color:var(--acc)}
+.pf b{font-family:var(--fd);font-weight:400;font-size:28px}
+.pf small{color:var(--mu);font-size:13px}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pn a{padding:18px 22px;background:var(--s1);border:1px solid var(--ln);border-radius:12px}
+.pn a:hover{border-color:var(--pri2)}
+.pn small{display:block;color:var(--mu);font-size:13px}
+.pn b{font-family:var(--fd);font-weight:400;font-size:32px;line-height:1.2}
+.pn a:last-child{text-align:left}
+
+/* ورود و پنل‌ها */
+.adm{padding:40px 0 120px}
+.card{background:var(--s1);border:1px solid var(--ln);border-radius:14px;padding:24px;margin-bottom:16px}
+.card h3{font-size:44px;margin-bottom:12px}
+.login{max-width:440px;margin:80px auto}
+.login h2{font-size:96px;margin:10px 0 18px}
+.field{display:grid;gap:6px;margin-bottom:12px}
+.field>label{font-size:13px;color:var(--mu)}
+.field input,.field textarea,.field select{width:100%;padding:10px 12px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);outline:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--pri2)}
+.field input[type=color]{width:90px;height:44px;padding:3px;cursor:pointer}
+.field input[type=checkbox]{width:18px;height:18px}
+.field textarea{min-height:76px;resize:vertical}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 12px;cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grp{border:1px solid var(--ln);border-radius:12px;padding:16px 16px 4px;margin:0 0 14px;min-width:0}
+.grp>legend{padding:0 8px;font-family:var(--fd);font-size:30px;color:var(--acc)}
+.arr{margin-bottom:14px}
+.arr-h{display:flex;justify-content:space-between;align-items:center;color:var(--mu);font-size:14px;margin-bottom:6px}
+.arr-h strong{font-family:var(--fd);font-weight:400;font-size:30px;color:var(--tx)}
+.item{border:1px dashed var(--ln);border-radius:10px;padding:12px 12px 2px;margin-bottom:8px}
+.item .btn{margin:2px 0 10px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.arow{display:grid;grid-template-columns:40px 56px minmax(0,1fr) minmax(0,1fr) auto auto auto auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--ln);border-radius:10px;margin-bottom:8px;background:var(--bg)}
+.arow .av{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;font-family:var(--fd);font-size:26px;color:#fff;background:var(--c)}
+.arow input{width:100%;padding:8px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--s1);outline:none;min-width:0}
+.arow input:focus{border-color:var(--pri2)}
+.arow .ix{font-family:var(--fd);font-size:26px;color:var(--mu)}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw button{width:36px;height:36px;border-radius:10px;border:3px solid transparent;cursor:pointer}
+.sw button.on{border-color:#fff}
+.savebar{position:sticky;bottom:12px;margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border:1px solid var(--ln);border-radius:12px;background:rgba(22,18,49,.97)}
+.savebar .st{color:var(--mu);font-size:14px}
+.savebar .st.dirty{color:var(--acc)}
+.err{color:#fca5a5;font-size:14px;min-height:18px;margin-top:6px;line-height:1.8}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,140px);padding:12px 22px;background:var(--s2);border:1px solid var(--pri2);border-radius:12px;z-index:200;transition:transform .35s ease;font-size:14px;max-width:92%}
+.toast.show{transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;z-index:150;background:rgba(6,4,16,.8);display:grid;place-items:center;padding:16px}
+.mbox{width:min(680px,100%);max-height:92vh;overflow:auto;padding:24px;background:var(--s1);border:1px solid var(--ln);border-radius:14px}
+.mbox h3{font-size:50px;margin-bottom:12px}
+.welc{position:fixed;inset:0;z-index:140;background:rgba(6,4,16,.7);display:grid;place-items:center;padding:16px}
+.welc .mbox{width:min(520px,100%)}
+.welc .mbox h3{font-size:60px}
+.wed{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--ln);border-radius:12px;margin-bottom:14px;background:var(--bg)}
+.wed .av{width:60px;height:60px;border-radius:12px;display:grid;place-items:center;font-family:var(--fd);font-size:30px;color:#fff;background:var(--c)}
+.wed b{display:block;font-family:var(--fd);font-weight:400;font-size:30px;line-height:1.1}
+.wed em{font-style:normal;color:var(--mu);font-size:13px}
+.mact{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.epanel{margin-top:12px;padding:26px 30px;background:var(--s1);border:1px solid var(--pri);border-radius:14px}
+
+@media (max-width:980px){
+  .about{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(2){border-right:0}
+  .stat:nth-child(-n+2){border-bottom:1px solid var(--ln)}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .step:nth-child(3){border-right:0}
+  .step:nth-child(-n+2){border-bottom:1px solid var(--ln)}
+  .tg2{grid-template-columns:1fr}
+  .erow{grid-template-columns:50px 64px minmax(0,1fr) auto}
+  .erow .tg{display:none}
+  .erow .av{width:64px;height:64px;font-size:30px}
+  .srow{grid-template-columns:60px minmax(0,1fr)}
+  .srow p{grid-column:2}
+  .ph{grid-template-columns:1fr}
+  .ph .big{min-height:120px;font-size:90px}
+  .kv{grid-template-columns:1fr}
+  .fg{grid-template-columns:1fr}
+  .arow{grid-template-columns:40px minmax(0,1fr) auto}
+  .arow .av,.arow input.r{display:none}
+  .arow input.n{grid-column:2}
+}
+@media (max-width:620px){
+  .grid2{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat b{font-size:50px}
+  .pn{grid-template-columns:1fr}
+  .pn a:last-child{text-align:right}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="bgfx" aria-hidden="true"></div>
+<div class="pbar" id="pbar"></div>
+
+<header class="top">
+  <div class="wrap">
+    <a href="#/" class="brand"><span class="mk">✦</span><span><span id="brand"></span><small id="brandSub"></small></span></a>
+    <nav class="nav" id="nav"></nav>
+  </div>
+</header>
+
+<div id="banner"></div>
+<main id="app"></main>
+
+<footer>
+  <div class="wrap">
+    <div class="fg">
+      <div><h4 id="fBrand"></h4><p id="fAbout"></p></div>
+      <div><h4 id="fQuickT"></h4><div id="fNav"></div></div>
+      <div><h4 id="fContactT"></h4><div id="fContact"></div></div>
+    </div>
+    <div class="copy"><span id="fCopy"></span><span id="fBadge"></span></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="layer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ==================================================
+   متن‌های رابط (همه قابل ویرایش از پنل مدیریت)
+   ================================================== */
+const UI_DEFAULT = {
+    navAdmin: 'مدیریت', navAdminIn: 'پنل مدیریت',
+    footerQuick: 'دسترسی سریع', footerContact: 'تماس', footerBadge: 'ساخته‌شده با ✦',
+    searchPlaceholder: 'جستجوی نام، تخصص یا مهارت…', noEditors: 'ادیتوری با این مشخصات پیدا نشد',
+    cardAdminBtn: 'ویرایش در پنل', backToEditors: '← بازگشت به ادیتورها',
+    notFoundTitle: 'ادیتور پیدا نشد', notFoundText: 'این پروفایل وجود ندارد یا حذف شده است.',
+    editorWord: 'ادیتور', ofWord: 'از', aboutTitle: 'درباره‌ی', skillsTitle: 'مهارت‌ها', noSkills: 'مهارتی ثبت نشده است.',
+    infoTitle: 'اطلاعات', expLabel: 'سابقه‌ی کار', yearsWord: 'سال', projectsLabel: 'تعداد پروژه', cityLabel: 'شهر',
+    availLabel: 'وضعیت همکاری', emailLabel: 'ایمیل', instaLabel: 'اینستاگرام', sendBtn: 'ارسال پیام',
+    portfolioTitle: 'نمونه‌کارها', viewLinkText: 'مشاهده ↗', soonText: 'به‌زودی', testimonialTitle: 'نظر کارفرما',
+    prevLabel: '← ادیتور قبلی', nextLabel: 'ادیتور بعدی →', adminEditLink: 'ویرایش این ادیتور در پنل',
+    editorLoginTitle: 'ورود به پنل این ادیتور', editorLoginBtn: 'ورود ادیتور', editorPassLabel: 'رمز پنل این ادیتور',
+    editorNoPass: 'این ادیتور هنوز رمز پنل ندارد. از مدیر بخواهید رمز تعیین کند.', editorWrongPass: 'رمز اشتباه است',
+    editorPanelTitle: 'پنل ویرایش پروفایل', editorSaveBtn: 'ذخیره‌ی پروفایل', editorLogoutBtn: 'خروج از پنل ادیتور',
+    editorSaved: 'پروفایل ذخیره شد ✓',
+    loginBadge: 'ورود مدیر', loginTitle: 'پنل مدیریت', passLabel: 'رمز عبور', loginBtn: 'ورود', wrongPass: 'رمز عبور اشتباه است',
+    tabEditors: 'ادیتورها', tabContent: 'متن‌ها و بخش‌ها', tabLook: 'رنگ، فونت و جلوه‌ها', viewSiteBtn: 'مشاهده‌ی سایت', logoutBtn: 'خروج',
+    saveAllBtn: 'ذخیره‌ی همه‌ی تغییرات', resetBtn: 'بازگشت به پیش‌فرض', saveHint: 'تغییرات متن‌ها و ظاهر را اینجا ذخیره کنید',
+    dirtyText: 'تغییرات ذخیره‌نشده دارید', savedText: 'همه‌ی تغییرات ذخیره شده است',
+    editorsManageTitle: 'مدیریت ادیتورها', addEditorBtn: '+ افزودن ادیتور جدید',
+    editorsHelp: 'نام و تخصص هر ادیتور را مستقیم اینجا تغییر دهید و «ذخیره» را بزنید. نمونه‌کار، شهر و رمز پنل ادیتور از «ویرایش کامل» تنظیم می‌شوند.',
+    saveRowBtn: 'ذخیره', fullEditBtn: 'ویرایش کامل', showBtn: 'نمایش', deleteBtn: 'حذف', noEditorsYet: 'هنوز ادیتوری ثبت نشده است',
+    addItemBtn: '+ افزودن مورد', removeItemBtn: 'حذف این مورد', itemWord: 'مورد',
+    modalEditTitle: 'ویرایش ادیتور', modalNewTitle: 'ادیتور جدید', fName: 'نام و نام خانوادگی', fRole: 'تخصص', fShort: 'معرفی کوتاه',
+    fBio: 'بیوگرافی', fExp: 'سابقه (سال)', fProjects: 'تعداد پروژه', fSkills: 'مهارت‌ها (با کاما جدا کنید)', fCity: 'شهر', fAvail: 'وضعیت همکاری',
+    fTesti: 'نظر کارفرما (اختیاری)', fPortfolio: 'نمونه‌کارها (هر خط: عنوان | لینک)', fColor: 'رنگ', fPass: 'رمز پنل این ادیتور (خالی = بدون تغییر)',
+    saveBtnModal: 'ذخیره', cancelBtn: 'انصراف', nameRequired: 'نام ادیتور الزامی است',
+    welcomeBadge: 'ادیتور ویژه‌ی امروز', callBtn: 'تماس تلفنی',
+    demoBanner: '',
+    connError: 'اتصال به سرور برقرار نشد.', toastLoggedOut: 'از پنل مدیریت خارج شدید', toastSaved: 'همه‌ی تغییرات ذخیره شد ✓',
+    toastReset: 'تنظیمات به حالت اولیه برگشت', toastRowSaved: 'ذخیره شد ✓', toastDeleted: 'ادیتور حذف شد',
+    toastEdSaved: 'ادیتور به‌روز شد ✓', toastEdAdded: 'ادیتور اضافه شد ✓',
+    resetConfirm: 'همه‌ی متن‌ها و تنظیمات ظاهر به حالت اولیه برگردد؟ (ادیتورها تغییر نمی‌کنند)',
+    deleteConfirm: 'حذف شود؟'
+  };
+
+/* برچسب فارسی هر متن در پنل مدیریت */
+const UI_LBL = {
+  navAdmin:"دکمه‌ی مدیریت در منو", navAdminIn:"دکمه‌ی پنل (وقتی وارد شده‌اید)", footerQuick:"تیتر لینک‌های فوتر", footerContact:"تیتر تماس فوتر", footerBadge:"متن کنار کپی‌رایت",
+  searchPlaceholder:"متن جستجو", noEditors:"پیام نبودن نتیجه", cardAdminBtn:"دکمه‌ی ویرایش روی ردیف ادیتور", backToEditors:"دکمه‌ی بازگشت",
+  notFoundTitle:"تیتر ادیتور پیدا نشد", notFoundText:"متن ادیتور پیدا نشد", editorWord:"کلمه‌ی ادیتور", ofWord:"کلمه‌ی «از»", aboutTitle:"تیتر درباره‌ی ادیتور",
+  skillsTitle:"تیتر مهارت‌ها", noSkills:"متن نبودن مهارت", infoTitle:"تیتر اطلاعات", expLabel:"برچسب سابقه", yearsWord:"کلمه‌ی سال", projectsLabel:"برچسب تعداد پروژه",
+  cityLabel:"برچسب شهر", availLabel:"برچسب وضعیت همکاری", emailLabel:"برچسب ایمیل", instaLabel:"برچسب اینستاگرام", sendBtn:"دکمه‌ی ارسال پیام",
+  portfolioTitle:"تیتر نمونه‌کارها", viewLinkText:"متن لینک نمونه‌کار", soonText:"متن نمونه‌کار بدون لینک", testimonialTitle:"تیتر نظر کارفرما",
+  prevLabel:"دکمه‌ی ادیتور قبلی", nextLabel:"دکمه‌ی ادیتور بعدی", adminEditLink:"دکمه‌ی ویرایش در پروفایل",
+  editorLoginTitle:"تیتر ورود ادیتور", editorLoginBtn:"دکمه‌ی ورود ادیتور", editorPassLabel:"برچسب رمز ادیتور", editorNoPass:"پیام نداشتن رمز",
+  editorWrongPass:"پیام رمز اشتباه", editorPanelTitle:"تیتر پنل ادیتور", editorSaveBtn:"دکمه‌ی ذخیره‌ی پروفایل", editorLogoutBtn:"دکمه‌ی خروج ادیتور", editorSaved:"پیام ذخیره‌ی پروفایل",
+  loginBadge:"برچسب صفحه‌ی ورود", loginTitle:"تیتر صفحه‌ی ورود", passLabel:"برچسب رمز عبور", loginBtn:"دکمه‌ی ورود", wrongPass:"پیام رمز اشتباه مدیر",
+  tabEditors:"تب ادیتورها", tabContent:"تب متن‌ها", tabLook:"تب ظاهر", viewSiteBtn:"دکمه‌ی مشاهده‌ی سایت", logoutBtn:"دکمه‌ی خروج",
+  saveAllBtn:"دکمه‌ی ذخیره", resetBtn:"دکمه‌ی بازگشت به پیش‌فرض", saveHint:"راهنمای ذخیره", dirtyText:"وضعیت: ذخیره‌نشده", savedText:"وضعیت: ذخیره‌شده",
+  editorsManageTitle:"تیتر مدیریت ادیتورها", addEditorBtn:"دکمه‌ی افزودن ادیتور", editorsHelp:"راهنمای پنل ادیتورها",
+  saveRowBtn:"دکمه‌ی ذخیره‌ی ردیف", fullEditBtn:"دکمه‌ی ویرایش کامل", showBtn:"دکمه‌ی نمایش", deleteBtn:"دکمه‌ی حذف", noEditorsYet:"پیام نبودن ادیتور",
+  addItemBtn:"دکمه‌ی افزودن مورد", removeItemBtn:"دکمه‌ی حذف مورد", itemWord:"کلمه‌ی مورد",
+  modalEditTitle:"تیتر فرم ویرایش", modalNewTitle:"تیتر فرم ادیتور جدید", fName:"فیلد نام", fRole:"فیلد تخصص", fShort:"فیلد معرفی کوتاه", fBio:"فیلد بیوگرافی",
+  fExp:"فیلد سابقه", fProjects:"فیلد تعداد پروژه", fSkills:"فیلد مهارت‌ها", fCity:"فیلد شهر", fAvail:"فیلد وضعیت همکاری", fTesti:"فیلد نظر کارفرما",
+  fPortfolio:"فیلد نمونه‌کارها", fColor:"برچسب رنگ", fPass:"فیلد رمز ادیتور", saveBtnModal:"دکمه‌ی ذخیره‌ی فرم", cancelBtn:"دکمه‌ی انصراف", nameRequired:"پیام نام الزامی",
+  welcomeBadge:"برچسب ادیتور ویژه", callBtn:"دکمه‌ی تماس تلفنی", demoBanner:"نوار نسخه‌ی نمایشی",
+  connError:"پیام قطع اتصال", toastLoggedOut:"پیام خروج", toastSaved:"پیام ذخیره‌ی تنظیمات", toastReset:"پیام بازگشت به پیش‌فرض", toastRowSaved:"پیام ذخیره‌ی ردیف",
+  toastDeleted:"پیام حذف", toastEdSaved:"پیام به‌روزرسانی ادیتور", toastEdAdded:"پیام افزودن ادیتور", resetConfirm:"پرسش تأیید بازگشت", deleteConfirm:"پرسش تأیید حذف"
+};
+
+/* ==================================================
+   داده‌ی پشتیبان (فقط وقتی سرور در دسترس نباشد)
+   ================================================== */
+const FALLBACK_CFG = {
+  brand:"انجمن ادیتوران", brandSub:"جامعه‌ی ادیتورهای حرفه‌ای ایران",
+  fonts:{display:"Jomhuria",body:"Vazirmatn"},
+  colors:{bg:"#0c0a1d",surface:"#161231",surface2:"#1f1842",primary:"#7c3aed",primary2:"#db2777",accent:"#f5b942",text:"#f5f3ff",muted:"#a9a0cc"},
+  effects:{grain:false,aurora:false,reveal:true},
+  nav:{about:"درباره",editors:"ادیتورها",services:"خدمات",process:"روند کار",testimonials:"نظرات",faq:"سوالات",contact:"تماس"},
+  hero:{show:true,eyebrow:"عضویت در جامعه‌ی ادیتورهای حرفه‌ای",line1:"ادیتورهای",line2:"حرفه‌ای ایران",line3:"را بشناسید",sub:"ادیتورهای برتر را پیدا کنید و نمونه‌کارهایشان را ببینید.",btn1:"مشاهده ادیتورها",btn2:"همکاری با ما"},
+  stats:[{label:"ادیتور فعال",value:"15"},{label:"پروژه‌ی انجام‌شده",value:"500+"},{label:"سال میانگین تجربه",value:"5"},{label:"رضایت کارفرماها",value:"98٪"}],
+  about:{show:true,title:"درباره‌ی انجمن",text:"انجمن ادیتوران جامعه‌ای است برای رشد تدوین، طراحی و تولید محتوا در ایران.",pillars:[{title:"کیفیت",text:"بررسی نمونه‌کار و مهارت پیش از ورود."},{title:"رشد",text:"کارگاه‌ها و بازخورد گروهی."},{title:"پل",text:"پیدا کردن ادیتور مناسب پروژه‌ی شما."}]},
+  editors:{show:true,title:"ادیتورهای انجمن",sub:"روی هر ردیف کلیک کنید تا پروفایل ادیتور را ببینید."},
+  services:{show:true,title:"چه کارهایی انجام می‌دهیم",sub:"از تدوین کلیپ تا پروژه‌ی سینمایی.",items:[{title:"تدوین ویدیو",text:"ریلز، شورت، مستند و فیلم بلند."},{title:"ادیت عکس",text:"رتوش و کالربندی تصاویر."},{title:"موشن‌گرافیک",text:"انیمیشن و تیزر برای برند."},{title:"تدوین صدا",text:"پادکست، میکس و مسترینگ."}]},
+  process:{show:true,title:"از ایده تا تحویل",sub:"چهار گام ساده.",steps:[{title:"گفتگو",text:"نیاز و بودجه را مشخص می‌کنیم."},{title:"انتخاب ادیتور",text:"بهترین گزینه را پیشنهاد می‌دهیم."},{title:"ساخت",text:"نسخه‌ی اولیه را می‌بینید."},{title:"تحویل",text:"فایل نهایی تحویل می‌شود."}]},
+  testimonials:{show:true,title:"نظر کارفرماها",sub:"تجربه‌ی همکاران.",items:[{name:"مهرداد ک.",role:"مدیر برند",text:"کیفیت تحویل از انتظار بالاتر بود."}]},
+  faq:{show:true,title:"سوالات متداول",items:[{q:"چطور عضو شوم؟",a:"با ما تماس بگیرید و نمونه‌کار بفرستید."}]},
+  contact:{show:true,title:"آماده‌ی شروع هستید؟",text:"ادیتور مناسب پروژه‌ی خود را پیدا کنید.",email:"info@editors-association.ir",phone:"۰۲۱-۱۲۳۴۵۶۷۸",address:"تهران، ایران",btn:"ارسال ایمیل"},
+  popup:{show:false,title:"",text:"",btn:"",delaySec:3},
+  footer:{about:"انجمن ادیتوران؛ جامعه‌ای برای ادیتورهای حرفه‌ای ایران.",copy:"تمامی حقوق محفوظ است."},
+  ui: UI_DEFAULT
+};
+const FALLBACK_NAMES = ["علی رضایی","سارا محمدی","امیر حسینی","نرگس کریمی","مهدی احمدی","زهرا جعفری","رضا نوروزی","پریسا اکبری","حامد صادقی","الهام یوسفی","کامران فلاحی","مریم قاسمی","بابک شریفی","سپیده امینی","آرش موسوی"];
+const FALLBACK_ROLES = ["ادیتور ویدیو","ادیتور عکس","موشن‌گرافیک","تدوین صدا","ادیتور متن","ادیتور یوتیوب","ادیتور تبلیغاتی","کالریست","ادیتور مستند","ادیتور کلیپ کوتاه","تدوین سینمایی","ادیتور پادکست","طراح تیزر","ادیتور وبینار","ادیتور رویداد"];
+const FALLBACK_ED = FALLBACK_NAMES.map((name,i)=>({
+  id:"ed"+(i+1), name, role:FALLBACK_ROLES[i],
+  short:"متخصص در پروژه‌های برند و تولید محتوای حرفه‌ای.", bio:"نام "+name+" از ادیتورهای فعال انجمن است.",
+  exp:3+(i%9), projects:20+i*7, email:"editor"+(i+1)+"@example.ir", insta:"@editor_"+(i+1),
+  skills:["Premiere Pro","DaVinci Resolve","Color Grading"], color:["#7c3aed","#db2777","#a855f7","#f59e0b","#6366f1","#ec4899","#8b5cf6","#f43f5e"][i%8],
+  city:"تهران", availability:"آماده‌ی همکاری", testimonial:"", portfolio:[]
+}));
+
+/* ==================================================
+   وضعیت و ثابت‌ها
+   ================================================== */
+let CFG = null, EDS = [], ROLE = null, MY_ID = null, OFFLINE = false;
+let DRAFT = null, DIRTY = false, VIEW = "", FILTER = {role:"همه", q:""}, FCOLOR = "#7c3aed";
+const SECS = ["about","editors","services","process","testimonials","faq","contact"];
+const FONTS = ["Jomhuria","Vazirmatn","Lalezar","Rakkas","Mirza","Amiri","Reem Kufi"];
+const COLORS = ["#7c3aed","#db2777","#a855f7","#f59e0b","#6366f1","#ec4899","#8b5cf6","#f43f5e"];
+const LONG = ["text","sub","about","a","bio","short","copy","footer","line3","eyebrow","testimonial","about","sub","editorsHelp","saveHint","demoBanner"];
+const LABELS = {
+  brand:"نام برند", brandSub:"زیرعنوان برند", fonts:"فونت‌ها", display:"فونت تیتر و عنوان‌ها", body:"فونت متن‌ها",
+  colors:"رنگ‌ها", bg:"پس‌زمینه", surface:"سطح کارت‌ها", surface2:"سطح دوم", primary:"رنگ اصلی", primary2:"رنگ دوم", accent:"رنگ تاکیدی", text:"رنگ متن", muted:"رنگ متن کم‌رنگ",
+  effects:"جلوه‌ها", grain:"دانه‌ی فیلم", aurora:"درخشش پس‌زمینه", reveal:"انیمیشن ورود بخش‌ها",
+  nav:"متن منو", hero:"بخش اول (هیرو)", eyebrow:"برچسب بالای تیتر", line1:"خط اول تیتر", line2:"خط دوم تیتر", line3:"خط سوم تیتر", sub:"متن زیر تیتر", btn1:"دکمه‌ی اول", btn2:"دکمه‌ی دوم",
+  show:"نمایش این بخش", stats:"آمار", label:"عنوان", value:"مقدار", about:"درباره", title:"عنوان", text:"متن", pillars:"ستون‌ها",
+  editors:"ادیتورها", services:"خدمات", items:"موارد", process:"روند کار", steps:"مراحل", faq:"سوالات متداول", q:"سوال", a:"پاسخ",
+  testimonials:"نظرات کارفرماها", name:"نام", role:"عنوان یا نقش", contact:"تماس", email:"ایمیل", phone:"تلفن", address:"نشانی", btn:"متن دکمه",
+  popup:"پنجره‌ی خوش‌آمد", delaySec:"تأخیر نمایش (ثانیه)", footer:"فوتر", copy:"متن کپی‌رایت", ui:"متن‌های رابط کاربری (همه‌ی نوشته‌های سایت)"
+};
+const L = k => LABELS[k] || UI_LBL[k] || k;
+/* هر نوشته‌ی رابط از تنظیمات خوانده می‌شود؛ اگر نباشد، پیش‌فرض */
+const T = k => (CFG && CFG.ui && CFG.ui[k] != null && CFG.ui[k] !== "") ? CFG.ui[k] : (UI_DEFAULT[k] != null ? UI_DEFAULT[k] : k);
+
+/* ==================================================
+   ابزارها
+   ================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fa = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+const ini = n => String(n || "").trim().split(/\s+/).map(w => w[0] || "").join("").slice(0, 2);
+const clone = o => JSON.parse(JSON.stringify(o));
+const el = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+const activeTab = () => { const b = $(".tabs .on"); return b ? b.dataset.tab : "editors"; };
+const app = () => $("#app");
+
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* ==================================================
+   اتصال امن به Supabase
+   ================================================== */
+const SUPABASE_URL = "https://vtjgszcsmlwjtmebwqnp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_veS_CVztSF6t5f1b-TaLwQ_9nXFaHz1";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function dbError(error){ throw new Error(error?.message || T("connError")); }
+function portfolioToDb(value){
+  return (Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
+    const [title, ...url] = line.split("|"); return {title:title.trim(), link:url.join("|").trim()};
+  })).map(x => ({title:String(x.title || "").trim(), link:String(x.link || x.url || "").trim()})).filter(x => x.title);
+}
+function dbEditor(row){
+  return normEd({...row, portfolio:Array.isArray(row.portfolio) ? row.portfolio : []});
+}
+async function api(method, url, body){
+  body = body || {};
+  if (method === "GET" && url === "/api/state") {
+    const [cfgRes, edRes] = await Promise.all([
+      sb.from("site_config").select("data").eq("id", true).maybeSingle(),
+      sb.from("editors").select("*").order("created_at", {ascending:true})
+    ]);
+    if (cfgRes.error) dbError(cfgRes.error);
+    if (edRes.error) dbError(edRes.error);
+    return {config:cfgRes.data?.data || clone(FALLBACK_CFG), editors:(edRes.data || []).map(dbEditor)};
+  }
+  if (method === "POST" && (url === "/api/login" || url === "/api/editor-login")) {
+    const {data, error} = await sb.auth.signInWithPassword({email:String(body.email || "").trim().toLowerCase(), password:String(body.password || "")});
+    if (error || !data.user) throw new Error(error?.message || T("wrongPass"));
+    const {data:profile, error:profileError} = await sb.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+    if (profileError || !profile || (url === "/api/login" ? profile.role !== "admin" : profile.role !== "editor")) {
+      await sb.auth.signOut();
+      throw new Error("این حساب اجازه‌ی ورود به این بخش را ندارد.");
+    }
+    if (profile.role === "editor") {
+      const {data:editor, error:editorError} = await sb.from("editors").select("id").eq("id", data.user.id).maybeSingle();
+      if (editorError || !editor) { await sb.auth.signOut(); throw new Error("پروفایل ادیتور پیدا نشد."); }
+    }
+    return {ok:true};
+  }
+  if (method === "POST" && url === "/api/logout") {
+    const {error} = await sb.auth.signOut(); if (error) dbError(error); return {ok:true};
+  }
+  if (method === "GET" && url === "/api/me") {
+    const {data:{user}, error} = await sb.auth.getUser();
+    if (error || !user) throw new Error("دسترسی مجاز نیست");
+    const {data:profile, error:profileError} = await sb.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    if (profileError || !profile) throw new Error("دسترسی مجاز نیست");
+    return {ok:true, role:profile.role, id:user.id};
+  }
+  if (method === "PUT" && url === "/api/config") {
+    const {error} = await sb.from("site_config").upsert({id:true, data:body, updated_at:new Date().toISOString()});
+    if (error) dbError(error); return {ok:true, config:body};
+  }
+  if (method === "POST" && url === "/api/config/reset") {
+    const config = clone(FALLBACK_CFG);
+    const {error} = await sb.from("site_config").upsert({id:true, data:config, updated_at:new Date().toISOString()});
+    if (error) dbError(error); return {ok:true, config};
+  }
+  if (method === "POST" && url === "/api/editors") {
+    const email = String(body.loginEmail || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    if (!email || password.length < 12) throw new Error("برای ساخت ادیتور، ایمیل ورود و رمز حداقل ۱۲ کاراکتری وارد کن.");
+    const {data, error} = await sb.functions.invoke("manage-editors", {body:{action:"create", email, password, name:body.name}});
+    if (error) throw new Error(error.message || "ساخت حساب ادیتور ناموفق بود.");
+    if (data?.error) throw new Error(data.error);
+    const id = data?.editor?.id;
+    if (!id) throw new Error("حساب ساخته شد اما شناسه‌ی ادیتور دریافت نشد.");
+    const row = {...body, id}; delete row.password; delete row.loginEmail;
+    const {error:updateError} = await sb.from("editors").update(editorPayload(row)).eq("id", id);
+    if (updateError) { await sb.functions.invoke("manage-editors", {body:{action:"delete", editorId:id}}); dbError(updateError); }
+    return {ok:true, id};
+  }
+  const match = url.match(/^\/api\/editors\/(.+)$/);
+  if (match) {
+    const id = decodeURIComponent(match[1]);
+    if (method === "DELETE") {
+      const {data, error} = await sb.functions.invoke("manage-editors", {body:{action:"delete", editorId:id}});
+      if (error) throw new Error(error.message || "حذف ادیتور ناموفق بود.");
+      if (data?.error) throw new Error(data.error); return {ok:true};
+    }
+    if (method === "PUT") {
+      const row = {...body}; delete row.password; delete row.loginEmail;
+      const {error} = await sb.from("editors").update(editorPayload(row)).eq("id", id);
+      if (error) dbError(error); return {ok:true};
+    }
+  }
+  throw new Error("درخواست نامعتبر است.");
+}
+function editorPayload(b){
+  const out = {};
+  ["name","role","short","bio","exp","projects","email","insta","city","availability","testimonial","color"].forEach(k => {if (b[k] !== undefined) out[k] = b[k];});
+  if (b.skills !== undefined) out.skills = Array.isArray(b.skills) ? b.skills : String(b.skills || "").split(",").map(x=>x.trim()).filter(Boolean);
+  if (b.portfolio !== undefined) out.portfolio = portfolioToDb(b.portfolio);
+  return out;
+}
+async function load(){
+  const d = await api("GET", "/api/state");
+  CFG = d.config || clone(FALLBACK_CFG); EDS = d.editors || [];
+  CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+}
+async function checkSession(){
+  try { const me = await api("GET", "/api/me"); ROLE = me.role; MY_ID = me.id || null; }
+  catch (e) { ROLE = null; MY_ID = null; }
+}
+
+/* ==================================================
+   اعمال تنظیمات روی صفحه
+   ================================================== */
+function applyTheme(){
+  const c = CFG.colors, f = CFG.fonts, s = document.documentElement.style;
+  s.setProperty("--bg", c.bg); s.setProperty("--s1", c.surface); s.setProperty("--s2", c.surface2);
+  s.setProperty("--pri", c.primary); s.setProperty("--pri2", c.primary2); s.setProperty("--acc", c.accent);
+  s.setProperty("--tx", c.text); s.setProperty("--mu", c.muted);
+  s.setProperty("--fd", `"${f.display}",Tahoma,sans-serif`); s.setProperty("--fb", `"${f.body}",Tahoma,Arial,sans-serif`);
+  document.querySelector('meta[name="theme-color"]').content = c.bg;
+  $("#brand").textContent = CFG.brand; $("#brandSub").textContent = CFG.brandSub;
+  $("#fBrand").textContent = CFG.brand; $("#fAbout").textContent = CFG.footer.about;
+  $("#fQuickT").textContent = T("footerQuick"); $("#fContactT").textContent = T("footerContact");
+  $("#fCopy").textContent = "© " + fa(new Date().getFullYear()) + " " + CFG.brand + " — " + CFG.footer.copy;
+  $("#fBadge").textContent = T("footerBadge");
+  $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a><span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
+  document.title = CFG.brand + " | " + CFG.brandSub;
+  renderNav();
+}
+function renderNav(){
+  $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("")
+    + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`;
+  $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
+  $("#banner").innerHTML = OFFLINE ? `<div class="notice err">${esc(T("connError"))}</div>` : "";
+}
+
+/* ==================================================
+   بخش‌های صفحه‌ی اصلی
+   ================================================== */
+function edRow(e, i){
+  return `<article class="erow" style="--c:${esc(e.color)}" data-go="#/editor/${esc(e.id)}" tabindex="0" role="link" aria-label="${esc(e.name)}">
+    <span class="ix">${fa(String(i + 1).padStart(2, "0"))}</span>
+    <span class="av">${esc(ini(e.name))}</span>
+    <span class="nm"><b>${esc(e.name)}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
+    <span class="tg">${(e.skills || []).slice(0, 3).map(s => `<em>${esc(s)}</em>`).join("")}</span>
+    ${ROLE === "admin" ? `<button class="btn sm g" data-admin-edit="${esc(e.id)}">${esc(T("cardAdminBtn"))}</button>` : `<span></span>`}
+    <span class="go">←</span>
+  </article>`;
+}
+function renderList(){
+  const q = FILTER.q.trim().toLowerCase();
+  const list = EDS.filter(e => (FILTER.role === "همه" || e.role === FILTER.role) &&
+    (!q || (e.name + " " + e.role + " " + (e.skills || []).join(" ")).toLowerCase().includes(q)));
+  const host = $("#elist");
+  if (host) host.innerHTML = list.length ? list.map(edRow).join("") : `<div class="empty">${esc(T("noEditors"))}</div>`;
+}
+function renderHome(){
+  VIEW = "home";
+  const c = CFG, h = c.hero;
+  const roles = ["همه", ...new Set(EDS.map(e => e.role))];
+  app().innerHTML = `
+  ${h.show ? `<section class="hero" style="padding-top:60px"><div class="wrap">
+    <span class="eyebrow">${esc(h.eyebrow)}</span>
+    <h1>${esc(h.line1)} <span class="l2">${esc(h.line2)}</span><span class="l3">${esc(h.line3)}</span></h1>
+    <p>${esc(h.sub)}</p>
+    <div class="acts"><a class="btn" href="#/#editors">${esc(h.btn1)}</a><a class="btn g" href="#/#contact">${esc(h.btn2)}</a></div>
+    ${c.stats.length ? `<div class="stats">${c.stats.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
+  </div></section>` : ""}
+
+  ${c.about.show ? `<section id="about"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۱</span><h2>${esc(c.about.title)}</h2></div></div>
+    <div class="about"><div class="box"><p>${esc(c.about.text)}</p></div>
+      <div class="pill">${c.about.pillars.map(p => `<div class="box"><h4>${esc(p.title)}</h4><p>${esc(p.text)}</p></div>`).join("")}</div></div>
+  </div></section>` : ""}
+
+  ${c.editors.show ? `<section id="editors"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۲</span><h2>${esc(c.editors.title)}</h2></div><p>${esc(c.editors.sub)}</p></div>
+    <div class="tools"><div class="chips" id="chips">${roles.map(r => `<button class="chip ${r === FILTER.role ? "on" : ""}" data-role="${esc(r)}">${esc(r)}</button>`).join("")}</div>
+      <input class="srch" id="q" type="search" placeholder="${esc(T("searchPlaceholder"))}" value="${esc(FILTER.q)}"></div>
+    <div id="elist"></div>
+  </div></section>` : ""}
+
+  ${c.services.show ? `<section id="services"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۳</span><h2>${esc(c.services.title)}</h2></div><p>${esc(c.services.sub)}</p></div>
+    ${c.services.items.map((s, i) => `<div class="srow"><span class="k">${fa(String(i + 1).padStart(2, "0"))}</span><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join("")}
+  </div></section>` : ""}
+
+  ${c.process.show ? `<section id="process"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۴</span><h2>${esc(c.process.title)}</h2></div><p>${esc(c.process.sub)}</p></div>
+    <div class="steps">${c.process.steps.map((s, i) => `<div class="step"><div class="n">${fa(i + 1)}</div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join("")}</div>
+  </div></section>` : ""}
+
+  ${c.testimonials.show ? `<section id="testimonials"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۵</span><h2>${esc(c.testimonials.title)}</h2></div><p>${esc(c.testimonials.sub)}</p></div>
+    <div class="tg2">${c.testimonials.items.map(t => `<figure class="tcard"><blockquote>«${esc(t.text)}»</blockquote><figcaption><b>${esc(t.name)}</b><span>${esc(t.role)}</span></figcaption></figure>`).join("")}</div>
+  </div></section>` : ""}
+
+  ${c.faq.show ? `<section id="faq"><div class="wrap">
+    <div class="sh"><div><span class="n">۰۶</span><h2>${esc(c.faq.title)}</h2></div></div>
+    ${c.faq.items.map(f => `<details class="q"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}
+  </div></section>` : ""}
+
+  ${c.contact.show ? `<section id="contact"><div class="wrap">
+    <div class="cta"><h2>${esc(c.contact.title)}</h2><p>${esc(c.contact.text)}</p>
+      <div class="acts"><a class="btn gold" href="mailto:${esc(c.contact.email)}">${esc(c.contact.btn)}</a>
+        <a class="btn g" href="tel:${esc(c.contact.phone.replace(/[^\d+]/g, ""))}">${esc(T("callBtn"))}</a></div>
+      <div class="info"><span>✉ ${esc(c.contact.email)}</span><span>☎ ${esc(c.contact.phone)}</span><span>⌖ ${esc(c.contact.address)}</span></div>
+    </div></div></section>` : ""}`;
+  if (c.editors.show) renderList();
+}
+
+/* ==================================================
+   پروفایل ادیتور (+ پنل ویرایش ادیتور با رمز خودش)
+   ================================================== */
+function editorForm(e){
+  return `<div class="epanel" id="epanel">
+    <h3>${esc(T("editorPanelTitle"))}</h3>
+    <div class="grid2">
+      <div class="field"><label>${esc(T("fRole"))}</label><input id="p_role" value="${esc(e.role)}"></div>
+      <div class="field"><label>${esc(T("fCity"))}</label><input id="p_city" value="${esc(e.city)}"></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fShort"))}</label><textarea id="p_short">${esc(e.short)}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fBio"))}</label><textarea id="p_bio">${esc(e.bio)}</textarea></div>
+      <div class="field"><label>${esc(T("fAvail"))}</label><input id="p_avail" value="${esc(e.availability)}"></div>
+      <div class="field"><label>${esc(T("emailLabel"))}</label><input id="p_email" value="${esc(e.email)}"></div>
+      <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
+      <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea></div>
+    </div>
+    <div class="err" id="perr"></div>
+    <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
+  </div>`;
+}
+function renderEditor(id){
+  VIEW = "editor";
+  const i = EDS.findIndex(x => x.id === id);
+  if (i < 0) {
+    app().innerHTML = `<div class="wrap"><a class="back" href="#/#editors">${esc(T("backToEditors"))}</a><div class="card" style="margin-top:20px"><h3>${esc(T("notFoundTitle"))}</h3><p style="color:var(--mu)">${esc(T("notFoundText"))}</p></div></div>`;
+    return;
+  }
+  const e = EDS[i];
+  const prev = EDS[(i - 1 + EDS.length) % EDS.length], next = EDS[(i + 1) % EDS.length];
+  const bars = (e.skills || []).map((s, k) => { const v = Math.max(62, 96 - k * 11);
+    return `<div class="bar"><div class="h"><span>${esc(s)}</span><span>${fa(v)}٪</span></div><div class="t"><i data-w="${v}"></i></div></div>`; }).join("");
+  const pf = (e.portfolio || []).map(p => p.link
+    ? `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`
+    : `<span><b>${esc(p.title)}</b><small>${esc(T("soonText"))}</small></span>`).join("");
+  const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
+  const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
+      <div class="field"><label>ایمیل ورود</label><input id="edemail" type="email" autocomplete="username" required></div>
+      <div class="field"><label>${esc(T("editorPassLabel"))}</label><input id="edpass" type="password" autocomplete="current-password" required></div>
+      <button class="btn" data-act="editorLogin" data-id="${esc(e.id)}">${esc(T("editorLoginBtn"))}</button>
+      <div class="err" id="eerr"></div></div>` : "";
+
+  app().innerHTML = `
+  <div class="wrap">
+    <a class="back" href="#/#editors">${esc(T("backToEditors"))}</a>
+    <div class="ph" style="--c:${esc(e.color)}">
+      <div class="big">${esc(ini(e.name))}</div>
+      <div class="inf">
+        <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
+        <h1>${esc(e.name)}</h1>
+        <div class="role">${esc(e.role)}</div>
+        <p class="short">${esc(e.short)}</p>
+        <div class="chips" style="margin-top:14px">${(e.skills || []).map(s => `<span class="chip" style="cursor:default">${esc(s)}</span>`).join("")}</div>
+        ${ROLE === "admin" ? `<div style="margin-top:16px"><a class="btn sm g" href="#/admin/edit/${esc(e.id)}">${esc(T("adminEditLink"))}</a></div>` : ""}
+      </div>
+    </div>
+
+    <div class="blk"><h3>${esc(T("aboutTitle"))} ${esc(e.name)}</h3><p>${esc(e.bio)}</p></div>
+    <div class="blk"><h3>${esc(T("skillsTitle"))}</h3>${bars || `<p>${esc(T("noSkills"))}</p>`}</div>
+    <div class="blk"><h3>${esc(T("infoTitle"))}</h3>
+      <div class="kv">
+        <div><span>${esc(T("expLabel"))}</span><span>${fa(e.exp)} ${esc(T("yearsWord"))}</span></div>
+        <div><span>${esc(T("projectsLabel"))}</span><span>${fa(e.projects)}+</span></div>
+        <div><span>${esc(T("cityLabel"))}</span><span>${esc(e.city || "—")}</span></div>
+        <div><span>${esc(T("availLabel"))}</span><span>${esc(e.availability || "—")}</span></div>
+        <div><span>${esc(T("emailLabel"))}</span><span>${esc(e.email)}</span></div>
+        <div><span>${esc(T("instaLabel"))}</span><span>${esc(e.insta)}</span></div>
+      </div>
+      <a class="btn full" style="margin-top:18px" href="mailto:${esc(e.email)}">${esc(T("sendBtn"))}</a>
+    </div>
+    ${pf ? `<div class="blk"><h3>${esc(T("portfolioTitle"))}</h3><div class="pf">${pf}</div></div>` : ""}
+    ${e.testimonial ? `<div class="blk"><h3>${esc(T("testimonialTitle"))}</h3><p>«${esc(e.testimonial)}»</p></div>` : ""}
+    ${canEdit ? editorForm(e) : loginBox}
+
+    <div class="pn">
+      <a href="#/editor/${esc(prev.id)}"><small>${esc(T("prevLabel"))}</small><b>${esc(prev.name)}</b></a>
+      <a href="#/editor/${esc(next.id)}"><small>${esc(T("nextLabel"))}</small><b>${esc(next.name)}</b></a>
+    </div>
+  </div>`;
+  requestAnimationFrame(() => $$("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  window.scrollTo({top: 0});
+}
+
+/* ==================================================
+   ورود مدیر و پنل مدیریت
+   ================================================== */
+function renderLogin(){
+  VIEW = "login";
+  app().innerHTML = `<div class="wrap"><div class="login">
+    <span class="eyebrow" style="font-size:13px">${esc(T("loginBadge"))}</span>
+    <h2>${esc(T("loginTitle"))}</h2>
+    <div class="card">
+      <div class="field"><label for="adminemail">ایمیل مدیر</label><input id="adminemail" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="pw">${esc(T("passLabel"))}</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="btn full" data-act="login">${esc(T("loginBtn"))}</button>
+      <div class="err" id="lerr"></div>
+    </div>
+  </div></div>`;
+  setTimeout(() => { const p = $("#pw"); if (p) p.focus(); }, 50);
+}
+function renderAdmin(){
+  VIEW = "admin";
+  DRAFT = clone(CFG); DIRTY = false;
+  app().innerHTML = `
+  <div class="wrap adm">
+    <div class="tabs">
+      <button class="chip on" data-tab="editors">${esc(T("tabEditors"))} (${fa(EDS.length)})</button>
+      <button class="chip" data-tab="content">${esc(T("tabContent"))}</button>
+      <button class="chip" data-tab="look">${esc(T("tabLook"))}</button>
+      <span style="margin-right:auto"></span>
+      <a class="chip" href="#/">${esc(T("viewSiteBtn"))}</a>
+      <button class="chip" data-act="logout">${esc(T("logoutBtn"))}</button>
+    </div>
+    <div id="panel"></div>
+    <div class="savebar" id="savebar">
+      <span class="st" id="dstate"></span>
+      <div class="mact" style="margin:0">
+        <button class="btn sm g" data-act="reset">${esc(T("resetBtn"))}</button>
+        <button class="btn sm gold" data-act="savecfg">${esc(T("saveAllBtn"))}</button>
+      </div>
+    </div>
+  </div>`;
+  setTab("editors");
+}
+function setTab(name){
+  $$(".tabs [data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  const panel = $("#panel"), bar = $("#savebar");
+  if (name === "editors") {
+    if (bar) bar.classList.add("hide");
+    panel.innerHTML = `<div class="card">
+      <div class="tools" style="margin-bottom:12px"><h3 style="margin:0">${esc(T("editorsManageTitle"))}</h3>
+        <button class="btn sm" data-act="addEd">${esc(T("addEditorBtn"))}</button></div>
+      <p style="color:var(--mu);font-size:14px;margin:0 0 12px">${esc(T("editorsHelp"))}</p>
+      <div id="alist">${EDS.map((e, i) => `<div class="arow" style="--c:${esc(e.color)}">
+        <span class="ix">${fa(i + 1)}</span><span class="av">${esc(ini(e.name))}</span>
+        <input class="n" data-f="name" value="${esc(e.name)}">
+        <input class="r" data-f="role" value="${esc(e.role)}">
+        <button class="btn sm" data-act="saveRow" data-id="${esc(e.id)}">${esc(T("saveRowBtn"))}</button>
+        <button class="btn sm g" data-act="full" data-id="${esc(e.id)}">${esc(T("fullEditBtn"))}</button>
+        <a class="btn sm g" href="#/editor/${esc(e.id)}">${esc(T("showBtn"))}</a>
+        <button class="btn sm dg" data-act="del" data-id="${esc(e.id)}">${esc(T("deleteBtn"))}</button>
+      </div>`).join("") || `<div class="empty">${esc(T("noEditorsYet"))}</div>`}</div>
+    </div>`;
+  } else if (name === "content") {
+    if (bar) bar.classList.remove("hide");
+    panel.innerHTML = ""; build(DRAFT, panel, "", ["colors", "fonts", "effects"]);
+  } else {
+    if (bar) bar.classList.remove("hide");
+    panel.innerHTML = ""; build({fonts: DRAFT.fonts}, panel, ""); build({colors: DRAFT.colors}, panel, ""); build({effects: DRAFT.effects}, panel, "");
+  }
+  markState();
+}
+function markDirty(){ DIRTY = true; markState(); }
+function markState(){
+  const s = $("#dstate"); if (!s) return;
+  s.textContent = DIRTY ? T("dirtyText") : T("savedText");
+  s.classList.toggle("dirty", DIRTY);
+}
+function blank(sample){
+  const o = {};
+  Object.keys(sample || {}).forEach(k => {
+    const v = sample[k];
+    o[k] = typeof v === "boolean" ? false : typeof v === "number" ? 0 : Array.isArray(v) ? [] : "";
+  });
+  return o;
+}
+/* سازنده‌ی فرم از روی تنظیمات: هر چیزی در تنظیمات باشد اینجا قابل تغییر است */
+function build(obj, host, group, skip){
+  Object.keys(obj).forEach(k => {
+    if (!group && skip && skip.includes(k)) return;
+    const v = obj[k], gk = group ? group + "." + k : k;
+    if (Array.isArray(v)) {
+      const wrap = el("div", "arr");
+      wrap.innerHTML = `<div class="arr-h"><strong>${esc(L(k))}</strong><span>${fa(v.length)} ${esc(T("itemWord"))}</span></div>`;
+      v.forEach((item, i) => {
+        const box = el("div", "item"); build(item, box, "");
+        const rm = el("button", "btn sm dg"); rm.textContent = T("removeItemBtn");
+        rm.onclick = () => { v.splice(i, 1); markDirty(); setTab(activeTab()); };
+        box.appendChild(rm); wrap.appendChild(box);
+      });
+      const add = el("button", "btn sm g"); add.textContent = T("addItemBtn");
+      add.onclick = () => { v.push(blank(v[0] || {title: "", text: ""})); markDirty(); setTab(activeTab()); };
+      wrap.appendChild(add); host.appendChild(wrap);
+    } else if (v && typeof v === "object") {
+      const g = el("fieldset", "grp"); const lg = el("legend"); lg.textContent = L(k); g.appendChild(lg);
+      build(v, g, gk); host.appendChild(g);
+    } else if (typeof v === "boolean") {
+      const lab = el("label", "check"); const cb = el("input"); cb.type = "checkbox"; cb.checked = v;
+      cb.onchange = () => { obj[k] = cb.checked; markDirty(); };
+      lab.appendChild(cb); lab.append(" " + L(k)); host.appendChild(lab);
+    } else {
+      const w = el("div", "field"); const lb = el("label"); lb.textContent = L(k); w.appendChild(lb);
+      let inp;
+      if (gk.startsWith("colors.")) {
+        inp = el("input"); inp.type = "color"; inp.value = v;
+        inp.oninput = () => { obj[k] = inp.value; markDirty(); };
+      } else if (gk === "fonts.display" || gk === "fonts.body") {
+        inp = el("select");
+        FONTS.forEach(f => { const o = el("option"); o.value = f; o.textContent = f; o.selected = f === v; inp.appendChild(o); });
+        inp.onchange = () => { obj[k] = inp.value; markDirty(); };
+      } else if (LONG.includes(k) || String(v).length > 70) {
+        inp = el("textarea"); inp.value = v;
+        inp.oninput = () => { obj[k] = inp.value; markDirty(); };
+      } else {
+        inp = el("input"); inp.value = v;
+        if (typeof v === "number") { inp.type = "number"; inp.oninput = () => { obj[k] = Number(inp.value) || 0; markDirty(); }; }
+        else inp.oninput = () => { obj[k] = inp.value; markDirty(); };
+      }
+      w.appendChild(inp); host.appendChild(w);
+    }
+  });
+}
+
+/* فرم ادیتور (افزودن و ویرایش کامل، با رمز پنل ادیتور) */
+function openEditor(id){
+  const e = id ? EDS.find(x => x.id === id) : null;
+  if (id && !e) { toast(T("notFoundTitle")); return; }
+  FCOLOR = e ? e.color : COLORS[EDS.length % COLORS.length];
+  const v = x => esc(x ?? "");
+  $("#layer").innerHTML = `<div class="modal" id="mdl"><div class="mbox">
+    <h3>${esc(e ? T("modalEditTitle") : T("modalNewTitle"))}</h3>
+    <div class="grid2">
+      <div class="field"><label>${esc(T("fName"))}</label><input id="f_name" value="${v(e && e.name)}"></div>
+      <div class="field"><label>${esc(T("fRole"))}</label><input id="f_role" value="${v(e && e.role)}"></div>
+      ${!e ? `<div class="field"><label>ایمیل ورود ادیتور</label><input id="f_login_email" type="email" autocomplete="off" required></div>` : ""}
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fShort"))}</label><textarea id="f_short">${v(e && e.short)}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fBio"))}</label><textarea id="f_bio">${v(e && e.bio)}</textarea></div>
+      <div class="field"><label>${esc(T("fExp"))}</label><input type="number" id="f_exp" value="${v(e && e.exp)}"></div>
+      <div class="field"><label>${esc(T("fProjects"))}</label><input type="number" id="f_projects" value="${v(e && e.projects)}"></div>
+      <div class="field"><label>${esc(T("emailLabel"))}</label><input id="f_email" value="${v(e && e.email)}"></div>
+      <div class="field"><label>${esc(T("instaLabel"))}</label><input id="f_insta" value="${v(e && e.insta)}"></div>
+      <div class="field"><label>${esc(T("fCity"))}</label><input id="f_city" value="${v(e && e.city)}"></div>
+      <div class="field"><label>${esc(T("fAvail"))}</label><input id="f_avail" value="${v(e && e.availability)}"></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="f_skills" value="${v(e ? (e.skills || []).join(", ") : "")}"></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fTesti"))}</label><textarea id="f_testi">${v(e && e.testimonial)}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="f_pf">${v(e ? (e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n") : "")}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPass"))}</label><input id="f_pass" type="password" autocomplete="new-password" placeholder="${e ? "تغییر رمز از این فرم فعلاً پشتیبانی نمی‌شود" : "حداقل ۱۲ کاراکتر"}" ${e ? "disabled" : "required"}></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fColor"))}</label><div class="sw" id="sw">${COLORS.map(c => `<button type="button" data-sw="${c}" style="background:${c}" class="${c === FCOLOR ? "on" : ""}" aria-label="${c}"></button>`).join("")}</div></div>
+    </div>
+    <div class="err" id="ferr"></div>
+    <div class="mact"><button class="btn" data-act="saveEd" data-id="${v(id || "")}">${esc(T("saveBtnModal"))}</button><button class="btn g" data-act="closeModal">${esc(T("cancelBtn"))}</button></div>
+  </div></div>`;
+}
+function closeModal(){ $("#layer").innerHTML = ""; }
+
+/* ==================================================
+   رویدادها (تفویض‌شده)
+   ================================================== */
+document.addEventListener("click", ev => {
+  const t = ev.target;
+  const sw = t.closest("[data-sw]");
+  if (sw) { FCOLOR = sw.dataset.sw; $$("#sw [data-sw]").forEach(b => b.classList.toggle("on", b === sw)); return; }
+  const adm = t.closest("[data-admin-edit]");
+  if (adm) { ev.stopPropagation(); location.hash = "#/admin/edit/" + encodeURIComponent(adm.dataset.adminEdit); return; }
+  const role = t.closest("[data-role]");
+  if (role) { FILTER.role = role.dataset.role; $$("#chips [data-role]").forEach(b => b.classList.toggle("on", b === role)); renderList(); return; }
+  const tab = t.closest("[data-tab]");
+  if (tab) { setTab(tab.dataset.tab); return; }
+  if (t.id === "mdl") return closeModal();
+  const act = t.closest("[data-act]");
+  if (act) { ev.preventDefault(); return runAction(act.dataset.act, act); }
+  const go = t.closest("[data-go]");
+  if (go) { location.hash = go.dataset.go; return; }
+});
+document.addEventListener("keydown", ev => {
+  if (ev.key === "Escape") closeModal();
+  if (ev.key === "Enter" && ev.target.id === "pw") runAction("login");
+  if (ev.key === "Enter" && ev.target.id === "edpass") runAction("editorLogin", document.querySelector('[data-act="editorLogin"]'));
+  if (ev.key === "Enter" && ev.target.classList && ev.target.classList.contains("erow")) location.hash = ev.target.dataset.go;
+});
+document.addEventListener("input", ev => {
+  if (ev.target.id === "q") { FILTER.q = ev.target.value; renderList(); }
+});
+
+async function runAction(name, btn){
+  try {
+    if (name === "login") {
+      await api("POST", "/api/login", {email: $("#adminemail").value, password: $("#pw").value});
+      ROLE = "admin"; MY_ID = null; renderNav(); renderAdmin(); return;
+    }
+    if (name === "logout") {
+      await api("POST", "/api/logout").catch(() => {});
+      ROLE = null; MY_ID = null; renderNav(); location.hash = "#/"; toast(T("toastLoggedOut")); return;
+    }
+    if (name === "editorLogin") {
+      const id = btn.dataset.id || (btn.dataset && btn.dataset.id);
+      await api("POST", "/api/editor-login", {email: $("#edemail").value, password: $("#edpass").value});
+      await checkSession(); renderNav(); renderEditor(id); return;
+    }
+    if (name === "editorLogout") {
+      await api("POST", "/api/logout").catch(() => {});
+      ROLE = null; MY_ID = null; renderNav(); renderEditor(location.hash.replace("#/editor/", "")); return;
+    }
+    if (name === "saveOwn") {
+      const id = btn.dataset.id;
+      await api("PUT", "/api/editors/" + encodeURIComponent(id), {
+        role: $("#p_role").value, city: $("#p_city").value, short: $("#p_short").value, bio: $("#p_bio").value,
+        availability: $("#p_avail").value, email: $("#p_email").value, insta: $("#p_insta").value,
+        projects: $("#p_projects").value, skills: $("#p_skills").value, portfolio: $("#p_pf").value
+      });
+      await load(); renderEditor(id); toast(T("editorSaved")); return;
+    }
+    if (name === "savecfg") {
+      const r = await api("PUT", "/api/config", DRAFT);
+      CFG = r.config; CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+      DRAFT = clone(CFG); DIRTY = false;
+      applyTheme(); markState(); toast(T("toastSaved")); return;
+    }
+    if (name === "reset") {
+      if (!confirm(T("resetConfirm"))) return;
+      const r = await api("POST", "/api/config/reset");
+      CFG = r.config; CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+      DRAFT = clone(CFG); DIRTY = false;
+      applyTheme(); setTab(activeTab()); toast(T("toastReset")); return;
+    }
+    if (name === "saveRow") {
+      const row = btn.closest(".arow");
+      await api("PUT", "/api/editors/" + encodeURIComponent(btn.dataset.id), {
+        name: row.querySelector('[data-f="name"]').value, role: row.querySelector('[data-f="role"]').value
+      });
+      await load(); renderNav(); setTab("editors"); toast(T("toastRowSaved")); return;
+    }
+    if (name === "full") { openEditor(btn.dataset.id); return; }
+    if (name === "addEd") { openEditor(null); return; }
+    if (name === "closeModal") { closeModal(); return; }
+    if (name === "del") {
+      const e = EDS.find(x => x.id === btn.dataset.id);
+      if (!e || !confirm("«" + e.name + "» " + T("deleteConfirm"))) return;
+      await api("DELETE", "/api/editors/" + encodeURIComponent(e.id));
+      await load(); setTab("editors"); toast(T("toastDeleted")); return;
+    }
+    if (name === "saveEd") {
+      const id = btn.dataset.id;
+      const body = {
+        name: $("#f_name").value, role: $("#f_role").value, short: $("#f_short").value, bio: $("#f_bio").value,
+        exp: $("#f_exp").value, projects: $("#f_projects").value, email: $("#f_email").value, insta: $("#f_insta").value,
+        city: $("#f_city").value, availability: $("#f_avail").value, skills: $("#f_skills").value,
+        testimonial: $("#f_testi").value, portfolio: $("#f_pf").value, color: FCOLOR, password: $("#f_pass").value, loginEmail: $("#f_login_email")?.value || ""
+      };
+      if (!body.name.trim()) { $("#ferr").textContent = T("nameRequired"); return; }
+      if (id) await api("PUT", "/api/editors/" + encodeURIComponent(id), body);
+      else await api("POST", "/api/editors", body);
+      closeModal(); await load(); renderNav();
+      if (VIEW === "admin") setTab("editors");
+      else if (VIEW === "editor") renderEditor(id || location.hash.replace("#/editor/", ""));
+      toast(id ? T("toastEdSaved") : T("toastEdAdded"));
+      return;
+    }
+  } catch (err) {
+    const target = $("#lerr") || $("#ferr") || $("#eerr") || $("#perr");
+    if (target) target.textContent = err.message; else toast(err.message);
+  }
+}
+
+/* ==================================================
+   مسیریابی
+   ================================================== */
+async function route(){
+  const h = location.hash || "#/";
+  if (h.startsWith("#/admin")) {
+    if (ROLE !== "admin") await checkSession();
+    if (ROLE !== "admin") { renderLogin(); return; }
+    if (VIEW !== "admin") renderAdmin();
+    const m = h.match(/^#\/admin\/edit\/(.+)$/);
+    if (m) openEditor(decodeURIComponent(m[1]));
+    return;
+  }
+  if (h.startsWith("#/editor/")) { renderEditor(decodeURIComponent(h.slice(9))); return; }
+  if (VIEW !== "home") renderHome();
+  const m = h.match(/#([a-z]+)$/);
+  requestAnimationFrame(() => {
+    const target = m && document.getElementById(m[1]);
+    if (target) target.scrollIntoView({behavior: "smooth", block: "start"});
+    else if (!m) window.scrollTo({top: 0, behavior: "smooth"});
+  });
+}
+addEventListener("hashchange", route);
+
+let raf = false;
+addEventListener("scroll", () => {
+  if (raf) return; raf = true;
+  requestAnimationFrame(() => {
+    const d = document.documentElement, max = d.scrollHeight - d.clientHeight || 1;
+    $("#pbar").style.transform = `scaleX(${d.scrollTop / max})`;
+    if (VIEW === "home") {
+      let cur = "";
+      SECS.forEach(k => { const s = document.getElementById(k); if (s && s.getBoundingClientRect().top < innerHeight * .35) cur = k; });
+      $$("#nav [data-sec]").forEach(a => a.classList.toggle("on", a.dataset.sec === cur));
+    }
+    raf = false;
+  });
+}, {passive: true});
+
+/* ==================================================
+   شروع
+   ================================================== */
+(async function init(){
+  try { await load(); }
+  catch (e) {
+    OFFLINE = true;
+    CFG = clone(FALLBACK_CFG); EDS = [];
+    CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+  }
+  await checkSession();
+  applyTheme();
+  await route();
+  if (!OFFLINE && CFG.popup && CFG.popup.show && !location.hash.startsWith("#/admin")) {
+    try { if (sessionStorage.getItem("ea_welcome")) return; } catch (e) {}
+    setTimeout(showWelcome, Math.max(0, +CFG.popup.delaySec || 0) * 1000);
+  }
+})();
+
+function showWelcome(){
+  const p = CFG.popup, ed = EDS.length ? EDS[Math.floor(Math.random() * EDS.length)] : null;
+  const layer = $("#layer");
+  if (layer.innerHTML) return;
+  layer.innerHTML = `<div class="welc" id="wel"><div class="mbox">
+    <h3>${esc(p.title)}</h3><p style="color:var(--mu)">${esc(p.text)}</p>
+    ${ed ? `<a class="wed" href="#/editor/${esc(ed.id)}" style="--c:${esc(ed.color)}" data-close="1"><span class="av">${esc(ini(ed.name))}</span><span><small style="color:var(--acc)">${esc(T("welcomeBadge"))}</small><b>${esc(ed.name)}</b><em>${esc(ed.role)}</em></span></a>` : ""}
+    <div class="mact"><a class="btn" href="#/#editors" data-close="1">${esc(p.btn)}</a><button class="btn g" data-close="1">${esc(T("cancelBtn"))}</button></div>
+  </div></div>`;
+  const w = $("#wel");
+  w.addEventListener("click", ev => {
+    if (ev.target === w || ev.target.closest("[data-close]")) {
+      try { sessionStorage.setItem("ea_welcome", "1"); } catch (e) {}
+      layer.innerHTML = "";
+    }
+  });
+}
+</script>
+</body>
+</html>
