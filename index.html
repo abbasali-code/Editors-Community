@@ -362,7 +362,7 @@ const FALLBACK_CFG = {
   process:{show:true,title:"از ایده تا تحویل",sub:"چهار گام ساده.",steps:[{title:"گفتگو",text:"نیاز و بودجه را مشخص می‌کنیم."},{title:"انتخاب ادیتور",text:"بهترین گزینه را پیشنهاد می‌دهیم."},{title:"ساخت",text:"نسخه‌ی اولیه را می‌بینید."},{title:"تحویل",text:"فایل نهایی تحویل می‌شود."}]},
   testimonials:{show:true,title:"نظر کارفرماها",sub:"تجربه‌ی همکاران.",items:[{name:"مهرداد ک.",role:"مدیر برند",text:"کیفیت تحویل از انتظار بالاتر بود."}]},
   faq:{show:true,title:"سوالات متداول",items:[{q:"چطور عضو شوم؟",a:"با ما تماس بگیرید و نمونه‌کار بفرستید."}]},
-  contact:{show:true,title:"آماده‌ی شروع هستید؟",text:"ادیتور مناسب پروژه‌ی خود را پیدا کنید.",email:"info@editors-association.ir",phone:"۰۲۱-۱۲۳۴۵۶۷۸",address:"تهران، ایران",btn:"ارسال ایمیل"},
+  contact:{show:true,title:"آماده‌ی شروع هستید؟",text:"ادیتور مناسب پروژه‌ی خود را پیدا کنید.",email:"info@editors-association.ir",phone:"۰۲۱-۱۲۳۴۵۶۷۸",rubika:"",address:"تهران، ایران",btn:"ارسال ایمیل"},
   popup:{show:false,title:"",text:"",btn:"",delaySec:3},
   footer:{about:"انجمن ادیتوران؛ جامعه‌ای برای ادیتورهای حرفه‌ای ایران.",copy:"تمامی حقوق محفوظ است."},
   ui: UI_DEFAULT
@@ -452,6 +452,8 @@ function dbEditor(row){
     short: row.short || "",
     bio: row.bio || "",
     email: row.email || "",
+    phone: row.phone || "",
+    rubika: row.rubika || "",
     insta: row.insta || row.instagram || "",
     instagram: row.instagram || row.insta || "",
     city: row.city || "",
@@ -543,7 +545,7 @@ function editorPayload(b){
 
   [
     "name", "role", "short", "bio",
-    "email", "insta", "city", "availability",
+    "email", "phone", "rubika", "insta", "city", "availability",
     "testimonial", "color"
   ].forEach(k => {
     if (b[k] !== undefined) out[k] = b[k];
@@ -595,7 +597,7 @@ function applyTheme(){
   $("#fQuickT").textContent = T("footerQuick"); $("#fContactT").textContent = T("footerContact");
   $("#fCopy").textContent = "© " + fa(new Date().getFullYear()) + " " + CFG.brand + " — " + CFG.footer.copy;
   $("#fBadge").textContent = T("footerBadge");
-  $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a><span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
+  $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a>${CFG.contact.rubika ? `<a href="https://rubika.ir/${esc(CFG.contact.rubika.replace(/^@/, ""))}" target="_blank" rel="noopener">روبیکا: ${esc(CFG.contact.rubika)}</a>` : ""}<span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
   document.title = CFG.brand + " | " + CFG.brandSub;
   renderNav();
 }
@@ -694,10 +696,12 @@ function editorForm(e){
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fBio"))}</label><textarea id="p_bio">${esc(e.bio)}</textarea></div>
       <div class="field"><label>${esc(T("fAvail"))}</label><input id="p_avail" value="${esc(e.availability)}"></div>
       <div class="field"><label>${esc(T("emailLabel"))}</label><input id="p_email" value="${esc(e.email)}"></div>
+      <div class="field"><label>شماره تماس (اختیاری)</label><input id="p_phone" type="tel" value="${esc(e.phone)}"></div>
+      <div class="field"><label>آیدی روبیکا (اختیاری)</label><input id="p_rubika" value="${esc(e.rubika)}" placeholder="@username"></div>
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea><label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">حداکثر حجم هر فایل: ۱۰۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div></div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -715,7 +719,7 @@ function renderEditor(id){
   const bars = (e.skills || []).map((s, k) => { const v = Math.max(62, 96 - k * 11);
     return `<div class="bar"><div class="h"><span>${esc(s)}</span><span>${fa(v)}٪</span></div><div class="t"><i data-w="${v}"></i></div></div>`; }).join("");
   const pf = (e.portfolio || []).map(p => p.link
-    ? `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`
+    ? (/\\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><video controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:12px;margin-top:8px"><source src="${esc(p.link)}"></video></div>` : (/\\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(p.link) ? `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><img src="${esc(p.link)}" alt="${esc(p.title)}" loading="lazy" style="display:block;width:100%;max-height:360px;object-fit:contain;border-radius:12px;margin-top:8px"><small>نمایش تصویر</small></a>` : `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`))
     : `<span><b>${esc(p.title)}</b><small>${esc(T("soonText"))}</small></span>`).join("");
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
@@ -748,6 +752,8 @@ function renderEditor(id){
         <div><span>${esc(T("cityLabel"))}</span><span>${esc(e.city || "—")}</span></div>
         <div><span>${esc(T("availLabel"))}</span><span>${esc(e.availability || "—")}</span></div>
         <div><span>${esc(T("emailLabel"))}</span><span>${esc(e.email)}</span></div>
+        ${e.phone ? `<div><span>شماره تماس</span><span><a href="tel:${esc(e.phone.replace(/[^\d+]/g, ""))}">${esc(e.phone)}</a></span></div>` : ""}
+        ${e.rubika ? `<div><span>روبیکا</span><span><a href="https://rubika.ir/${esc(e.rubika.replace(/^@/, ""))}" target="_blank" rel="noopener">${esc(e.rubika)}</a></span></div>` : ""}
         <div><span>${esc(T("instaLabel"))}</span><span>${esc(e.insta)}</span></div>
       </div>
       <a class="btn full" style="margin-top:18px" href="mailto:${esc(e.email)}">${esc(T("sendBtn"))}</a>
@@ -927,6 +933,38 @@ function openEditor(id){
 }
 function closeModal(){ $("#layer").innerHTML = ""; }
 
+async function uploadEditorPortfolio(input){
+  const errBox = $("#uploaderr");
+  const files = [...(input.files || [])];
+  if (!files.length) return;
+  if (ROLE !== "editor" || !MY_ID) {
+    if (errBox) errBox.textContent = "آپلود از پنل حساب خود ادیتور انجام می‌شود.";
+    input.value = "";
+    return;
+  }
+  const allowed = ["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm","video/quicktime"];
+  try {
+    for (const file of files) {
+      if (!allowed.includes(file.type)) throw new Error("فرمت فایل پشتیبانی نمی‌شود. JPG، PNG، WEBP، GIF، MP4، WEBM و MOV مجازند.");
+      if (file.size > 100 * 1024 * 1024) throw new Error("حجم هر فایل باید کمتر از ۱۰۰ مگابایت باشد.");
+      const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g, "-").slice(-90) || "portfolio";
+      const path = MY_ID + "/" + crypto.randomUUID() + "-" + safeName;
+      const {error} = await sb.storage.from("portfolio-files").upload(path, file, {contentType:file.type, upsert:false});
+      if (error) throw error;
+      const {data} = sb.storage.from("portfolio-files").getPublicUrl(path);
+      const title = file.name.replace(/\.[^.]+$/, "").replace(/[|\n]/g, " ").trim() || "نمونه‌کار";
+      const field = $("#p_pf");
+      field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + title + " | " + data.publicUrl;
+    }
+    if (errBox) errBox.textContent = "آپلود موفق بود؛ برای ثبت در پروفایل، دکمه ذخیره تغییرات را بزن.";
+    toast("فایل‌ها آپلود شدند.");
+  } catch (error) {
+    if (errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
+  } finally {
+    input.value = "";
+  }
+}
+
 /* ==================================================
    رویدادها (تفویض‌شده)
    ================================================== */
@@ -955,6 +993,9 @@ document.addEventListener("keydown", ev => {
 document.addEventListener("input", ev => {
   if (ev.target.id === "q") { FILTER.q = ev.target.value; renderList(); }
 });
+document.addEventListener("change", ev => {
+  if (ev.target.id === "p_upload") uploadEditorPortfolio(ev.target);
+});
 
 async function runAction(name, btn){
   try {
@@ -979,7 +1020,7 @@ async function runAction(name, btn){
       const id = btn.dataset.id;
       await api("PUT", "/api/editors/" + encodeURIComponent(id), {
         role: $("#p_role").value, city: $("#p_city").value, short: $("#p_short").value, bio: $("#p_bio").value,
-        availability: $("#p_avail").value, email: $("#p_email").value, insta: $("#p_insta").value,
+        availability: $("#p_avail").value, email: $("#p_email").value, phone: $("#p_phone").value, rubika: $("#p_rubika").value, insta: $("#p_insta").value,
         projects: $("#p_projects").value, skills: $("#p_skills").value, portfolio: $("#p_pf").value
       });
       await load(); renderEditor(id); toast(T("editorSaved")); return;
