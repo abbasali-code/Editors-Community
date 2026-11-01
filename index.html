@@ -701,7 +701,7 @@ function editorForm(e){
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea>${ROLE === "editor" && MY_ID === e.id ? `<label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">حداکثر حجم هر فایل: ۱۰۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div>` : ""}</div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea>${ROLE === "editor" && MY_ID === e.id ? `<label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><div id="portfolioUsage" style="margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">سهمیه هر ادیتور: ۲۰۰ مگابایت مجموع؛ حداکثر ۲ ویدیو، هر ویدیو تا ۵۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div>` : ""}</div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -768,6 +768,7 @@ function renderEditor(id){
     </div>
   </div>`;
   requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  refreshPortfolioUsage();
   $(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
       if (Number.isFinite(video.duration) && video.duration > 60) {
@@ -953,6 +954,28 @@ function openEditor(id){
 }
 function closeModal(){ $("#layer").innerHTML = ""; }
 
+const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, video: 50 * 1024 * 1024, videos: 2 };
+async function getPortfolioUsage(){
+  const {data,error} = await sb.storage.from("portfolio-files").list(MY_ID,{limit:1000,offset:0});
+  if(error) throw error;
+  const files = (data || []).filter(x => x.name && x.id);
+  const bytes = files.reduce((sum,x) => sum + Number(x.metadata?.size || 0),0);
+  const videos = files.filter(x => String(x.metadata?.mimetype || "").startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(x.name)).length;
+  return {bytes,videos};
+}
+function formatFileSize(bytes){
+  return (bytes / (1024*1024)).toLocaleString("fa-IR",{maximumFractionDigits:1}) + " مگابایت";
+}
+async function refreshPortfolioUsage(){
+  const box = $("#portfolioUsage");
+  if(!box || ROLE !== "editor" || !MY_ID) return;
+  try{
+    const usage = await getPortfolioUsage();
+    box.textContent = `فضای مصرف‌شده: ${formatFileSize(usage.bytes)} از ۲۰۰ مگابایت · ویدیو: ${usage.videos} از ۲`;
+  }catch(error){
+    box.textContent = "نمایش سهمیه ممکن نیست؛ محدودیت‌های آپلود همچنان در سرور بررسی می‌شوند.";
+  }
+}
 async function uploadEditorPortfolio(input){
   const errBox = $("#uploaderr");
   const files = [...(input.files || [])];
@@ -964,9 +987,13 @@ async function uploadEditorPortfolio(input){
   }
   const allowed = ["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm","video/quicktime"];
   try {
+    let usage = await getPortfolioUsage();
     for (const file of files) {
       if (!allowed.includes(file.type)) throw new Error("فرمت فایل پشتیبانی نمی‌شود. JPG، PNG، WEBP، GIF، MP4، WEBM و MOV مجازند.");
-      if (file.size > 100 * 1024 * 1024) throw new Error("حجم هر فایل باید کمتر از ۱۰۰ مگابایت باشد.");
+      const isVideo = file.type.startsWith("video/");
+      if (isVideo && file.size > PORTFOLIO_LIMITS.video) throw new Error("حجم هر ویدیو حداکثر ۵۰ مگابایت است.");
+      if (usage.bytes + file.size > PORTFOLIO_LIMITS.total) throw new Error("سهمیه ۲۰۰ مگابایتی نمونه‌کار شما پر می‌شود؛ ابتدا بعضی فایل‌ها را حذف کنید.");
+      if (isVideo && usage.videos >= PORTFOLIO_LIMITS.videos) throw new Error("هر ادیتور حداکثر می‌تواند ۲ ویدیو داشته باشد.");
       const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g, "-").slice(-90) || "portfolio";
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + safeName;
       const {error} = await sb.storage.from("portfolio-files").upload(path, file, {contentType:file.type, upsert:false});
@@ -975,6 +1002,8 @@ async function uploadEditorPortfolio(input){
       const title = file.name.replace(/\.[^.]+$/, "").replace(/[|\n]/g, " ").trim() || "نمونه‌کار";
       const field = $("#p_pf");
       field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + title + " | " + data.publicUrl;
+      usage.bytes += file.size;
+      if(isVideo) usage.videos++;
     }
     if (errBox) errBox.textContent = "آپلود موفق بود؛ برای ثبت در پروفایل، دکمه ذخیره تغییرات را بزن.";
     toast("فایل‌ها آپلود شدند.");
@@ -982,6 +1011,7 @@ async function uploadEditorPortfolio(input){
     if (errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
   } finally {
     input.value = "";
+    await refreshPortfolioUsage();
   }
 }
 
