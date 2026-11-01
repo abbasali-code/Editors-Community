@@ -719,7 +719,7 @@ function renderEditor(id){
   const bars = (e.skills || []).map((s, k) => { const v = Math.max(62, 96 - k * 11);
     return `<div class="bar"><div class="h"><span>${esc(s)}</span><span>${fa(v)}٪</span></div><div class="t"><i data-w="${v}"></i></div></div>`; }).join("");
   const pf = (e.portfolio || []).map(p => p.link
-    ? (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><video controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:12px;margin-top:8px"><source src="${esc(p.link)}"></video></div>` : (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(p.link) ? `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><img src="${esc(p.link)}" alt="${esc(p.title)}" loading="lazy" style="display:block;width:100%;max-height:360px;object-fit:contain;border-radius:12px;margin-top:8px"><small>نمایش تصویر</small></a>` : `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`))
+    ? (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><video class="pf-short-video" data-video-url="${esc(p.link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:12px;margin-top:8px"><source src="${esc(p.link)}"></video></div>` : (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><a href="${esc(p.link)}" target="_blank" rel="noopener"><img src="${esc(p.link)}" alt="${esc(p.title)}" loading="lazy" style="display:block;width:100%;max-height:360px;object-fit:contain;border-radius:12px;margin-top:8px"></a></div>` : `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`))
     : `<span><b>${esc(p.title)}</b><small>${esc(T("soonText"))}</small></span>`).join("");
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
@@ -767,7 +767,27 @@ function renderEditor(id){
       <a href="#/editor/${esc(next.id)}"><small>${esc(T("nextLabel"))}</small><b>${esc(next.name)}</b></a>
     </div>
   </div>`;
-  requestAnimationFrame(() => $$("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  $(".pf-short-video").forEach(video => {
+    video.addEventListener("loadedmetadata", () => {
+      if (Number.isFinite(video.duration) && video.duration > 60) {
+        const link = document.createElement("a");
+        link.href = video.dataset.videoUrl;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.innerHTML = `<b>${esc(video.dataset.videoTitle)}</b><small>ویدیو بیشتر از ۱ دقیقه است؛ برای مشاهده کلیک کن.</small>`;
+        video.replaceWith(link);
+      }
+    }, {once:true});
+    video.addEventListener("error", () => {
+      const link = document.createElement("a");
+      link.href = video.dataset.videoUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.innerHTML = `<b>${esc(video.dataset.videoTitle)}</b><small>پخش مستقیم ممکن نیست؛ مشاهده ویدیو</small>`;
+      video.replaceWith(link);
+    }, {once:true});
+  });
   window.scrollTo({top: 0});
 }
 
