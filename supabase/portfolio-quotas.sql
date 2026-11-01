@@ -51,7 +51,7 @@ BEGIN
     ), 0),
     count(*) FILTER (
       WHERE lower(coalesce(metadata->>'mimetype', '')) LIKE 'video/%'
-         OR lower(name) ~ '\\.(mp4|webm|mov|m4v)$'
+         OR lower(name) ~ '\.(mp4|webm|mov|m4v)$'
     )
   INTO used_bytes, used_videos
   FROM storage.objects
