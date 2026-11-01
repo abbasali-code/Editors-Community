@@ -767,9 +767,9 @@ function renderEditor(id){
       <a href="#/editor/${esc(next.id)}"><small>${esc(T("nextLabel"))}</small><b>${esc(next.name)}</b></a>
     </div>
   </div>`;
-  requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  requestAnimationFrame(() => $$("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
   refreshPortfolioUsage();
-  $(".pf-short-video").forEach(video => {
+$$(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
       if (Number.isFinite(video.duration) && video.duration > 60) {
         const link = document.createElement("a");
