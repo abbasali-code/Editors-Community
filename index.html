@@ -35,7 +35,7 @@ h1,h2,h3,h4{font-family:var(--fd);font-weight:400;line-height:1.25;margin:0}
 .brand{display:flex;align-items:center;gap:12px;font-family:var(--fd);font-size:38px;line-height:1}
 .brand .mk{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff;background:linear-gradient(135deg,var(--pri),var(--pri2))}
 .brand small{display:block;font:400 12px/1.4 var(--fb);color:var(--mu)}
-.nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.nav{display:none;gap:6px;flex-wrap:wrap;align-items:stretch}.nav.open{display:grid;position:absolute;top:calc(100% + 10px);left:4%;right:4%;z-index:80;padding:12px;background:var(--s1);border:1px solid var(--ln);border-radius:14px;box-shadow:0 18px 45px #0008}.menu-toggle{display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--ln);border-radius:12px;background:var(--s1);color:var(--tx);font:26px/1 Arial;cursor:pointer}.top .wrap{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px}.nav a{display:block;padding:10px 14px;border-radius:10px;color:var(--mu);font-family:var(--fd);font-size:24px;line-height:1.1}
 .nav a{padding:6px 12px;border-radius:10px;color:var(--mu);font-family:var(--fd);font-size:24px;line-height:1.1}
 .nav a:hover{color:var(--tx);background:var(--s1)}
 .nav a.on{color:var(--acc)}
@@ -272,7 +272,7 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 <header class="top">
   <div class="wrap">
     <a href="#/" class="brand"><span class="mk">✦</span><span><span id="brand"></span><small id="brandSub"></small></span></a>
-    <nav class="nav" id="nav"></nav>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="باز کردن منو" aria-expanded="false" data-menu-toggle>☰</button><nav class="nav" id="nav" aria-label="منوی اصلی"></nav>
   </div>
 </header>
 
@@ -636,9 +636,13 @@ function applyTheme(){
 }
 function renderNav(){
   $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/verification">تیک آبی</a>`
+    + `<a href="#/join">درخواست عضویت در انجمن</a>`
+    + `<a href="#/verification">درخواست تیک آبی</a>`
     + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود با گوگل"}</a>`
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
-    + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`;
+    + (ROLE === "editor" ? `<a href="#/editor/${esc(MY_ID)}">پروفایل و پنل من</a>` : "")
+    + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`
+    + (ROLE === "admin" ? `<a href="#/admin/members">درخواست‌های عضویت</a><a href="#/admin/editors">مدیریت ادیتورها</a><a href="#/admin/content">مدیریت محتوا</a><a href="#/admin/look">ظاهر سایت</a><a href="#/admin/verification">درخواست‌های تیک آبی</a><a href="#/admin/reports">گزارش نظرات</a><a href="#/" data-act="logout">خروج مدیریت</a>` : "");
   $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
   $("#banner").innerHTML = OFFLINE ? `<div class="notice err">${esc(T("connError"))}</div>` : "";
 }
@@ -913,7 +917,7 @@ function renderLogin(){
   </div></div>`;
   setTimeout(() => { const p = $("#pw"); if (p) p.focus(); }, 50);
 }
-function renderAdmin(){
+function renderAdmin(initialTab="editors"){
   VIEW = "admin";
   DRAFT = clone(CFG); DIRTY = false;
   app().innerHTML = `
@@ -922,6 +926,7 @@ function renderAdmin(){
       <button class="chip on" data-tab="editors">${esc(T("tabEditors"))} (${fa(EDS.length)})</button>
       <button class="chip" data-tab="content">${esc(T("tabContent"))}</button>
       <button class="chip" data-tab="look">${esc(T("tabLook"))}</button>
+      <button class="chip" data-tab="members">درخواست عضویت <span id="membershipCount"></span></button>
       <button class="chip" data-tab="verification">تیک آبی <span id="verificationCount"></span></button>
       <button class="chip" data-tab="reports">گزارش نظرات</button>
       <span style="margin-right:auto"></span>
@@ -937,7 +942,7 @@ function renderAdmin(){
       </div>
     </div>
   </div>`;
-  setTab("editors");
+  setTab(initialTab);
 }
 function setTab(name){
   $$(".tabs [data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
@@ -958,6 +963,9 @@ function setTab(name){
         <button class="btn sm dg" data-act="del" data-id="${esc(e.id)}">${esc(T("deleteBtn"))}</button>
       </div>`).join("") || `<div class="empty">${esc(T("noEditorsYet"))}</div>`}</div>
     </div>`;
+  } else if (name === "members") {
+    if (bar) bar.classList.add("hide");
+    loadMembershipApplications();
   } else if (name === "verification") {
     if (bar) bar.classList.add("hide");
     loadVerificationRequests();
@@ -1155,6 +1163,23 @@ async function uploadEditorPortfolio(input){
    رویدادها (تفویض‌شده)
    ================================================== */
 
+
+function renderMembershipForm(){
+  app().innerHTML='<div class="verification-wrap"><a class="back" href="#/">بازگشت به سایت</a><div class="card"><span class="eyebrow">فرم عضویت</span><h1>درخواست عضویت در انجمن</h1><p class="muted">اطلاعاتت را ثبت کن؛ مدیر درخواست را بررسی می‌کند و برای ادامه مراحل از طریق روبیکا با تو تماس می‌گیرد. ثبت درخواست به معنی عضویت قطعی نیست.</p><form id="membershipForm" class="verification-form"><div class="field"><label>نام و نام خانوادگی</label><input id="m_fullname" maxlength="140" required></div><div class="field"><label>شماره تماس</label><input id="m_phone" type="tel" maxlength="30" required></div><div class="field"><label>آیدی روبیکا</label><input id="m_rubika" maxlength="80" placeholder="@username" required></div><div class="field"><label>شهر</label><input id="m_city" maxlength="80" required></div><div class="field"><label>حوزه فعالیت</label><input id="m_activity" maxlength="120" required></div><div class="field"><label>لینک نمونه‌کار (اختیاری)</label><input id="m_portfolio" type="url" maxlength="1000" placeholder="https://..."></div><div class="field full"><label>توضیحات و مهارت‌ها</label><textarea id="m_details" maxlength="2000" rows="4"></textarea></div><div class="field full"><button class="btn full" id="m_submit">ثبت درخواست عضویت</button><div class="err" id="m_error"></div></div></form><div id="m_result"></div></div></div>';
+  $("#membershipForm").addEventListener("submit",async ev=>{
+    ev.preventDefault();const btn=$("#m_submit"),err=$("#m_error"),result=$("#m_result");err.textContent="";result.innerHTML="";btn.disabled=true;btn.textContent="در حال ثبت...";
+    try{const payload={full_name:$("#m_fullname").value.trim(),phone:$("#m_phone").value.trim(),rubika:$("#m_rubika").value.trim().replace(/^@/,""),city:$("#m_city").value.trim(),activity:$("#m_activity").value.trim(),portfolio_url:$("#m_portfolio").value.trim(),details:$("#m_details").value.trim(),status:"pending",admin_note:""};const {data,error}=await sb.from("membership_applications").insert(payload).select("id,created_at").single();if(error)throw error;$("#membershipForm").reset();result.innerHTML='<div class="verification-result"><b>درخواستت با موفقیت ثبت شد.</b><p class="muted">کد پیگیری:</p><div class="verification-code">'+esc(data.id.slice(0,8).toUpperCase())+'</div><p class="muted">درخواست در پنل مدیریت بررسی می‌شود. پیام‌های روبیکایت را بررسی کن.</p></div>';}
+    catch(error){err.textContent=error.message||"ثبت درخواست ناموفق بود.";}finally{btn.disabled=false;btn.textContent="ثبت درخواست عضویت";}
+  });
+}
+async function loadMembershipApplications(){
+  const panel=$("#panel");if(!panel)return;panel.innerHTML='<div class="card"><h3>درخواست‌های عضویت</h3><p>در حال دریافت...</p></div>';
+  try{const {data,error}=await sb.from("membership_applications").select("*").order("created_at",{ascending:false}).limit(100);if(error)throw error;const list=data||[],count=$("#membershipCount");if(count)count.textContent="("+fa(list.filter(x=>x.status==="pending").length)+" در انتظار)";
+    const labels={pending:"در انتظار بررسی",contact_requested:"تماس اولیه",portfolio_requested:"درخواست نمونه‌کار",reviewing:"در حال بررسی",approved:"تأیید عضویت",rejected:"رد درخواست"};
+    panel.innerHTML='<div class="card"><h3>درخواست‌های عضویت ('+fa(list.length)+')</h3><p class="community-note">پس از بررسی، از طریق روبیکا با متقاضی تماس بگیر و وضعیت را تغییر بده.</p>'+(list.length?list.map(x=>'<article class="vreq" data-membership="'+esc(x.id)+'"><div class="vreq-head"><b>'+esc(x.full_name)+'</b><small>'+new Date(x.created_at).toLocaleString("fa-IR")+'</small></div><p>تلفن: <a href="tel:'+esc(x.phone.replace(/[^\\d+]/g,""))+'">'+esc(x.phone)+'</a> · شهر: '+esc(x.city)+'</p><p>روبیکا: <a href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">@'+esc(x.rubika.replace(/^@/,""))+'</a></p><p>حوزه فعالیت: '+esc(x.activity)+'</p>'+(x.portfolio_url?'<p><a href="'+esc(x.portfolio_url)+'" target="_blank" rel="noopener">مشاهده نمونه‌کار ↗</a></p>':'<p class="community-note">نمونه‌کار ثبت نشده است.</p>')+'<p>'+esc(x.details||"بدون توضیحات")+'</p><div class="vreq-actions"><select data-membership-status>'+Object.keys(labels).map(k=>'<option value="'+k+'" '+(x.status===k?'selected':'')+'>'+labels[k]+'</option>').join("")+'</select></div><textarea data-membership-note maxlength="1000" placeholder="یادداشت داخلی مدیر">'+esc(x.admin_note||"")+'</textarea><div class="vreq-actions"><button class="btn sm" data-act="membershipStatus" data-id="'+esc(x.id)+'">ذخیره وضعیت</button><a class="btn sm g" href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">پیام در روبیکا</a></div></article>').join(""):'<p class="community-note">هنوز درخواستی ثبت نشده است.</p>')+'</div>';
+  }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
+}
+
 function renderVerificationForm(){
   VIEW="verification";
   app().innerHTML=`<div class="verification-wrap"><a class="back" href="#/">بازگشت به سایت</a><div class="card">
@@ -1235,6 +1260,8 @@ async function loadVerificationRequests(){
 
 document.addEventListener("click", ev => {
   const t = ev.target;
+  const menuToggle=t.closest("[data-menu-toggle]");if(menuToggle){const menu=$("#nav"),open=menu.classList.toggle("open");menuToggle.setAttribute("aria-expanded",String(open));return;}
+  if(!t.closest("#nav")){$("#nav")?.classList.remove("open");$("#menuToggle")?.setAttribute("aria-expanded","false");}
   const deleteOpen = t.closest("[data-pf-delete-open]");
   if (deleteOpen) { ev.preventDefault(); ev.stopPropagation(); openPortfolioDelete(deleteOpen.dataset.pfDeleteOpen); return; }
   const pfControl = t.closest("[data-pf-step], [data-pf-go]");
@@ -1277,7 +1304,7 @@ document.addEventListener("click", ev => {
   const role = t.closest("[data-role]");
   if (role) { FILTER.role = role.dataset.role; $$("#chips [data-role]").forEach(b => b.classList.toggle("on", b === role)); renderList(); return; }
   const tab = t.closest("[data-tab]");
-  if (tab) { setTab(tab.dataset.tab); return; }
+  if (tab) { location.hash = "#/admin/" + tab.dataset.tab; return; }
   if (t.id === "mdl") return closeModal();
   const act = t.closest("[data-act]");
   if (act) { ev.preventDefault(); return runAction(act.dataset.act, act); }
@@ -1285,7 +1312,7 @@ document.addEventListener("click", ev => {
   if (go) { location.hash = go.dataset.go; return; }
 });
 document.addEventListener("keydown", ev => {
-  if (ev.key === "Escape") closeModal();
+  if (ev.key === "Escape") { closeModal(); $("#nav")?.classList.remove("open"); $("#menuToggle")?.setAttribute("aria-expanded","false"); }
   if (ev.key === "Enter" && ev.target.id === "pw") runAction("login");
   if (ev.key === "Enter" && ev.target.id === "edpass") runAction("editorLogin", document.querySelector('[data-act="editorLogin"]'));
   if (ev.key === "Enter" && ev.target.classList && ev.target.classList.contains("erow")) location.hash = ev.target.dataset.go;
@@ -1299,6 +1326,7 @@ document.addEventListener("change", ev => {
 
 async function runAction(name, btn){
   try {
+    if(name==="membershipStatus"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");const card=btn.closest("[data-membership]"),status=card?.querySelector("[data-membership-status]")?.value,allowed=["pending","contact_requested","portfolio_requested","reviewing","approved","rejected"];if(!allowed.includes(status))throw new Error("وضعیت نامعتبر است.");const note=card.querySelector("[data-membership-note]")?.value||"";const {error}=await sb.from("membership_applications").update({status,admin_note:note,reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(error)throw error;toast("وضعیت درخواست ذخیره شد.");loadMembershipApplications();return;}
     if(name==="resolveCommentReport"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");const {error}=await sb.from("comment_reports").update({status:"reviewed"}).eq("id",btn.dataset.id);if(error)throw error;toast("گزارش بررسی شد.");loadCommentReports();return;}
     if(name==="deleteReportedComment"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");if(!confirm("این نظر و پاسخ‌هایش حذف شوند؟"))return;const {error}=await sb.from("comments").delete().eq("id",btn.dataset.commentId);if(error)throw error;toast("نظر حذف شد.");loadCommentReports();return;}
     if(name==="communityGoogleLogin"){await signInCommunityWithGoogle();return;}
@@ -1437,11 +1465,14 @@ async function route(){
   if (h.startsWith("#/admin")) {
     if (ROLE !== "admin") await checkSession();
     if (ROLE !== "admin") { renderLogin(); return; }
-    if (VIEW !== "admin") renderAdmin();
-    const m = h.match(/^#\/admin\/edit\/(.+)$/);
-    if (m) openEditor(decodeURIComponent(m[1]));
+    const editMatch = h.match(/^#\/admin\/edit\/(.+)$/);
+    if (editMatch) { openEditor(decodeURIComponent(editMatch[1])); return; }
+    const tabMatch = h.match(/^#\/admin\/(editors|content|look|members|verification|reports)$/);
+    const tabName = tabMatch ? tabMatch[1] : "editors";
+    if (VIEW !== "admin") renderAdmin(tabName); else setTab(tabName);
     return;
   }
+  if (h === "#/join") { renderMembershipForm(); return; }
   if (h === "#/verification") { renderVerificationForm(); return; }
   if (h === "#/account") { renderCommunityAuth(); return; }
   if (h.startsWith("#/editor/")) { renderEditor(decodeURIComponent(h.slice(9))); return; }
