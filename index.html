@@ -750,7 +750,7 @@ function renderEditor(id){
     return {title:p.title, media, link};
   });
   const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
-    <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}</article>`).join("")}</div>
+    <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}<div class="project-comments" data-comments data-editor-id="${esc(e.id)}" data-portfolio-link="${esc(p.link)}"></div></article>`).join("")}</div>
     ${pfItems.length > 1 ? `<div class="pf-controls">
       <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">‹</button>
       <span class="pf-count"><span data-pf-current>۱</span> از <span data-pf-total>${fa(pfItems.length)}</span></span>
@@ -796,6 +796,7 @@ function renderEditor(id){
       <a class="btn full" style="margin-top:18px" href="mailto:${esc(e.email)}">${esc(T("sendBtn"))}</a>
     </div>
     ${pf ? `<div class="blk"><h3>${esc(T("portfolioTitle"))}</h3><div class="pf">${pf}</div></div>` : ""}
+    <div class="blk"><div data-comments data-editor-id="${esc(e.id)}" data-portfolio-link=""></div></div>
     ${e.testimonial ? `<div class="blk"><h3>${esc(T("testimonialTitle"))}</h3><p>«${esc(e.testimonial)}»</p></div>` : ""}
     ${ROLE === "editor" && MY_ID === e.id ? `<div class="blk" id="editorNotifications"><h3>اعلان‌های حساب</h3><p style="color:var(--mu)">در حال دریافت اعلان‌ها...</p></div>` : ""}
     ${canEdit ? editorForm(e) : loginBox}
@@ -807,6 +808,7 @@ function renderEditor(id){
   </div>`;
   requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
   if(ROLE === "editor" && MY_ID === e.id) loadEditorNotifications(e.id);
+  $("[data-comments]").forEach(host => loadComments(host));
   refreshPortfolioUsage();
 $$(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
