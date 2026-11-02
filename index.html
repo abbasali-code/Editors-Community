@@ -623,6 +623,8 @@ function applyTheme(){
 }
 function renderNav(){
   $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/verification">تیک آبی</a>`
+    + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود / ثبت‌نام"}</a>`
+    + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
     + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`;
   $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
   $("#banner").innerHTML = OFFLINE ? `<div class="notice err">${esc(T("connError"))}</div>` : "";
