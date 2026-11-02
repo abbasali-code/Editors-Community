@@ -861,7 +861,7 @@ function renderCommunityAuth(){
   app().innerHTML='<div class="wrap community-auth"><a class="back" href="#/">بازگشت</a><div class="card"><span class="eyebrow">حساب کاربری انجمن</span><h2>ورود یا عضویت با گوگل</h2><p class="community-note">برای ثبت نظر و پاسخ، فقط با حساب گوگل وارد شو. نام و ایمیل حساب گوگل برای ساخت پروفایل استفاده می‌شود؛ شماره موبایل لازم نیست.</p><button class="btn full" data-act="communityGoogleLogin"><span style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#4285f4;font:700 20px Arial">G</span> ورود با گوگل</button><div class="err" id="cu_error"></div><p class="community-note" style="margin-top:14px">با ورود، حساب کاربری انجمن به‌صورت خودکار ساخته می‌شود.</p></div></div>';
 }
 async function signInCommunityWithGoogle(){
-  const redirectTo=window.location.origin+window.location.pathname+"#/account";
+  const redirectTo=window.location.origin+window.location.pathname;
   const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
   if(error)throw error;
 }
