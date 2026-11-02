@@ -1120,7 +1120,8 @@ async function loadVerificationRequests(){
     }).join("")||'<div class="empty">هنوز درخواستی ثبت نشده است.</div>'+'</div></div>';
   }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
 }
-\ndocument.addEventListener("click", ev => {
+
+document.addEventListener("click", ev => {
   const t = ev.target;
   const deleteOpen = t.closest("[data-pf-delete-open]");
   if (deleteOpen) { ev.preventDefault(); ev.stopPropagation(); openPortfolioDelete(deleteOpen.dataset.pfDeleteOpen); return; }
