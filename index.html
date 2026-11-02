@@ -1091,7 +1091,7 @@ function renderVerificationForm(){
   <div class="field"><label for="v_username">نام کاربری در انجمن</label><select id="v_username" required><option value="">انتخاب نام ادیتور از فهرست انجمن</option>${EDS.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join("")}</select></div>
   <div class="field"><label for="v_eitaa">آیدی ایتای شما</label><input id="v_eitaa" maxlength="60" placeholder="@username" required></div>
   <div class="field"><label for="v_activity">زمینه فعالیت</label><input id="v_activity" maxlength="80" required></div>
-  <div class="field full"><label for="v_portfolio">لینک نمونه‌کار یا صفحه حرفه‌ای</label><input id="v_portfolio" type="url" maxlength="500" placeholder="https://..." required></div>
+  <div class="field full"><label for="v_portfolio">لینک نمونه‌کار یا صفحه حرفه‌ای</label><input id="v_portfolio" type="url" maxlength="500" placeholder="https://..." required><small class="muted">برای ثبت درخواست تیک آبی، حساب انجمن باید حداقل ۶ نمونه‌کار ثبت‌شده داشته باشد.</small></div>
   <div class="field full"><label for="v_details">توضیحات تکمیلی (اختیاری)</label><textarea id="v_details" rows="4" maxlength="1000"></textarea></div>
   <div class="field full"><button class="btn full" id="v_submit" type="submit">ثبت درخواست و دریافت کد پیگیری</button><div class="err" id="v_error"></div></div></form>
   <div id="verificationResult"></div>
@@ -1104,7 +1104,6 @@ function renderVerificationForm(){
       const full_name=$("#v_fullname").value.trim(),username=$("#v_username").value.trim().replace(/^@/,""),eitaa=$("#v_eitaa").value.trim().replace(/^@/,""),activity=$("#v_activity").value.trim(),portfolio_url=$("#v_portfolio").value.trim(),details=$("#v_details").value.trim();
       const applicant=EDS.find(x=>String(x.name||"").trim().toLowerCase()===username.toLowerCase());
       if(!applicant)throw new Error("حساب ادیتور این نام کاربری پیدا نشد.");
-      if(!Array.isArray(applicant.portfolio)||applicant.portfolio.length<6)throw new Error("برای درخواست تیک آبی باید حداقل ۶ نمونه‌کار ثبت کرده باشی.");
       if(!/^https?:\/\//i.test(portfolio_url))throw new Error("لینک نمونه‌کار باید با https:// یا http:// شروع شود.");
       const request_code="VR-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
       const message=[
