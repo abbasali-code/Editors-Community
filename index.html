@@ -1252,6 +1252,22 @@ document.addEventListener("click", ev => {
     }
     return;
   }
+  const reply=t.closest("[data-comment-reply]");
+  if(reply){
+    ev.preventDefault();ev.stopPropagation();if(!ROLE){location.hash="#/account";return;}
+    const item=reply.closest("[data-comment-item]");
+    if(!item.querySelector(".comment-reply-form"))item.insertAdjacentHTML("beforeend", '<div class="comment-reply-form"><textarea maxlength="2000" placeholder="پاسخت رو بنویس..."></textarea><button class="btn sm" data-comment-send data-editor-id="'+esc(item.dataset.editorId)+'" data-portfolio-link="'+esc(item.dataset.portfolioLink||"")+'" data-parent-id="'+reply.dataset.commentReply+'">ارسال پاسخ</button></div>');
+    return;
+  }
+  const sendCommentBtn=t.closest("[data-comment-send]");
+  if(sendCommentBtn){ev.preventDefault();ev.stopPropagation();submitComment(sendCommentBtn).catch(e=>toast(e.message));return;}
+  const report=t.closest("[data-comment-report]");
+  if(report){
+    ev.preventDefault();ev.stopPropagation();if(!ROLE){location.hash="#/account";return;}
+    const reason=prompt("دلیل گزارش این نظر را بنویس:");if(!reason||reason.trim().length<3)return;
+    sb.from("comment_reports").insert({comment_id:report.dataset.commentReport,reporter_id:MY_ID,reason:reason.trim()}).then(({error})=>toast(error?(error.code==="23505"?"این نظر را قبلاً گزارش کرده‌ای.":error.message):"گزارش برای بررسی مدیر ثبت شد."));
+    return;
+  }
   const sw = t.closest("[data-sw]");
   if (sw) { FCOLOR = sw.dataset.sw; $$("#sw [data-sw]").forEach(b => b.classList.toggle("on", b === sw)); return; }
   const adm = t.closest("[data-admin-edit]");
@@ -1281,6 +1297,10 @@ document.addEventListener("change", ev => {
 
 async function runAction(name, btn){
   try {
+    if(name==="communitySendOtp"){await sendCommunityOtp();return;}
+    if(name==="communityResend"){COMMUNITY_PENDING=null;renderCommunityAuth();return;}
+    if(name==="communityVerifyOtp"){await verifyCommunityOtp();return;}
+    if(name==="communityLogout"){await sb.auth.signOut();ROLE=null;MY_ID=null;COMMUNITY_PENDING=null;renderNav();toast("از حساب خارج شدی.");location.hash="#/";return;}
     if (name === "login") {
       await api("POST", "/api/login", {email: $("#adminemail").value, password: $("#pw").value});
       ROLE = "admin"; MY_ID = null; renderNav(); renderAdmin(); return;
@@ -1402,7 +1422,7 @@ async function runAction(name, btn){
       return;
     }
   } catch (err) {
-    const target = $("#lerr") || $("#ferr") || $("#eerr") || $("#perr");
+    const target = $("#cu_error") || $("#lerr") || $("#ferr") || $("#eerr") || $("#perr");
     if (target) target.textContent = err.message; else toast(err.message);
   }
 }
