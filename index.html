@@ -936,6 +936,7 @@ function renderAdmin(){
       <button class="chip" data-tab="content">${esc(T("tabContent"))}</button>
       <button class="chip" data-tab="look">${esc(T("tabLook"))}</button>
       <button class="chip" data-tab="verification">تیک آبی <span id="verificationCount"></span></button>
+      <button class="chip" data-tab="reports">گزارش نظرات</button>
       <span style="margin-right:auto"></span>
       <a class="chip" href="#/">${esc(T("viewSiteBtn"))}</a>
       <button class="chip" data-act="logout">${esc(T("logoutBtn"))}</button>
@@ -973,6 +974,9 @@ function setTab(name){
   } else if (name === "verification") {
     if (bar) bar.classList.add("hide");
     loadVerificationRequests();
+  } else if (name === "reports") {
+    if (bar) bar.classList.add("hide");
+    loadCommentReports();
   } else if (name === "content") {
     if (bar) bar.classList.remove("hide");
     panel.innerHTML = ""; build(DRAFT, panel, "", ["colors", "fonts", "effects"]);
@@ -1218,6 +1222,17 @@ async function loadEditorNotifications(editorId){
   }catch(error){host.innerHTML="<h3>اعلان‌های حساب</h3><p class=\"err\">دریافت اعلان‌ها ناموفق بود: "+esc(error.message)+"</p>";}
 }
 
+async function loadCommentReports(){
+  const panel=$("#panel");if(!panel)return;
+  panel.innerHTML='<div class="card"><h3>گزارش‌های نظرات</h3><p>در حال دریافت گزارش‌ها...</p></div>';
+  try{
+    const {data:reports,error}=await sb.from("comment_reports").select("id,comment_id,reporter_id,reason,created_at,status").eq("status","pending").order("created_at",{ascending:false});if(error)throw error;
+    const list=reports||[],commentIds=[...new Set(list.map(r=>r.comment_id))];let comments=[];
+    if(commentIds.length){const {data,error:ce}=await sb.from("comments").select("id,body,editor_id,portfolio_link,author_id").in("id",commentIds);if(ce)throw ce;comments=data||[];}
+    const cmap=new Map(comments.map(c=>[c.id,c]));
+    panel.innerHTML='<div class="card"><h3>گزارش‌های نظرات</h3><p class="community-note">گزارش‌ها فقط برای مدیر قابل مشاهده‌اند.</p>'+(list.length?list.map(r=>{const c=cmap.get(r.comment_id);const ed=c&&EDS.find(e=>e.id===c.editor_id);return '<div class="vreq"><div class="vreq-head"><b>'+esc(ed?ed.name:"ادیتور حذف‌شده")+(c&&c.portfolio_link?" — گزارش نمونه‌کار":" — گزارش پروفایل")+'</b><small>'+new Date(r.created_at).toLocaleString("fa-IR")+'</small></div><p>'+esc(c?c.body:"این نظر حذف شده است.")+'</p><p class="community-note">دلیل گزارش: '+esc(r.reason)+'</p><div class="vreq-actions"><button class="btn sm" data-act="resolveCommentReport" data-id="'+r.id+'">بستن گزارش</button>'+(c?'<button class="btn sm dg" data-act="deleteReportedComment" data-id="'+r.id+'" data-comment-id="'+c.id+'">حذف نظر</button>':"")+'</div></div>';}).join(""):'<p class="community-note">گزارش در انتظاری وجود ندارد.</p>')+'</div>';
+  }catch(error){panel.innerHTML='<div class="card"><h3>گزارش‌های نظرات</h3><p class="err">'+esc(error.message)+'</p></div>';}
+}
 async function loadVerificationRequests(){
   const panel=$("#panel");if(!panel)return;panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p>در حال دریافت...</p></div>';
   try{
@@ -1297,6 +1312,8 @@ document.addEventListener("change", ev => {
 
 async function runAction(name, btn){
   try {
+    if(name==="resolveCommentReport"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");const {error}=await sb.from("comment_reports").update({status:"reviewed"}).eq("id",btn.dataset.id);if(error)throw error;toast("گزارش بررسی شد.");loadCommentReports();return;}
+    if(name==="deleteReportedComment"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");if(!confirm("این نظر و پاسخ‌هایش حذف شوند؟"))return;const {error}=await sb.from("comments").delete().eq("id",btn.dataset.commentId);if(error)throw error;toast("نظر حذف شد.");loadCommentReports();return;}
     if(name==="communitySendOtp"){await sendCommunityOtp();return;}
     if(name==="communityResend"){COMMUNITY_PENDING=null;renderCommunityAuth();return;}
     if(name==="communityVerifyOtp"){await verifyCommunityOtp();return;}
