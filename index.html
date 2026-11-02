@@ -833,6 +833,82 @@ $$(".pf-short-video").forEach(video => {
   window.scrollTo({top: 0});
 }
 
+function normalizeCommunityPhone(value){
+  let v=String(value||"").trim().replace(/[\\s()-]/g,"");
+  if(/^09\\d{9}$/.test(v))return "+98"+v.slice(1);
+  if(/^9\\d{9}$/.test(v))return "+98"+v;
+  if(/^\\+\\d{8,15}$/.test(v))return v;
+  throw new Error("شماره موبایل معتبر وارد کن؛ مثلاً 09123456789.");
+}
+function renderCommunityAuth(){
+  VIEW="community-auth";
+  if(ROLE==="community_user"){
+    app().innerHTML='<div class="wrap community-auth"><div class="card" id="communityAccountInfo">در حال دریافت اطلاعات حساب...</div></div>';
+    sb.from("community_users").select("first_name,last_name,city").eq("id",MY_ID).maybeSingle().then(({data,error})=>{
+      const host=$("#communityAccountInfo");if(!host)return;
+      if(error||!data){host.textContent="دریافت اطلاعات حساب ناموفق بود.";return;}
+      host.innerHTML='<h2>سلام '+esc(data.first_name)+' '+esc(data.last_name)+' 👋</h2><p>شهر: '+esc(data.city)+'</p><p class="community-note">با این حساب می‌تونی زیر پروفایل ادیتورها و نمونه‌کارها نظر بذاری.</p><button class="btn g" data-act="communityLogout">خروج از حساب</button>';
+    });
+    return;
+  }
+  if(ROLE==="editor"||ROLE==="admin"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب انجمن</h2><p>حساب ادیتور و مدیر جدا از حساب کاربر عادی است. برای نظر دادن با حساب عمومی وارد شو.</p></div></div>';return;}
+  const p=COMMUNITY_PENDING||{};
+  app().innerHTML='<div class="wrap community-auth"><a class="back" href="#/">بازگشت</a><div class="card"><span class="eyebrow">حساب کاربری انجمن</span><h2>ثبت‌نام یا ورود</h2><p class="community-note">برای نظر دادن، شماره موبایلت را با کد پیامکی تأیید کن. شماره موبایل عمومی نمایش داده نمی‌شود.</p><div class="grid2">'+
+    '<div class="field"><label>نام</label><input id="cu_first" maxlength="60" value="'+esc(p.first_name||"")+'" '+(p.sent?"disabled":"")+'></div>'+
+    '<div class="field"><label>نام خانوادگی</label><input id="cu_last" maxlength="80" value="'+esc(p.last_name||"")+'" '+(p.sent?"disabled":"")+'></div>'+
+    '<div class="field"><label>شهر</label><input id="cu_city" maxlength="80" value="'+esc(p.city||"")+'" '+(p.sent?"disabled":"")+'></div>'+
+    '<div class="field"><label>شماره موبایل</label><input id="cu_phone" type="tel" inputmode="tel" placeholder="09123456789" value="'+esc(p.phone||"")+'" '+(p.sent?"disabled":"")+'></div>'+
+    (p.sent?'<div class="field" style="grid-column:1/-1"><label>کد پیامکی</label><input id="cu_otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="کد ۶ رقمی پیامک‌شده"></div>':"")+
+    '</div><div class="err" id="cu_error"></div><button class="btn full" data-act="'+(p.sent?"communityVerifyOtp":"communitySendOtp")+'">'+(p.sent?"تأیید کد و ورود":"ارسال کد تأیید")+'</button>'+(p.sent?'<button class="btn g full" style="margin-top:8px" data-act="communityResend">تغییر شماره / ارسال دوباره</button>':"")+'</div></div>';
+}
+async function sendCommunityOtp(){
+  const first=$("#cu_first").value.trim(),last=$("#cu_last").value.trim(),city=$("#cu_city").value.trim(),phone=normalizeCommunityPhone($("#cu_phone").value);
+  if(!first||!last||!city)throw new Error("نام، نام خانوادگی و شهر را کامل وارد کن.");
+  const {error}=await sb.auth.signInWithOtp({phone,options:{data:{first_name:first,last_name:last,city}}});
+  if(error)throw error;
+  COMMUNITY_PENDING={first_name:first,last_name:last,city,phone,sent:true};renderCommunityAuth();toast("کد تأیید ارسال شد؛ پیامک را بررسی کن.");
+}
+async function verifyCommunityOtp(){
+  if(!COMMUNITY_PENDING?.sent)throw new Error("ابتدا شماره موبایل را ثبت کن.");
+  const token=$("#cu_otp").value.trim();if(!/^\\d{6}$/.test(token))throw new Error("کد پیامکی باید ۶ رقم باشد.");
+  const {data,error}=await sb.auth.verifyOtp({phone:COMMUNITY_PENDING.phone,token,type:"sms"});if(error)throw error;
+  const user=data.user;if(!user)throw new Error("ورود انجام نشد؛ دوباره تلاش کن.");
+  const {error:saveError}=await sb.from("community_users").upsert({id:user.id,first_name:COMMUNITY_PENDING.first_name,last_name:COMMUNITY_PENDING.last_name,city:COMMUNITY_PENDING.city},{onConflict:"id"});
+  if(saveError)throw saveError;
+  COMMUNITY_PENDING=null;await checkSession();renderNav();if(ROLE!=="community_user")throw new Error("این شماره به حساب ادیتور یا مدیر متصل است و حساب عمومی نمی‌تواند بسازد.");
+  toast("حساب کاربری فعال شد.");location.hash="#/";
+}
+async function loadComments(host){
+  if(!host||!host.isConnected)return;
+  const editorId=host.dataset.editorId,portfolioLink=host.dataset.portfolioLink||null;
+  host.innerHTML='<div class="comment-box"><p class="community-note">در حال دریافت نظرات...</p></div>';
+  try{
+    let query=sb.from("comments").select("id,author_id,editor_id,portfolio_link,parent_id,body,created_at").eq("editor_id",editorId).order("created_at",{ascending:true});
+    query=portfolioLink?query.eq("portfolio_link",portfolioLink):query.is("portfolio_link",null);
+    const {data,error}=await query;if(error)throw error;const comments=data||[],ids=[...new Set(comments.map(c=>c.author_id))];
+    let users=[];if(ids.length){const {data:u,error:ue}=await sb.from("community_users").select("id,first_name,last_name,city").in("id",ids);if(ue)throw ue;users=u||[];}
+    const userMap=new Map(users.map(u=>[u.id,u])),children=new Map();
+    comments.forEach(c=>{if(c.parent_id){if(!children.has(c.parent_id))children.set(c.parent_id,[]);children.get(c.parent_id).push(c);}});
+    const nameOf=c=>{const ed=EDS.find(e=>e.id===c.author_id);if(ed)return ed.name;const u=userMap.get(c.author_id);return u?(u.first_name+" "+u.last_name).trim():"کاربر انجمن";};
+    const renderOne=c=>'<article class="comment-item" data-comment-item="'+c.id+'" data-editor-id="'+esc(editorId)+'" data-portfolio-link="'+esc(portfolioLink||"")+'"><div class="comment-meta"><b>'+esc(nameOf(c))+'</b><span>'+new Date(c.created_at).toLocaleDateString("fa-IR")+'</span></div><div class="comment-body">'+esc(c.body)+'</div><div class="comment-actions"><button data-comment-reply="'+c.id+'">پاسخ</button>'+(MY_ID&&MY_ID!==c.author_id?'<button data-comment-report="'+c.id+'">گزارش</button>':"")+'</div><div class="comment-replies">'+(children.get(c.id)||[]).map(renderOne).join("")+'</div></article>';
+    const top=comments.filter(c=>!c.parent_id),canTop=ROLE==="community_user"||(ROLE==="editor"&&MY_ID!==editorId);
+    let composer="";
+    if(canTop)composer='<div class="comment-compose"><textarea maxlength="2000" placeholder="نظرت رو محترمانه بنویس..." data-comment-input></textarea><button class="btn sm" data-comment-send data-editor-id="'+esc(editorId)+'" data-portfolio-link="'+esc(portfolioLink||"")+'">ثبت نظر</button></div>';
+    else if(!ROLE)composer='<p class="community-note">برای ثبت نظر، <a href="#/account">وارد حساب کاربری شو یا ثبت‌نام کن.</a></p>';
+    else if(ROLE==="editor"&&MY_ID===editorId)composer='<p class="community-note">نمی‌تونی درباره پروفایل یا نمونه‌کار خودت نظر ثبت کنی؛ اما می‌تونی به نظرهای دیگران پاسخ بدی.</p>';
+    else composer='<p class="community-note">برای ثبت نظر با حساب کاربری عمومی وارد شو.</p>';
+    host.innerHTML='<div class="comment-box"><h3>'+(portfolioLink?"نظرات این نمونه‌کار":"نظرات درباره ادیتور")+'</h3><span class="community-note">'+fa(comments.length)+' نظر و پاسخ</span>'+composer+'<div class="comment-list">'+(top.map(renderOne).join("")||'<p class="community-note">هنوز نظری ثبت نشده؛ اولین نفر باش!</p>')+'</div></div>';
+  }catch(error){host.innerHTML='<div class="comment-box"><p class="err">دریافت نظرات ناموفق بود: '+esc(error.message)+'</p></div>';}
+}
+async function submitComment(button){
+  if(!ROLE){location.hash="#/account";return;}
+  const editorId=button.dataset.editorId,portfolioLink=button.dataset.portfolioLink||null,parentId=button.dataset.parentId||null;
+  const area=button.closest(".comment-compose,.comment-reply-form")?.querySelector("textarea"),body=area?.value.trim();
+  if(!body)throw new Error("متن نظر را بنویس.");if(body.length>2000)throw new Error("نظر حداکثر ۲۰۰۰ کاراکتر باشد.");
+  const {error}=await sb.from("comments").insert({author_id:MY_ID,editor_id:editorId,portfolio_link:portfolioLink,parent_id:parentId,body});if(error)throw error;
+  $("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
+  toast(parentId?"پاسخت ثبت شد.":"نظرت منتشر شد.");
+}
 /* ==================================================
    ورود مدیر و پنل مدیریت
    ================================================== */
