@@ -1282,7 +1282,7 @@ document.addEventListener("click", ev => {
   const t = ev.target;
   const menuToggle=t.closest("[data-menu-toggle]");if(menuToggle){setMenuOpen(!$("#nav")?.classList.contains("open"));return;}
   if(t.closest("[data-menu-close]")){setMenuOpen(false);return;}
-  const navLink=t.closest("#nav a");if(navLink){const href=navLink.getAttribute("href");if(href){ev.preventDefault();setMenuOpen(false);if(location.hash===href){route();}else{location.hash=href;}}return;}
+  const navLink=t.closest("#nav a");if(navLink){setMenuOpen(false);}
   const deleteOpen = t.closest("[data-pf-delete-open]");
   if (deleteOpen) { ev.preventDefault(); ev.stopPropagation(); openPortfolioDelete(deleteOpen.dataset.pfDeleteOpen); return; }
   const pfControl = t.closest("[data-pf-step], [data-pf-go]");
