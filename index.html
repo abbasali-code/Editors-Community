@@ -1102,7 +1102,16 @@ function renderVerificationForm(){
       const full_name=$("#v_fullname").value.trim(),username=$("#v_username").value.trim().replace(/^@/,""),eitaa=$("#v_eitaa").value.trim().replace(/^@/,""),activity=$("#v_activity").value.trim(),portfolio_url=$("#v_portfolio").value.trim(),details=$("#v_details").value.trim();
       if(!/^https?:\/\//i.test(portfolio_url))throw new Error("لینک نمونه‌کار باید با https:// یا http:// شروع شود.");
       const request_code="VR-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
-      const message=[\n        "سلام، برای دریافت تیک آبی انجمن ادیتوران درخواست ثبت کردم.",\n        "کد پیگیری: "+request_code,\n        "نام: "+full_name,\n        "نام کاربری انجمن: "+username,\n        "آیدی ایتا: @"+eitaa,\n        "زمینه فعالیت: "+activity,\n        "نمونه‌کار: "+portfolio_url,\n        "توضیحات: "+(details||"ندارد")\n      ].join("\\n");
+      const message=[
+        "سلام، برای دریافت تیک آبی انجمن ادیتوران درخواست ثبت کردم.",
+        "کد پیگیری: "+request_code,
+        "نام: "+full_name,
+        "نام کاربری انجمن: "+username,
+        "آیدی ایتا: @"+eitaa,
+        "زمینه فعالیت: "+activity,
+        "نمونه‌کار: "+portfolio_url,
+        "توضیحات: "+(details||"ندارد")
+      ].join("\n")
       const {error}=await sb.from("verification_requests").insert({request_code,full_name,username,eitaa,activity,portfolio_url,details,status:"pending",admin_note:""});if(error)throw error;
       result.innerHTML=`<div class="verification-result"><b>درخواستت ثبت شد!</b><p class="muted">کد پیگیری:</p><div class="verification-code">${esc(request_code)}</div><div class="acts" style="margin-top:14px"><button class="btn" type="button" id="copyVerificationMessage">کپی پیام آماده</button><a class="btn g" href="https://eitaa.com/sobhn1890" target="_blank" rel="noopener">رفتن به ایتای ادمین @sobhn1890</a></div><p class="muted">پیام کپی‌شده رو در ایتا ارسال کن. ثبت درخواست به معنی تأیید تیک نیست.</p></div>`;
       $("#copyVerificationMessage").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(message);}catch(e){const ta=document.createElement("textarea");ta.value=message;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}toast("پیام کپی شد.");});
