@@ -834,10 +834,10 @@ $$(".pf-short-video").forEach(video => {
 }
 
 function normalizeCommunityPhone(value){
-  let v=String(value||"").trim().replace(/[\\s()-]/g,"");
-  if(/^09\\d{9}$/.test(v))return "+98"+v.slice(1);
-  if(/^9\\d{9}$/.test(v))return "+98"+v;
-  if(/^\\+\\d{8,15}$/.test(v))return v;
+  let v=String(value||"").trim().replace(/[\s()-]/g,"");
+  if(/^09\d{9}$/.test(v))return "+98"+v.slice(1);
+  if(/^9\d{9}$/.test(v))return "+98"+v;
+  if(/^\+\d{8,15}$/.test(v))return v;
   throw new Error("شماره موبایل معتبر وارد کن؛ مثلاً 09123456789.");
 }
 function renderCommunityAuth(){
@@ -870,7 +870,7 @@ async function sendCommunityOtp(){
 }
 async function verifyCommunityOtp(){
   if(!COMMUNITY_PENDING?.sent)throw new Error("ابتدا شماره موبایل را ثبت کن.");
-  const token=$("#cu_otp").value.trim();if(!/^\\d{6}$/.test(token))throw new Error("کد پیامکی باید ۶ رقم باشد.");
+  const token=$("#cu_otp").value.trim();if(!/^\d{6}$/.test(token))throw new Error("کد پیامکی باید ۶ رقم باشد.");
   const {data,error}=await sb.auth.verifyOtp({phone:COMMUNITY_PENDING.phone,token,type:"sms"});if(error)throw error;
   const user=data.user;if(!user)throw new Error("ورود انجام نشد؛ دوباره تلاش کن.");
   const {error:saveError}=await sb.from("community_users").upsert({id:user.id,first_name:COMMUNITY_PENDING.first_name,last_name:COMMUNITY_PENDING.last_name,city:COMMUNITY_PENDING.city},{onConflict:"id"});
