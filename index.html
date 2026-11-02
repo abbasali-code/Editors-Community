@@ -630,7 +630,7 @@ function applyTheme(){
   $("#fCopy").textContent = "© " + fa(new Date().getFullYear()) + " " + CFG.brand + " — " + CFG.footer.copy;
   $("#fBadge").textContent = T("footerBadge");
   $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a>${CFG.contact.rubika ? `<a href="https://rubika.ir/${esc(CFG.contact.rubika.replace(/^@/, ""))}" target="_blank" rel="noopener">روبیکا: ${esc(CFG.contact.rubika)}</a>` : ""}<span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
-  $("#fContact").insertAdjacentHTML("beforeend", `<a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">پشتیبانی سایت در ایتا: @Abbas_agha4933</a>`);
+  $("#fContact").insertAdjacentHTML("beforeend", `<a href="https://rubika.ir/Sobhan12546" target="_blank" rel="noopener">پشتیبانی اصلی در روبیکا: @Sobhan12546</a><a href="https://rubika.ir/Mr_Rezu" target="_blank" rel="noopener">پشتیبان دوم در روبیکا: @Mr_Rezu</a><a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">پشتیبانی فنی سایت در ایتا: @Abbas_agha4933</a>`);
   document.title = CFG.brand + " | " + CFG.brandSub;
   renderNav();
 }
