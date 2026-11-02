@@ -522,7 +522,7 @@ async function api(method, url, body){
     if(communityError)throw communityError;
     if(!community){
       const providers=user.app_metadata?.providers||[];
-      if(user.app_metadata?.provider!=="google"&&!providers.includes("google"))throw new Error("برای حساب کاربری انجمن فقط ورود با گوگل مجاز است.");
+      if(user.app_metadata?.provider!=="google"&&!providers.includes("google")){await sb.auth.signOut();throw new Error("حساب شما هنوز به‌عنوان ادیتور تأیید نشده است. پس از تأیید مدیر می‌توانید وارد شوید.");}
       const meta=user.user_metadata||{};
       const fullName=String(meta.full_name||meta.name||[meta.given_name,meta.family_name].filter(Boolean).join(" ")||user.email?.split("@")[0]||"کاربر گوگل").trim();
       const parts=fullName.split(/\s+/);
