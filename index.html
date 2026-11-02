@@ -263,7 +263,7 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
   .pn a:last-child{text-align:right}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-</style>
+.verified-badge{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1688f8;color:#fff;font:700 14px/1 Arial;vertical-align:middle;margin-inline:5px;box-shadow:0 0 0 2px rgba(22,136,248,.16)}.verification-wrap{max-width:760px;margin:48px auto;padding:0 16px}.verification-wrap .card{padding:28px}.verification-wrap h1{font-size:clamp(44px,7vw,68px);margin-bottom:8px}.verification-wrap .muted{color:var(--mu);font-size:14px}.verification-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.verification-form .field.full{grid-column:1/-1}.verification-form input,.verification-form textarea{width:100%;padding:11px 13px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);outline:none}.verification-result{margin-top:20px;padding:20px;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.verification-code{font:700 24px/1.5 monospace;color:var(--acc);direction:ltr;text-align:center;letter-spacing:2px}.vreq{padding:18px;margin:12px 0;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.vreq-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.vreq small{color:var(--mu)}.vreq-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.vreq select{min-width:180px;padding:8px;border:1px solid var(--ln);border-radius:9px;background:var(--bg)}@media(max-width:600px){.verification-form{grid-template-columns:1fr}.verification-form .field.full{grid-column:auto}.verification-wrap .card{padding:18px}}</style>
 </head>
 <body>
 <div class="bgfx" aria-hidden="true"></div>
@@ -478,7 +478,8 @@ function dbEditor(row){
     exp: Number(row.exp) || 0,
     projects: Number(row.projects) || 0,
     skills: Array.isArray(row.skills) ? row.skills : [],
-    portfolio: Array.isArray(row.portfolio) ? row.portfolio : []
+    portfolio: Array.isArray(row.portfolio) ? row.portfolio : [],
+    is_verified: row.is_verified === true
   };
 }
 async function api(method, url, body){
@@ -630,7 +631,7 @@ function edRow(e, i){
   return `<article class="erow" style="--c:${esc(e.color)}" data-go="#/editor/${esc(e.id)}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     <span class="ix">${fa(String(i + 1).padStart(2, "0"))}</span>
     <span class="av">${esc(ini(e.name))}</span>
-    <span class="nm"><b>${esc(e.name)}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
+    <span class="nm"><b>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
     <span class="tg">${(e.skills || []).slice(0, 3).map(s => `<em>${esc(s)}</em>`).join("")}</span>
     ${ROLE === "admin" ? `<button class="btn sm g" data-admin-edit="${esc(e.id)}">${esc(T("cardAdminBtn"))}</button>` : `<span></span>`}
     <span class="go">←</span>
@@ -652,7 +653,7 @@ function renderHome(){
     <span class="eyebrow">${esc(h.eyebrow)}</span>
     <h1>${esc(h.line1)} <span class="l2">${esc(h.line2)}</span><span class="l3">${esc(h.line3)}</span></h1>
     <p>${esc(h.sub)}</p>
-    <div class="acts"><a class="btn" href="#/#editors">${esc(h.btn1)}</a><a class="btn g" href="#/#contact">${esc(h.btn2)}</a></div>
+    <div class="acts"><a class="btn" href="#/#editors">${esc(h.btn1)}</a><a class="btn g" href="#/#contact">${esc(h.btn2)}</a><a class="btn gold" href="#/verification">درخواست تیک آبی</a></div>
     ${c.stats.length ? `<div class="stats">${c.stats.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
   </div></section>` : ""}
 
@@ -765,7 +766,7 @@ function renderEditor(id){
       <div class="big">${esc(ini(e.name))}</div>
       <div class="inf">
         <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
-        <h1>${esc(e.name)}</h1>
+        <h1>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</h1>
         <div class="role">${esc(e.role)}</div>
         <p class="short">${esc(e.short)}</p>
         <div class="chips" style="margin-top:14px">${(e.skills || []).map(s => `<span class="chip" style="cursor:default">${esc(s)}</span>`).join("")}</div>
@@ -848,6 +849,7 @@ function renderAdmin(){
       <button class="chip on" data-tab="editors">${esc(T("tabEditors"))} (${fa(EDS.length)})</button>
       <button class="chip" data-tab="content">${esc(T("tabContent"))}</button>
       <button class="chip" data-tab="look">${esc(T("tabLook"))}</button>
+      <button class="chip" data-tab="verification">تیک آبی <span id="verificationCount"></span></button>
       <span style="margin-right:auto"></span>
       <a class="chip" href="#/">${esc(T("viewSiteBtn"))}</a>
       <button class="chip" data-act="logout">${esc(T("logoutBtn"))}</button>
@@ -882,6 +884,9 @@ function setTab(name){
         <button class="btn sm dg" data-act="del" data-id="${esc(e.id)}">${esc(T("deleteBtn"))}</button>
       </div>`).join("") || `<div class="empty">${esc(T("noEditorsYet"))}</div>`}</div>
     </div>`;
+  } else if (name === "verification") {
+    if (bar) bar.classList.add("hide");
+    loadVerificationRequests();
   } else if (name === "content") {
     if (bar) bar.classList.remove("hide");
     panel.innerHTML = ""; build(DRAFT, panel, "", ["colors", "fonts", "effects"]);
@@ -1072,7 +1077,50 @@ async function uploadEditorPortfolio(input){
 /* ==================================================
    رویدادها (تفویض‌شده)
    ================================================== */
-document.addEventListener("click", ev => {
+
+function renderVerificationForm(){
+  VIEW="verification";
+  app().innerHTML=`<div class="verification-wrap"><a class="back" href="#/">بازگشت به سایت</a><div class="card">
+  <span class="eyebrow">درخواست بررسی هویت</span><h1>دریافت تیک آبی <span class="verified-badge">✓</span></h1>
+  <p class="muted">اطلاعاتت رو ثبت کن. بعد از ثبت، کد پیگیری و پیام آماده برای ادمین ایتا نمایش داده می‌شه. تیک فقط پس از بررسی دستی ادمین فعال می‌شه.</p>
+  <form id="verificationForm" class="verification-form">
+  <div class="field"><label for="v_fullname">نام و نام خانوادگی</label><input id="v_fullname" maxlength="100" required></div>
+  <div class="field"><label for="v_username">نام کاربری در انجمن</label><input id="v_username" maxlength="40" placeholder="مثلاً abbas_editor" required></div>
+  <div class="field"><label for="v_eitaa">آیدی ایتای شما</label><input id="v_eitaa" maxlength="60" placeholder="@username" required></div>
+  <div class="field"><label for="v_activity">زمینه فعالیت</label><input id="v_activity" maxlength="80" required></div>
+  <div class="field full"><label for="v_portfolio">لینک نمونه‌کار یا صفحه حرفه‌ای</label><input id="v_portfolio" type="url" maxlength="500" placeholder="https://..." required></div>
+  <div class="field full"><label for="v_details">توضیحات تکمیلی (اختیاری)</label><textarea id="v_details" rows="4" maxlength="1000"></textarea></div>
+  <div class="field full"><button class="btn full" id="v_submit" type="submit">ثبت درخواست و دریافت کد پیگیری</button><div class="err" id="v_error"></div></div></form>
+  <div id="verificationResult"></div>
+  <p class="muted" style="margin-top:20px">در صورت بروز مشکل، با پشتیبانی سایت در ایتا به آیدی <a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">@Abbas_agha4933</a> پیام بده.</p>
+  </div></div>`;
+  $("#verificationForm").addEventListener("submit",async ev=>{
+    ev.preventDefault();const btn=$("#v_submit"),err=$("#v_error"),result=$("#verificationResult");err.textContent="";result.innerHTML="";btn.disabled=true;btn.textContent="در حال ثبت...";
+    try{
+      const full_name=$("#v_fullname").value.trim(),username=$("#v_username").value.trim().replace(/^@/,""),eitaa=$("#v_eitaa").value.trim().replace(/^@/,""),activity=$("#v_activity").value.trim(),portfolio_url=$("#v_portfolio").value.trim(),details=$("#v_details").value.trim();
+      if(!/^https?:\/\//i.test(portfolio_url))throw new Error("لینک نمونه‌کار باید با https:// یا http:// شروع شود.");
+      const request_code="VR-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
+      const message="سلام، برای دریافت تیک آبی انجمن ادیتوران درخواست ثبت کردم.\\nکد پیگیری: "+request_code+"\\nنام: "+full_name+"\\nنام کاربری انجمن: @"+username+"\\nآیدی ایتا: @"+eitaa+"\\nزمینه فعالیت: "+activity+"\\nنمونه‌کار: "+portfolio_url+"\\nتوضیحات: "+(details||"ندارد");
+      const {error}=await sb.from("verification_requests").insert({request_code,full_name,username,eitaa,activity,portfolio_url,details,status:"pending",admin_note:""});if(error)throw error;
+      result.innerHTML=`<div class="verification-result"><b>درخواستت ثبت شد!</b><p class="muted">کد پیگیری:</p><div class="verification-code">${esc(request_code)}</div><div class="acts" style="margin-top:14px"><button class="btn" type="button" id="copyVerificationMessage">کپی پیام آماده</button><a class="btn g" href="https://eitaa.com/sobhn1890" target="_blank" rel="noopener">رفتن به ایتای ادمین @sobhn1890</a></div><p class="muted">پیام کپی‌شده رو در ایتا ارسال کن. ثبت درخواست به معنی تأیید تیک نیست.</p></div>`;
+      $("#copyVerificationMessage").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(message);}catch(e){const ta=document.createElement("textarea");ta.value=message;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}toast("پیام کپی شد.");});
+      ev.target.reset();
+    }catch(error){err.textContent=error.message||"ثبت درخواست ناموفق بود.";}finally{btn.disabled=false;btn.textContent="ثبت درخواست و دریافت کد پیگیری";}
+  });
+}
+async function loadVerificationRequests(){
+  const panel=$("#panel");if(!panel)return;panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p>در حال دریافت...</p></div>';
+  try{
+    if(ROLE!=="admin")throw new Error("دسترسی مدیر لازم است.");
+    const {data,error}=await sb.from("verification_requests").select("*").order("created_at",{ascending:false}).limit(100);if(error)throw error;
+    const requests=data||[],count=$("#verificationCount");if(count)count.textContent="("+fa(requests.filter(x=>x.status==="pending").length)+" در انتظار)";
+    panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p style="color:var(--mu)">برای اعطای تیک، حساب دقیق ادیتور را انتخاب کن. تأیید درخواست به‌تنهایی تیک را فعال نمی‌کند.</p><div>'+requests.map(req=>{
+      const status=req.status==="pending"?"در انتظار بررسی":req.status==="approved"?"تأیید شده":"رد شده";
+      return '<article class="vreq" data-request="'+esc(req.id)+'"><div class="vreq-head"><b>'+esc(req.full_name)+' · @'+esc(req.username)+'</b><small>'+esc(status)+' · '+esc(req.request_code)+'</small></div><p>ایتا: @'+esc(req.eitaa)+' · فعالیت: '+esc(req.activity)+'</p><p><a href="'+esc(req.portfolio_url)+'" target="_blank" rel="noopener">مشاهده نمونه‌کار ↗</a></p><p>'+esc(req.details||"بدون توضیحات")+'</p><div class="vreq-actions"><select data-target-editor><option value="">انتخاب حساب ادیتور</option>'+EDS.map(e=>'<option value="'+esc(e.id)+'">'+esc(e.name)+' · '+esc(e.id.slice(0,8))+'</option>').join("")+'</select><button class="btn sm" data-act="grantVerification" data-id="'+esc(req.id)+'">تأیید و اعطای تیک</button><button class="btn sm dg" data-act="rejectVerification" data-id="'+esc(req.id)+'">رد درخواست</button></div></article>';
+    }).join("")||'<div class="empty">هنوز درخواستی ثبت نشده است.</div>'+'</div></div>';
+  }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
+}
+\ndocument.addEventListener("click", ev => {
   const t = ev.target;
   const deleteOpen = t.closest("[data-pf-delete-open]");
   if (deleteOpen) { ev.preventDefault(); ev.stopPropagation(); openPortfolioDelete(deleteOpen.dataset.pfDeleteOpen); return; }
@@ -1138,6 +1186,20 @@ async function runAction(name, btn){
     if (name === "editorLogout") {
       await api("POST", "/api/logout").catch(() => {});
       ROLE = null; MY_ID = null; renderNav(); renderEditor(location.hash.replace("#/editor/", "")); return;
+    }
+
+    if(name==="grantVerification"){
+      if(ROLE!=="admin")throw new Error("فقط مدیر می‌تواند تیک آبی بدهد.");
+      const card=btn.closest("[data-request]"),target=card?.querySelector("[data-target-editor]")?.value;if(!target)throw new Error("اول حساب ادیتور را انتخاب کن.");
+      const editor=EDS.find(x=>x.id===target);if(!editor)throw new Error("حساب انتخاب‌شده پیدا نشد.");
+      const {error:re}=await sb.from("verification_requests").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(re)throw re;
+      const {error:ee}=await sb.from("editors").update({is_verified:true}).eq("id",target);if(ee)throw ee;
+      editor.is_verified=true;toast("درخواست تأیید و تیک آبی فعال شد.");setTab("verification");return;
+    }
+    if(name==="rejectVerification"){
+      if(ROLE!=="admin")throw new Error("فقط مدیر می‌تواند درخواست را بررسی کند.");
+      const {error}=await sb.from("verification_requests").update({status:"rejected",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(error)throw error;
+      toast("درخواست رد شد.");setTab("verification");return;
     }
     if (name === "closePortfolioDelete") { closeModal(); return; }
     if (name === "deletePortfolioConfirm") {
@@ -1238,6 +1300,7 @@ async function route(){
     if (m) openEditor(decodeURIComponent(m[1]));
     return;
   }
+  if (h === "#/verification") { renderVerificationForm(); return; }
   if (h.startsWith("#/editor/")) { renderEditor(decodeURIComponent(h.slice(9))); return; }
   if (VIEW !== "home") renderHome();
   const m = h.match(/#([a-z]+)$/);
