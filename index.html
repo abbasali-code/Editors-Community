@@ -745,10 +745,10 @@ function renderEditor(id){
   const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
     <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}</article>`).join("")}</div>
     ${pfItems.length > 1 ? `<div class="pf-controls">
-      <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">›</button>
+      <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">‹</button>
       <span class="pf-count"><span data-pf-current>۱</span> از <span data-pf-total>${fa(pfItems.length)}</span></span>
       <div class="pf-dots">${pfItems.map((p,k) => `<button type="button" class="pf-dot ${k===0?"active":""}" data-pf-go="${k}" aria-label="رفتن به نمونه‌کار ${k+1}"></button>`).join("")}</div>
-      <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">‹</button>
+      <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">›</button>
     </div>` : `<div class="pf-controls"><span class="pf-count">۱ از ۱</span></div>`}
   </div>` : "";
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
