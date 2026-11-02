@@ -641,9 +641,10 @@ function renderNav(){
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
     + (ROLE === "editor" ? `<a href="#/editor/${esc(MY_ID)}">پروفایل و پنل من</a>` : "")
     + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`
-    + (ROLE === "admin" ? `<a href="#/admin/members">درخواست‌های عضویت</a><a href="#/admin/editors">مدیریت ادیتورها</a><a href="#/admin/content">مدیریت محتوا</a><a href="#/admin/look">ظاهر سایت</a><a href="#/admin/verification">درخواست‌های تیک آبی</a><a href="#/admin/reports">گزارش نظرات</a><a href="#/" data-act="logout">خروج مدیریت</a>` : "");
+    + (ROLE === "admin" ? `<a href="#/admin/members">درخواست‌های عضویت <span id="membershipMenuCount"></span></a><a href="#/admin/editors">مدیریت ادیتورها</a><a href="#/admin/content">مدیریت محتوا</a><a href="#/admin/look">ظاهر سایت</a><a href="#/admin/verification">درخواست‌های تیک آبی</a><a href="#/admin/reports">گزارش نظرات</a><a href="#/" data-act="logout">خروج مدیریت</a>` : "");
   $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
   $("#banner").innerHTML = OFFLINE ? `<div class="notice err">${esc(T("connError"))}</div>` : "";
+  if(ROLE==="admin"){sb.from("membership_applications").select("id",{count:"exact",head:true}).eq("status","pending").then(({count,error})=>{const badge=$("#membershipMenuCount");if(badge&&!error)badge.textContent=count?"("+fa(count)+")":"";});}
 }
 
 /* ==================================================
