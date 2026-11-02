@@ -514,8 +514,11 @@ async function api(method, url, body){
     const {data:{user}, error} = await sb.auth.getUser();
     if (error || !user) throw new Error("دسترسی مجاز نیست");
     const {data:profile, error:profileError} = await sb.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    if (profileError || !profile) throw new Error("دسترسی مجاز نیست");
-    return {ok:true, role:profile.role, id:user.id};
+    if (profileError) throw profileError;
+    if (profile) return {ok:true, role:profile.role, id:user.id};
+    const {data:community,error:communityError}=await sb.from("community_users").select("id").eq("id",user.id).maybeSingle();
+    if(communityError||!community)throw new Error("دسترسی مجاز نیست");
+    return {ok:true,role:"community_user",id:user.id};
   }
   if (method === "PUT" && url === "/api/config") {
     const {error} = await sb.from("site_config").upsert({id:true, data:body, updated_at:new Date().toISOString()});
@@ -742,7 +745,7 @@ function renderEditor(id){
     else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
     else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy"></a>`;
     else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
-    return {title:p.title, media};
+    return {title:p.title, media, link};
   });
   const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
     <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}</article>`).join("")}</div>
@@ -1338,6 +1341,7 @@ async function route(){
     return;
   }
   if (h === "#/verification") { renderVerificationForm(); return; }
+  if (h === "#/account") { renderCommunityAuth(); return; }
   if (h.startsWith("#/editor/")) { renderEditor(decodeURIComponent(h.slice(9))); return; }
   if (VIEW !== "home") renderHome();
   const m = h.match(/#([a-z]+)$/);
