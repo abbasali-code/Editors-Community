@@ -1114,10 +1114,10 @@ async function loadVerificationRequests(){
     if(ROLE!=="admin")throw new Error("دسترسی مدیر لازم است.");
     const {data,error}=await sb.from("verification_requests").select("*").order("created_at",{ascending:false}).limit(100);if(error)throw error;
     const requests=data||[],count=$("#verificationCount");if(count)count.textContent="("+fa(requests.filter(x=>x.status==="pending").length)+" در انتظار)";
-    panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p style="color:var(--mu)">برای اعطای تیک، حساب دقیق ادیتور را انتخاب کن. تأیید درخواست به‌تنهایی تیک را فعال نمی‌کند.</p><div>'+requests.map(req=>{
+    panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p style="color:var(--mu)">برای اعطای تیک، حساب دقیق ادیتور را انتخاب کن. تأیید درخواست به‌تنهایی تیک را فعال نمی‌کند.</p><div>'+(requests.map(req=>{
       const status=req.status==="pending"?"در انتظار بررسی":req.status==="approved"?"تأیید شده":"رد شده";
       return '<article class="vreq" data-request="'+esc(req.id)+'"><div class="vreq-head"><b>'+esc(req.full_name)+' · @'+esc(req.username)+'</b><small>'+esc(status)+' · '+esc(req.request_code)+'</small></div><p>ایتا: @'+esc(req.eitaa)+' · فعالیت: '+esc(req.activity)+'</p><p><a href="'+esc(req.portfolio_url)+'" target="_blank" rel="noopener">مشاهده نمونه‌کار ↗</a></p><p>'+esc(req.details||"بدون توضیحات")+'</p><div class="vreq-actions"><select data-target-editor><option value="">انتخاب حساب ادیتور</option>'+EDS.map(e=>'<option value="'+esc(e.id)+'">'+esc(e.name)+' · '+esc(e.id.slice(0,8))+'</option>').join("")+'</select><button class="btn sm" data-act="grantVerification" data-id="'+esc(req.id)+'">تأیید و اعطای تیک</button><button class="btn sm dg" data-act="rejectVerification" data-id="'+esc(req.id)+'">رد درخواست</button></div></article>';
-    }).join("")||'<div class="empty">هنوز درخواستی ثبت نشده است.</div>'+'</div></div>';
+    }).join("")||'<div class="empty">هنوز درخواستی ثبت نشده است.</div>')+'</div></div>';
   }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
 }
 
