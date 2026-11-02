@@ -263,7 +263,7 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
   .pn a:last-child{text-align:right}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-.verified-badge{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1688f8;color:#fff;font:700 14px/1 Arial;vertical-align:middle;margin-inline:5px;box-shadow:0 0 0 2px rgba(22,136,248,.16)}.verification-wrap{max-width:760px;margin:48px auto;padding:0 16px}.verification-wrap .card{padding:28px}.verification-wrap h1{font-size:clamp(44px,7vw,68px);margin-bottom:8px}.verification-wrap .muted{color:var(--mu);font-size:14px}.verification-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.verification-form .field.full{grid-column:1/-1}.verification-form input,.verification-form textarea{width:100%;padding:11px 13px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);outline:none}.verification-result{margin-top:20px;padding:20px;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.verification-code{font:700 24px/1.5 monospace;color:var(--acc);direction:ltr;text-align:center;letter-spacing:2px}.vreq{padding:18px;margin:12px 0;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.vreq-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.vreq small{color:var(--mu)}.vreq-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.vreq select{min-width:180px;padding:8px;border:1px solid var(--ln);border-radius:9px;background:var(--bg)}@media(max-width:600px){.verification-form{grid-template-columns:1fr}.verification-form .field.full{grid-column:auto}.verification-wrap .card{padding:18px}}</style>
+.verified-badge{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1688f8;color:#fff;font:700 14px/1 Arial;vertical-align:middle;margin-inline:5px;box-shadow:0 0 0 2px rgba(22,136,248,.16)}.verification-wrap{max-width:760px;margin:48px auto;padding:0 16px}.verification-wrap .card{padding:28px}.verification-wrap h1{font-size:clamp(44px,7vw,68px);margin-bottom:8px}.verification-wrap .muted{color:var(--mu);font-size:14px}.verification-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.verification-form .field.full{grid-column:1/-1}.verification-form input,.verification-form textarea{width:100%;padding:11px 13px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);outline:none}.verification-result{margin-top:20px;padding:20px;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.verification-code{font:700 24px/1.5 monospace;color:var(--acc);direction:ltr;text-align:center;letter-spacing:2px}.editor-notice{padding:14px 16px;margin:14px 0;border-radius:12px;border:1px solid;font-size:14px;line-height:1.9}.editor-notice.rejected{background:rgba(220,38,38,.12);border-color:rgba(248,113,113,.5);color:#fecaca}.editor-notice.approved{background:rgba(22,163,74,.12);border-color:rgba(74,222,128,.45);color:#bbf7d0}.editor-notice small{display:block;opacity:.75;margin-top:4px}.vreq{padding:18px;margin:12px 0;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}.vreq-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.vreq small{color:var(--mu)}.vreq-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.vreq select{min-width:180px;padding:8px;border:1px solid var(--ln);border-radius:9px;background:var(--bg)}@media(max-width:600px){.verification-form{grid-template-columns:1fr}.verification-form .field.full{grid-column:auto}.verification-wrap .card{padding:18px}}</style>
 </head>
 <body>
 <div class="bgfx" aria-hidden="true"></div>
@@ -792,6 +792,7 @@ function renderEditor(id){
     </div>
     ${pf ? `<div class="blk"><h3>${esc(T("portfolioTitle"))}</h3><div class="pf">${pf}</div></div>` : ""}
     ${e.testimonial ? `<div class="blk"><h3>${esc(T("testimonialTitle"))}</h3><p>«${esc(e.testimonial)}»</p></div>` : ""}
+    ${ROLE === "editor" && MY_ID === e.id ? `<div class="blk" id="editorNotifications"><h3>اعلان‌های حساب</h3><p style="color:var(--mu)">در حال دریافت اعلان‌ها...</p></div>` : ""}
     ${canEdit ? editorForm(e) : loginBox}
 
     <div class="pn">
@@ -799,7 +800,8 @@ function renderEditor(id){
       <a href="#/editor/${esc(next.id)}"><small>${esc(T("nextLabel"))}</small><b>${esc(next.name)}</b></a>
     </div>
   </div>`;
-  requestAnimationFrame(() => $$("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  if(ROLE === "editor" && MY_ID === e.id) loadEditorNotifications(e.id);
   refreshPortfolioUsage();
 $$(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
@@ -1100,6 +1102,9 @@ function renderVerificationForm(){
     ev.preventDefault();const btn=$("#v_submit"),err=$("#v_error"),result=$("#verificationResult");err.textContent="";result.innerHTML="";btn.disabled=true;btn.textContent="در حال ثبت...";
     try{
       const full_name=$("#v_fullname").value.trim(),username=$("#v_username").value.trim().replace(/^@/,""),eitaa=$("#v_eitaa").value.trim().replace(/^@/,""),activity=$("#v_activity").value.trim(),portfolio_url=$("#v_portfolio").value.trim(),details=$("#v_details").value.trim();
+      const applicant=EDS.find(x=>String(x.name||"").trim().toLowerCase()===username.toLowerCase());
+      if(!applicant)throw new Error("حساب ادیتور این نام کاربری پیدا نشد.");
+      if(!Array.isArray(applicant.portfolio)||applicant.portfolio.length<6)throw new Error("برای درخواست تیک آبی باید حداقل ۶ نمونه‌کار ثبت کرده باشی.");
       if(!/^https?:\/\//i.test(portfolio_url))throw new Error("لینک نمونه‌کار باید با https:// یا http:// شروع شود.");
       const request_code="VR-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
       const message=[
@@ -1116,9 +1121,21 @@ function renderVerificationForm(){
       result.innerHTML=`<div class="verification-result"><b>درخواستت ثبت شد!</b><p class="muted">کد پیگیری:</p><div class="verification-code">${esc(request_code)}</div><div class="acts" style="margin-top:14px"><button class="btn" type="button" id="copyVerificationMessage">کپی پیام آماده</button><a class="btn g" href="https://eitaa.com/sobhn1890" target="_blank" rel="noopener">رفتن به ایتای ادمین @sobhn1890</a></div><p class="muted">پیام کپی‌شده رو در ایتا ارسال کن. ثبت درخواست به معنی تأیید تیک نیست.</p></div>`;
       $("#copyVerificationMessage").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(message);}catch(e){const ta=document.createElement("textarea");ta.value=message;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}toast("پیام کپی شد.");});
       ev.target.reset();
-    }catch(error){err.textContent=error.message||"ثبت درخواست ناموفق بود.";}finally{btn.disabled=false;btn.textContent="ثبت درخواست و دریافت کد پیگیری";}
+    }catch(error){err.textContent=error.code==="23505"||/verification_requests_one_per_username_idx|verification_requests_one_pending_per_username_idx|duplicate key/i.test(error.message||"")?"قبلاً با این نام کاربری درخواست داده شده است":(error.message||"ثبت درخواست ناموفق بود.");}finally{btn.disabled=false;btn.textContent="ثبت درخواست و دریافت کد پیگیری";}
   });
 }
+async function loadEditorNotifications(editorId){
+  const host=$("#editorNotifications");if(!host)return;
+  try{
+    const {data,error}=await sb.from("editor_notifications").select("id,kind,message,created_at,is_read").eq("editor_id",editorId).order("created_at",{ascending:false}).limit(30);
+    if(error)throw error;
+    const items=data||[];
+    host.innerHTML="<h3>اعلان‌های حساب</h3>"+(items.length?items.map(n=>`<div class="editor-notice ${n.kind==="verification_rejected"?"rejected":"approved"}"><b>${n.kind==="verification_rejected"?"درخواست رد شد":"درخواست تأیید شد"}</b><div>${esc(n.message)}</div><small>${new Date(n.created_at).toLocaleString("fa-IR")}</small></div>`).join(""):'<p style="color:var(--mu)">هنوز اعلانی نداری.</p>');
+    const unread=items.filter(n=>!n.is_read).map(n=>n.id);
+    if(unread.length){const {error:readError}=await sb.from("editor_notifications").update({is_read:true}).in("id",unread);if(readError)console.warn("Mark notifications read:",readError.message);}
+  }catch(error){host.innerHTML="<h3>اعلان‌های حساب</h3><p class=\"err\">دریافت اعلان‌ها ناموفق بود: "+esc(error.message)+"</p>";}
+}
+
 async function loadVerificationRequests(){
   const panel=$("#panel");if(!panel)return;panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p>در حال دریافت...</p></div>';
   try{
@@ -1204,14 +1221,23 @@ async function runAction(name, btn){
       if(ROLE!=="admin")throw new Error("فقط مدیر می‌تواند تیک آبی بدهد.");
       const card=btn.closest("[data-request]"),target=card?.querySelector("[data-target-editor]")?.value;if(!target)throw new Error("اول حساب ادیتور را انتخاب کن.");
       const editor=EDS.find(x=>x.id===target);if(!editor)throw new Error("حساب انتخاب‌شده پیدا نشد.");
+      const {data:req,error:qe}=await sb.from("verification_requests").select("id,username,status").eq("id",btn.dataset.id).single();if(qe)throw qe;
+      if(req.status!=="pending")throw new Error("این درخواست قبلاً بررسی شده است.");
+      if(String(editor.name).trim().toLowerCase()!==String(req.username).trim().toLowerCase())throw new Error("حساب انتخاب‌شده با نام کاربری ثبت‌شده در درخواست یکی نیست.");
+      if(!Array.isArray(editor.portfolio)||editor.portfolio.length<6)throw new Error("این ادیتور هنوز حداقل ۶ نمونه‌کار ندارد؛ امکان تأیید تیک آبی نیست.");
       const {error:ee}=await sb.from("editors").update({is_verified:true}).eq("id",target);if(ee)throw ee;
-      const {error:re}=await sb.from("verification_requests").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(re)throw re;
-      editor.is_verified=true;toast("درخواست تأیید و تیک آبی فعال شد.");setTab("verification");return;
+      const {data:updated,error:re}=await sb.from("verification_requests").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id).eq("status","pending").select("id").maybeSingle();if(re)throw re;if(!updated)throw new Error("وضعیت درخواست تغییر نکرد؛ احتمالاً قبلاً بررسی شده است.");
+      const {error:ne}=await sb.from("editor_notifications").insert({editor_id:target,kind:"verification_approved",message:"درخواست تیک آبی شما توسط ادمین تأیید شد؛ تبریک! از این به بعد شما دارای تیک آبی هستید."});if(ne)throw ne;
+      editor.is_verified=true;toast("درخواست تأیید شد و اعلان برای ادیتور ارسال شد.");setTab("verification");return;
     }
     if(name==="rejectVerification"){
       if(ROLE!=="admin")throw new Error("فقط مدیر می‌تواند درخواست را بررسی کند.");
-      const {error}=await sb.from("verification_requests").update({status:"rejected",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(error)throw error;
-      toast("درخواست رد شد.");setTab("verification");return;
+      const {data:req,error:qe}=await sb.from("verification_requests").select("id,username,status").eq("id",btn.dataset.id).single();if(qe)throw qe;
+      if(req.status!=="pending")throw new Error("این درخواست قبلاً بررسی شده است.");
+      const editor=EDS.find(x=>String(x.name||"").trim().toLowerCase()===String(req.username||"").trim().toLowerCase());if(!editor)throw new Error("حساب ادیتور مرتبط با این درخواست پیدا نشد.");
+      const {data:updated,error}=await sb.from("verification_requests").update({status:"rejected",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id).eq("status","pending").select("id").maybeSingle();if(error)throw error;if(!updated)throw new Error("درخواست رد نشد؛ وضعیت آن تغییر نکرد.");
+      const {error:ne}=await sb.from("editor_notifications").insert({editor_id:editor.id,kind:"verification_rejected",message:"درخواست تیک آبی شما توسط ادمین رد شد."});if(ne)throw ne;
+      toast("درخواست رد شد و اعلان قرمز برای ادیتور ارسال شد.");setTab("verification");return;
     }
     if (name === "closePortfolioDelete") { closeModal(); return; }
     if (name === "deletePortfolioConfirm") {
