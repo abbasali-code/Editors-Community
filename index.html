@@ -1086,7 +1086,7 @@ function renderVerificationForm(){
   <p class="muted">اطلاعاتت رو ثبت کن. بعد از ثبت، کد پیگیری و پیام آماده برای ادمین ایتا نمایش داده می‌شه. تیک فقط پس از بررسی دستی ادمین فعال می‌شه.</p>
   <form id="verificationForm" class="verification-form">
   <div class="field"><label for="v_fullname">نام و نام خانوادگی</label><input id="v_fullname" maxlength="100" required></div>
-  <div class="field"><label for="v_username">نام کاربری در انجمن</label><input id="v_username" maxlength="40" placeholder="مثلاً abbas_editor" required></div>
+  <div class="field"><label for="v_username">نام کاربری در انجمن</label><select id="v_username" required><option value="">انتخاب نام ادیتور از فهرست انجمن</option>${EDS.map(e=>`<option value="${esc(e.name)}">${esc(e.name)}</option>`).join("")}</select></div>
   <div class="field"><label for="v_eitaa">آیدی ایتای شما</label><input id="v_eitaa" maxlength="60" placeholder="@username" required></div>
   <div class="field"><label for="v_activity">زمینه فعالیت</label><input id="v_activity" maxlength="80" required></div>
   <div class="field full"><label for="v_portfolio">لینک نمونه‌کار یا صفحه حرفه‌ای</label><input id="v_portfolio" type="url" maxlength="500" placeholder="https://..." required></div>
@@ -1095,6 +1095,7 @@ function renderVerificationForm(){
   <div id="verificationResult"></div>
   <p class="muted" style="margin-top:20px">در صورت بروز مشکل، با پشتیبانی سایت در ایتا به آیدی <a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">@Abbas_agha4933</a> پیام بده.</p>
   </div></div>`;
+  $("#v_username").addEventListener("change",()=>{const selected=$("#v_username").value;if(selected)$("#v_fullname").value=selected;});
   $("#verificationForm").addEventListener("submit",async ev=>{
     ev.preventDefault();const btn=$("#v_submit"),err=$("#v_error"),result=$("#verificationResult");err.textContent="";result.innerHTML="";btn.disabled=true;btn.textContent="در حال ثبت...";
     try{
