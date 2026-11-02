@@ -779,7 +779,7 @@ function renderEditor(id){
     let media = "";
     if (!link) media = `<div class="pf-empty"><small>${esc(T("soonText"))}</small></div>`;
     else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
-    else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy"></a>`;
+    else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></a>`;
     else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
     return {title:p.title, media, link};
   });
@@ -1481,6 +1481,7 @@ async function runAction(name, btn){
 async function route(){
   $("#nav")?.classList.remove("open"); $("#menuToggle")?.setAttribute("aria-expanded","false");
   const h = location.hash || "#/";
+  if(ROLE==="admin"){sb.from("membership_applications").select("id",{count:"exact",head:true}).eq("status","pending").then(({count,error})=>{const badge=$("#membershipMenuCount");if(badge&&!error)badge.textContent=count?"("+fa(count)+")":"";});}
   if (h.startsWith("#/admin")) {
     if (ROLE !== "admin") await checkSession();
     if (ROLE !== "admin") { renderLogin(); return; }
