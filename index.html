@@ -614,11 +614,12 @@ function applyTheme(){
   $("#fCopy").textContent = "© " + fa(new Date().getFullYear()) + " " + CFG.brand + " — " + CFG.footer.copy;
   $("#fBadge").textContent = T("footerBadge");
   $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a>${CFG.contact.rubika ? `<a href="https://rubika.ir/${esc(CFG.contact.rubika.replace(/^@/, ""))}" target="_blank" rel="noopener">روبیکا: ${esc(CFG.contact.rubika)}</a>` : ""}<span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
+  $("#fContact").insertAdjacentHTML("beforeend", `<a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">پشتیبانی سایت در ایتا: @Abbas_agha4933</a>`);
   document.title = CFG.brand + " | " + CFG.brandSub;
   renderNav();
 }
 function renderNav(){
-  $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("")
+  $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/verification">تیک آبی</a>`
     + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`;
   $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
   $("#banner").innerHTML = OFFLINE ? `<div class="notice err">${esc(T("connError"))}</div>` : "";
