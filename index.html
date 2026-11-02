@@ -167,14 +167,14 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 .pf-slide> b{display:block;margin-bottom:10px}
 .pf-slide img{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:10px;background:#080604}
 .pf-slide video{display:block;width:100%;max-height:420px;border-radius:10px;background:#080604}
-.pf-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
-.pf-arrow{width:42px;height:42px;border:1px solid var(--ln);border-radius:11px;background:var(--s1);color:var(--acc);font-size:23px;cursor:pointer;transition:.2s}
+.pf-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;direction:ltr}
+.pf-arrow{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--ln);border-radius:12px;background:var(--s1);color:var(--acc);font-size:22px;line-height:1;cursor:pointer;touch-action:manipulation}
 .pf-arrow:hover{background:var(--pri);color:white;border-color:var(--pri)}
-.pf-count{color:var(--mu);font-size:13px;direction:ltr}
-.pf-dots{display:flex;align-items:center;justify-content:center;gap:6px;flex:1}
+.pf-count{min-width:58px;text-align:center;color:var(--mu);font-size:12px;font-weight:600;direction:rtl;white-space:nowrap}
+.pf-dots{display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:0}
 .pf-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:var(--mu);opacity:.45;cursor:pointer;transition:.2s}
-.pf-dot.active{width:20px;border-radius:8px;background:var(--pri2);opacity:1}
-@keyframes pfIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+.pf-dot.active{width:18px;border-radius:8px;background:var(--pri2);opacity:1}
+.pf-delete-btn{margin-top:12px;background:transparent;border:1px solid rgba(239,68,68,.45);color:#fca5a5;padding:8px 15px;border-radius:10px;cursor:pointer;font-size:13px}.pf-delete-btn:hover{background:rgba(239,68,68,.12)}.pf-delete-list{display:grid;gap:10px;max-height:58vh;overflow:auto;margin:14px 0}.pf-delete-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--ln);border-radius:12px;background:var(--s2);cursor:pointer}.pf-delete-item:has(input:checked){border-color:var(--pri2);background:var(--s1)}.pf-delete-item input{accent-color:var(--pri);flex:0 0 auto}.pf-delete-preview{width:76px;height:62px;flex:0 0 76px;object-fit:cover;border-radius:8px;background:var(--bg)}.pf-delete-name{min-width:0;overflow-wrap:anywhere;font-size:13px}.pf-delete-modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.76)}.pf-delete-dialog{width:min(520px,100%);max-height:88vh;overflow:auto;padding:20px;border:1px solid var(--ln);border-radius:16px;background:var(--s1);box-shadow:0 20px 70px #0009}.pf-delete-dialog h3{font-size:30px;margin-bottom:5px}.pf-delete-actions{display:flex;gap:10px;flex-wrap:wrap}.pf-delete-actions button{flex:1}@keyframes pfIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(max-width:620px){.pf-slider{padding:10px}.pf-arrow{width:38px;height:38px}}
 .pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .pn a{padding:18px 22px;background:var(--s1);border:1px solid var(--ln);border-radius:12px}
@@ -716,7 +716,7 @@ function editorForm(e){
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea>${ROLE === "editor" && MY_ID === e.id ? `<label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><div id="portfolioUsage" style="margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">سهمیه هر ادیتور: ۲۰۰ مگابایت مجموع؛ حداکثر ۲ ویدیو، هر ویدیو تا ۵۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div>` : ""}</div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea>${ROLE === "editor" && MY_ID === e.id ? `<label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><div id="portfolioUsage" style="margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">سهمیه هر ادیتور: ۲۰۰ مگابایت مجموع؛ حداکثر ۲ ویدیو، هر ویدیو تا ۵۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div><button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>` : ""}</div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -745,11 +745,11 @@ function renderEditor(id){
   const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
     <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}</article>`).join("")}</div>
     ${pfItems.length > 1 ? `<div class="pf-controls">
-      <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">›</button>
+      <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">›</button>
+      <span class="pf-count"><span data-pf-current>۱</span> از <span data-pf-total>${fa(pfItems.length)}</span></span>
       <div class="pf-dots">${pfItems.map((p,k) => `<button type="button" class="pf-dot ${k===0?"active":""}" data-pf-go="${k}" aria-label="رفتن به نمونه‌کار ${k+1}"></button>`).join("")}</div>
-      <span class="pf-count"><span data-pf-current>1</span> / ${pfItems.length}</span>
-      <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">‹</button>
-    </div>` : `<div class="pf-controls"><span class="pf-count">۱ / ۱</span></div>`}
+      <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">‹</button>
+    </div>` : `<div class="pf-controls"><span class="pf-count">۱ از ۱</span></div>`}
   </div>` : "";
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
