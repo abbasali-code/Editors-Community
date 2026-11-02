@@ -395,7 +395,7 @@ const FALLBACK_ED = FALLBACK_NAMES.map((name,i)=>({
 /* ==================================================
    وضعیت و ثابت‌ها
    ================================================== */
-let CFG = null, EDS = [], ROLE = null, MY_ID = null, OFFLINE = false, COMMUNITY_PENDING = null;
+let CFG = null, EDS = [], ROLE = null, MY_ID = null, OFFLINE = false;
 let DRAFT = null, DIRTY = false, VIEW = "", FILTER = {role:"همه", q:""}, FCOLOR = "#f97316";
 const SECS = ["about","editors","services","process","testimonials","faq","contact"];
 const FONTS = ["Jomhuria","Vazirmatn","Lalezar","Rakkas","Mirza","Amiri","Reem Kufi"];
@@ -516,8 +516,21 @@ async function api(method, url, body){
     const {data:profile, error:profileError} = await sb.from("profiles").select("role").eq("id", user.id).maybeSingle();
     if (profileError) throw profileError;
     if (profile) return {ok:true, role:profile.role, id:user.id};
-    const {data:community,error:communityError}=await sb.from("community_users").select("id").eq("id",user.id).maybeSingle();
-    if(communityError||!community)throw new Error("دسترسی مجاز نیست");
+
+    let {data:community,error:communityError}=await sb.from("community_users").select("id").eq("id",user.id).maybeSingle();
+    if(communityError)throw communityError;
+    if(!community){
+      const providers=user.app_metadata?.providers||[];
+      if(user.app_metadata?.provider!=="google"&&!providers.includes("google"))throw new Error("برای حساب کاربری انجمن فقط ورود با گوگل مجاز است.");
+      const meta=user.user_metadata||{};
+      const fullName=String(meta.full_name||meta.name||[meta.given_name,meta.family_name].filter(Boolean).join(" ")||user.email?.split("@")[0]||"کاربر گوگل").trim();
+      const parts=fullName.split(/\s+/);
+      const firstName=parts.shift()||"کاربر";
+      const lastName=parts.join(" ")||"گوگل";
+      const {error:saveError}=await sb.from("community_users").upsert({id:user.id,first_name:firstName,last_name:lastName,city:"ثبت نشده"},{onConflict:"id"});
+      if(saveError)throw saveError;
+      community={id:user.id};
+    }
     return {ok:true,role:"community_user",id:user.id};
   }
   if (method === "PUT" && url === "/api/config") {
@@ -623,7 +636,7 @@ function applyTheme(){
 }
 function renderNav(){
   $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/verification">تیک آبی</a>`
-    + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود / ثبت‌نام"}</a>`
+    + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود با گوگل"}</a>`
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
     + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`;
   $("#fNav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}">${esc(CFG.nav[k] || k)}</a>`).join("");
@@ -833,13 +846,6 @@ $$(".pf-short-video").forEach(video => {
   window.scrollTo({top: 0});
 }
 
-function normalizeCommunityPhone(value){
-  let v=String(value||"").trim().replace(/[\s()-]/g,"");
-  if(/^09\d{9}$/.test(v))return "+98"+v.slice(1);
-  if(/^9\d{9}$/.test(v))return "+98"+v;
-  if(/^\+\d{8,15}$/.test(v))return v;
-  throw new Error("شماره موبایل معتبر وارد کن؛ مثلاً 09123456789.");
-}
 function renderCommunityAuth(){
   VIEW="community-auth";
   if(ROLE==="community_user"){
@@ -847,36 +853,17 @@ function renderCommunityAuth(){
     sb.from("community_users").select("first_name,last_name,city").eq("id",MY_ID).maybeSingle().then(({data,error})=>{
       const host=$("#communityAccountInfo");if(!host)return;
       if(error||!data){host.textContent="دریافت اطلاعات حساب ناموفق بود.";return;}
-      host.innerHTML='<h2>سلام '+esc(data.first_name)+' '+esc(data.last_name)+' 👋</h2><p>شهر: '+esc(data.city)+'</p><p class="community-note">با این حساب می‌تونی زیر پروفایل ادیتورها و نمونه‌کارها نظر بذاری.</p><button class="btn g" data-act="communityLogout">خروج از حساب</button>';
+      host.innerHTML='<h2>سلام '+esc(data.first_name)+' '+esc(data.last_name)+' 👋</h2><p>شهر: '+esc(data.city)+'</p><p class="community-note">با حساب گوگل وارد شدی و می‌تونی زیر پروفایل ادیتورها و نمونه‌کارها نظر بذاری.</p><button class="btn g" data-act="communityLogout">خروج از حساب</button>';
     });
     return;
   }
-  if(ROLE==="editor"||ROLE==="admin"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب انجمن</h2><p>حساب ادیتور و مدیر جدا از حساب کاربر عادی است. برای نظر دادن با حساب عمومی وارد شو.</p></div></div>';return;}
-  const p=COMMUNITY_PENDING||{};
-  app().innerHTML='<div class="wrap community-auth"><a class="back" href="#/">بازگشت</a><div class="card"><span class="eyebrow">حساب کاربری انجمن</span><h2>ثبت‌نام یا ورود</h2><p class="community-note">برای نظر دادن، شماره موبایلت را با کد پیامکی تأیید کن. شماره موبایل عمومی نمایش داده نمی‌شود.</p><div class="grid2">'+
-    '<div class="field"><label>نام</label><input id="cu_first" maxlength="60" value="'+esc(p.first_name||"")+'" '+(p.sent?"disabled":"")+'></div>'+
-    '<div class="field"><label>نام خانوادگی</label><input id="cu_last" maxlength="80" value="'+esc(p.last_name||"")+'" '+(p.sent?"disabled":"")+'></div>'+
-    '<div class="field"><label>شهر</label><input id="cu_city" maxlength="80" value="'+esc(p.city||"")+'" '+(p.sent?"disabled":"")+'></div>'+
-    '<div class="field"><label>شماره موبایل</label><input id="cu_phone" type="tel" inputmode="tel" placeholder="09123456789" value="'+esc(p.phone||"")+'" '+(p.sent?"disabled":"")+'></div>'+
-    (p.sent?'<div class="field" style="grid-column:1/-1"><label>کد پیامکی</label><input id="cu_otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="کد ۶ رقمی پیامک‌شده"></div>':"")+
-    '</div><div class="err" id="cu_error"></div><button class="btn full" data-act="'+(p.sent?"communityVerifyOtp":"communitySendOtp")+'">'+(p.sent?"تأیید کد و ورود":"ارسال کد تأیید")+'</button>'+(p.sent?'<button class="btn g full" style="margin-top:8px" data-act="communityResend">تغییر شماره / ارسال دوباره</button>':"")+'</div></div>';
+  if(ROLE==="editor"||ROLE==="admin"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب انجمن</h2><p>حساب ادیتور و مدیر جداست. برای ثبت نظر با یک حساب گوگل عمومی وارد شو.</p></div></div>';return;}
+  app().innerHTML='<div class="wrap community-auth"><a class="back" href="#/">بازگشت</a><div class="card"><span class="eyebrow">حساب کاربری انجمن</span><h2>ورود یا عضویت با گوگل</h2><p class="community-note">برای ثبت نظر و پاسخ، فقط با حساب گوگل وارد شو. نام و ایمیل حساب گوگل برای ساخت پروفایل استفاده می‌شود؛ شماره موبایل لازم نیست.</p><button class="btn full" data-act="communityGoogleLogin"><span style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#4285f4;font:700 20px Arial">G</span> ورود با گوگل</button><div class="err" id="cu_error"></div><p class="community-note" style="margin-top:14px">با ورود، حساب کاربری انجمن به‌صورت خودکار ساخته می‌شود.</p></div></div>';
 }
-async function sendCommunityOtp(){
-  const first=$("#cu_first").value.trim(),last=$("#cu_last").value.trim(),city=$("#cu_city").value.trim(),phone=normalizeCommunityPhone($("#cu_phone").value);
-  if(!first||!last||!city)throw new Error("نام، نام خانوادگی و شهر را کامل وارد کن.");
-  const {error}=await sb.auth.signInWithOtp({phone,options:{data:{first_name:first,last_name:last,city}}});
+async function signInCommunityWithGoogle(){
+  const redirectTo=window.location.origin+window.location.pathname+"#/account";
+  const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
   if(error)throw error;
-  COMMUNITY_PENDING={first_name:first,last_name:last,city,phone,sent:true};renderCommunityAuth();toast("کد تأیید ارسال شد؛ پیامک را بررسی کن.");
-}
-async function verifyCommunityOtp(){
-  if(!COMMUNITY_PENDING?.sent)throw new Error("ابتدا شماره موبایل را ثبت کن.");
-  const token=$("#cu_otp").value.trim();if(!/^\d{6}$/.test(token))throw new Error("کد پیامکی باید ۶ رقم باشد.");
-  const {data,error}=await sb.auth.verifyOtp({phone:COMMUNITY_PENDING.phone,token,type:"sms"});if(error)throw error;
-  const user=data.user;if(!user)throw new Error("ورود انجام نشد؛ دوباره تلاش کن.");
-  const {error:saveError}=await sb.from("community_users").upsert({id:user.id,first_name:COMMUNITY_PENDING.first_name,last_name:COMMUNITY_PENDING.last_name,city:COMMUNITY_PENDING.city},{onConflict:"id"});
-  if(saveError)throw saveError;
-  COMMUNITY_PENDING=null;await checkSession();renderNav();if(ROLE!=="community_user")throw new Error("این شماره به حساب ادیتور یا مدیر متصل است و حساب عمومی نمی‌تواند بسازد.");
-  toast("حساب کاربری فعال شد.");location.hash="#/";
 }
 async function loadComments(host){
   if(!host||!host.isConnected)return;
@@ -1314,10 +1301,8 @@ async function runAction(name, btn){
   try {
     if(name==="resolveCommentReport"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");const {error}=await sb.from("comment_reports").update({status:"reviewed"}).eq("id",btn.dataset.id);if(error)throw error;toast("گزارش بررسی شد.");loadCommentReports();return;}
     if(name==="deleteReportedComment"){if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");if(!confirm("این نظر و پاسخ‌هایش حذف شوند؟"))return;const {error}=await sb.from("comments").delete().eq("id",btn.dataset.commentId);if(error)throw error;toast("نظر حذف شد.");loadCommentReports();return;}
-    if(name==="communitySendOtp"){await sendCommunityOtp();return;}
-    if(name==="communityResend"){COMMUNITY_PENDING=null;renderCommunityAuth();return;}
-    if(name==="communityVerifyOtp"){await verifyCommunityOtp();return;}
-    if(name==="communityLogout"){await sb.auth.signOut();ROLE=null;MY_ID=null;COMMUNITY_PENDING=null;renderNav();toast("از حساب خارج شدی.");location.hash="#/";return;}
+    if(name==="communityGoogleLogin"){await signInCommunityWithGoogle();return;}
+    if(name==="communityLogout"){const {error}=await sb.auth.signOut();if(error)throw error;ROLE=null;MY_ID=null;renderNav();toast("از حساب خارج شدی.");location.hash="#/";return;}
     if (name === "login") {
       await api("POST", "/api/login", {email: $("#adminemail").value, password: $("#pw").value});
       ROLE = "admin"; MY_ID = null; renderNav(); renderAdmin(); return;
