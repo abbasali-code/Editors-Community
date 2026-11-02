@@ -635,8 +635,7 @@ function applyTheme(){
   renderNav();
 }
 function renderNav(){
-  $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/verification">تیک آبی</a>`
-    + `<a href="#/join">درخواست عضویت در انجمن</a>`
+  $("#nav").innerHTML = SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#/#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/join">درخواست عضویت در انجمن</a>`
     + `<a href="#/verification">درخواست تیک آبی</a>`
     + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود با گوگل"}</a>`
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
@@ -1479,6 +1478,7 @@ async function runAction(name, btn){
    مسیریابی
    ================================================== */
 async function route(){
+  $("#nav")?.classList.remove("open"); $("#menuToggle")?.setAttribute("aria-expanded","false");
   const h = location.hash || "#/";
   if (h.startsWith("#/admin")) {
     if (ROLE !== "admin") await checkSession();
