@@ -140,7 +140,7 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 .back{display:inline-block;margin-top:28px;color:var(--mu);font-size:15px}
 .back:hover{color:var(--acc)}
 .ph{display:grid;grid-template-columns:200px minmax(0,1fr);margin-top:16px;border:1px solid var(--ln);border-radius:14px;overflow:hidden;background:var(--s1)}
-.ph .big{display:grid;place-items:center;background:var(--c,#f97316);font-family:var(--fd);font-size:120px;color:#fff;line-height:1;min-height:200px}
+.ph .big{display:grid;place-items:center;background:var(--c,#f97316);font-family:var(--fd);font-size:120px;color:#fff;line-height:1;min-height:200px}.ph .big img{width:100%;height:100%;min-height:200px;max-height:320px;object-fit:cover;border-radius:inherit;display:block}
 .ph .inf{padding:26px 30px}
 .ph h1{font-size:clamp(70px,9vw,120px);line-height:1}
 .ph .role{color:var(--acc);font-size:24px;margin:4px 0 8px;font-family:var(--fd)}
@@ -729,6 +729,7 @@ function editorForm(e){
   return `<div class="epanel" id="epanel">
     <h3>${esc(T("editorPanelTitle"))}</h3>
     <div class="grid2">
+      ${ROLE === "editor" && MY_ID === e.id ? `<div class="field" style="grid-column:1/-1"><label>تصویر پروفایل</label><input id="avatar_upload" type="file" accept="image/jpeg,image/png,image/webp"><small class="community-note">JPG، PNG یا WEBP · حداکثر ۵ مگابایت</small><div class="err" id="avatarerr"></div></div>` : ""}
       <div class="field"><label>${esc(T("fRole"))}</label><input id="p_role" value="${esc(e.role)}"></div>
       <div class="field"><label>${esc(T("fCity"))}</label><input id="p_city" value="${esc(e.city)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fShort"))}</label><textarea id="p_short">${esc(e.short)}</textarea></div>
@@ -746,6 +747,22 @@ function editorForm(e){
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
   </div>`;
 }
+
+async function uploadEditorAvatar(input){
+  const errBox=$("#avatarerr"),file=input.files?.[0];if(!file)return;
+  try{
+    if(ROLE!=="editor"||!MY_ID)throw new Error("فقط ادیتور می‌تواند تصویر پروفایل خودش را تغییر دهد.");
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("فقط JPG، PNG و WEBP مجاز است.");
+    if(file.size>5*1024*1024)throw new Error("حجم تصویر باید کمتر از ۵ مگابایت باشد.");
+    const path=MY_ID+"/avatar/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
+    const {error}=await sb.storage.from("portfolio-files").upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;
+    const {data}=sb.storage.from("portfolio-files").getPublicUrl(path);
+    const {error:updateError}=await sb.from("editors").update({avatar_url:data.publicUrl}).eq("id",MY_ID);if(updateError)throw updateError;
+    const editor=EDS.find(x=>x.id===MY_ID);if(editor)editor.avatar_url=data.publicUrl;
+    toast("تصویر پروفایل ذخیره شد.");renderEditor(MY_ID);
+  }catch(error){if(errBox)errBox.textContent=error.message||"آپلود تصویر ناموفق بود.";}finally{input.value="";}
+}
+
 function renderEditor(id){
   VIEW = "editor";
   const i = EDS.findIndex(x => x.id === id);
@@ -786,7 +803,7 @@ function renderEditor(id){
   <div class="wrap">
     <a class="back" href="#/#editors">${esc(T("backToEditors"))}</a>
     <div class="ph" style="--c:${esc(e.color)}">
-      <div class="big">${esc(ini(e.name))}</div>
+      <div class="big">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="تصویر پروفایل ${esc(e.name)}" loading="lazy" decoding="async">` : esc(ini(e.name))}</div>
       <div class="inf">
         <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
         <h1>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</h1>
@@ -1322,6 +1339,7 @@ document.addEventListener("input", ev => {
 });
 document.addEventListener("change", ev => {
   if (ev.target.id === "p_upload") uploadEditorPortfolio(ev.target);
+  if (ev.target.id === "avatar_upload") uploadEditorAvatar(ev.target);
 });
 
 async function runAction(name, btn){
