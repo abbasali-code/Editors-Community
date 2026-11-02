@@ -1035,8 +1035,16 @@ async function uploadEditorPortfolio(input){
       usage.bytes += file.size;
       if(isVideo) usage.videos++;
     }
-    if (errBox) errBox.textContent = "آپلود موفق بود؛ برای ثبت در پروفایل، دکمه ذخیره تغییرات را بزن.";
-    toast("فایل‌ها آپلود شدند.");
+    // ثبت فوری فهرست نمونه‌کارها در دیتابیس؛ تا با رندر/ذخیره بعدی از دست نروند
+    const portfolioField = $("#p_pf");
+    const portfolio = portfolioToDb(portfolioField ? portfolioField.value : "");
+    const {error: portfolioError} = await sb.from("editors").update({portfolio}).eq("id", MY_ID);
+    if (portfolioError) throw portfolioError;
+    const ownEditor = EDS.find(x => x.id === MY_ID);
+    if (ownEditor) ownEditor.portfolio = portfolio;
+
+    if (errBox) errBox.textContent = "آپلود و ثبت نمونه‌کارها با موفقیت انجام شد.";
+    toast("فایل‌ها آپلود و ثبت شدند.");
   } catch (error) {
     if (errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
   } finally {
