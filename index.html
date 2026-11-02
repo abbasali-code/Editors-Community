@@ -983,6 +983,22 @@ function openEditor(id){
   </div></div>`;
 }
 function closeModal(){ $("#layer").innerHTML = ""; }
+function openPortfolioDelete(editorId){
+  if (ROLE !== "editor" || MY_ID !== editorId) return;
+  const editor = EDS.find(x => x.id === editorId);
+  const items = editor && Array.isArray(editor.portfolio) ? editor.portfolio : [];
+  if (!items.length) { toast("نمونه‌کاری برای حذف وجود ندارد."); return; }
+  const rows = items.map((p,i) => {
+    const link = String(p.link || "");
+    const video = /\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link);
+    const image = /\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link);
+    let preview = '<span class="pf-delete-preview" style="display:grid;place-items:center">↗</span>';
+    if (video) preview = '<video class="pf-delete-preview" src="' + esc(link) + '" muted preload="metadata"></video>';
+    else if (image) preview = '<img class="pf-delete-preview" src="' + esc(link) + '" alt="">';
+    return '<label class="pf-delete-item">' + preview + '<input type="radio" name="pf-delete-choice" value="' + i + '"' + (i===0?' checked':'') + '><span class="pf-delete-name">' + esc(p.title || "نمونه‌کار بدون عنوان") + '</span></label>';
+  }).join("");
+  $("#layer").innerHTML = '<div class="pf-delete-modal" id="pfDeleteLayer"><div class="pf-delete-dialog" role="dialog" aria-modal="true"><h3>کدام نمونه‌کار حذف شود؟</h3><p style="color:var(--mu);font-size:13px">یک مورد را انتخاب کن. پیش‌نمایش هر نمونه‌کار کنار عنوانش نمایش داده می‌شود.</p><div class="pf-delete-list">' + rows + '</div><div class="pf-delete-actions"><button class="btn" type="button" data-act="deletePortfolioConfirm" data-id="' + esc(editorId) + '">حذف انتخاب‌شده</button><button class="btn g" type="button" data-act="closePortfolioDelete">انصراف</button></div><div class="err" id="pfDeleteError"></div></div></div>';
+}
 
 const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, video: 50 * 1024 * 1024, videos: 2 };
 async function getPortfolioUsage(){
@@ -1058,8 +1074,12 @@ async function uploadEditorPortfolio(input){
    ================================================== */
 document.addEventListener("click", ev => {
   const t = ev.target;
+  const deleteOpen = t.closest("[data-pf-delete-open]");
+  if (deleteOpen) { ev.preventDefault(); ev.stopPropagation(); openPortfolioDelete(deleteOpen.dataset.pfDeleteOpen); return; }
   const pfControl = t.closest("[data-pf-step], [data-pf-go]");
   if (pfControl) {
+    ev.preventDefault();
+    ev.stopPropagation();
     const slider = pfControl.closest("[data-pf-slider]");
     if (slider) {
       const slides = [...slider.querySelectorAll("[data-pf-slide]")];
@@ -1069,7 +1089,7 @@ document.addEventListener("click", ev => {
       slides.forEach((slide,k) => slide.classList.toggle("active", k === next));
       slider.querySelectorAll(".pf-dot").forEach((dot,k) => dot.classList.toggle("active", k === next));
       const counter = slider.querySelector("[data-pf-current]");
-      if (counter) counter.textContent = String(next + 1);
+      if (counter) counter.textContent = fa(next + 1);
     }
     return;
   }
@@ -1118,6 +1138,31 @@ async function runAction(name, btn){
     if (name === "editorLogout") {
       await api("POST", "/api/logout").catch(() => {});
       ROLE = null; MY_ID = null; renderNav(); renderEditor(location.hash.replace("#/editor/", "")); return;
+    }
+    if (name === "closePortfolioDelete") { closeModal(); return; }
+    if (name === "deletePortfolioConfirm") {
+      const id = btn.dataset.id;
+      if (ROLE !== "editor" || MY_ID !== id) throw new Error("اجازه‌ی حذف این نمونه‌کار را نداری.");
+      const choice = document.querySelector('input[name="pf-delete-choice"]:checked');
+      if (!choice) throw new Error("اول یک نمونه‌کار انتخاب کن.");
+      const editor = EDS.find(x => x.id === id);
+      const selected = editor && editor.portfolio[Number(choice.value)];
+      if (!selected) throw new Error("نمونه‌کار پیدا نشد.");
+      if (!confirm("نمونه‌کار «" + selected.title + "» حذف شود؟")) return;
+      const link = String(selected.link || "");
+      const marker = "/storage/v1/object/public/portfolio-files/";
+      const at = link.indexOf(marker);
+      if (at >= 0) {
+        const path = decodeURIComponent(link.slice(at + marker.length).split(/[?#]/)[0]);
+        if (!path.startsWith(id + "/")) throw new Error("مسیر فایل متعلق به این حساب نیست.");
+        const {error:removeError} = await sb.storage.from("portfolio-files").remove([path]);
+        if (removeError) throw removeError;
+      }
+      const portfolio = editor.portfolio.filter((_,i) => i !== Number(choice.value));
+      const {error:updateError} = await sb.from("editors").update({portfolio}).eq("id", id);
+      if (updateError) throw updateError;
+      editor.portfolio = portfolio;
+      closeModal(); renderEditor(id); toast("نمونه‌کار حذف شد."); return;
     }
     if (name === "saveOwn") {
       const id = btn.dataset.id;
