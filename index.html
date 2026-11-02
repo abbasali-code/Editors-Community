@@ -1424,20 +1424,22 @@ async function runAction(name, btn){
       if(!allowed.includes(status))throw new Error("وضعیت نامعتبر است.");
       const note=card.querySelector("[data-membership-note]")?.value||"";
       if(status==="approved"){
-        const email=card.querySelector("[data-membership-email]")?.value.trim().toLowerCase();
-        if(!email||!/^\S+@\S+\.\S+$/.test(email))throw new Error("برای ساخت حساب ادیتور، ایمیل معتبر متقاضی را وارد کن.");
         const {data:application,error:appError}=await sb.from("membership_applications").select("*").eq("id",btn.dataset.id).single();
         if(appError)throw appError;
+        const email=String(card.querySelector("[data-membership-email]")?.value||application.email||"").trim().toLowerCase();
+        if(!email||!/^S+@S+.S+$/.test(email))throw new Error("ایمیل معتبر متقاضی لازم است.");
+        if(application.auth_user_id&&email!==String(application.email||"").toLowerCase())throw new Error("ایمیل درخواست با حساب ورود ساخته‌شده مطابقت ندارد.");
         const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
         const random=new Uint32Array(24);crypto.getRandomValues(random);
-        const password=Array.from(random,n=>chars[n%chars.length]).join("");
-        const editorData={city:application.city||"",role:application.activity||"",phone:application.phone||"",rubika:application.rubika||"",bio:application.details||"",short:(application.details||"").slice(0,180),portfolio:application.portfolio_url?[{title:"نمونه‌کار اولیه",link:application.portfolio_url}]:[]};
-        const {data:created,error:createError}=await sb.functions.invoke("manage-editors",{body:{action:"create",email,password,name:application.full_name,editorData,applicationId:application.id,adminNote:note}});
+        const legacyPassword=Array.from(random,n=>chars[n%chars.length]).join("");
+        const editorData={username:application.username||"",gender:application.gender||"male",avatar_url:application.avatar_url||"",avatar_emoji:application.avatar_emoji||"",city:application.city||"",role:application.activity||"",phone:application.phone||"",rubika:application.rubika||"",bio:application.details||"",short:(application.details||"").slice(0,180),portfolio:[...(application.portfolio_url?[{title:"نمونه‌کار لینک‌شده",link:application.portfolio_url}]:[]),...(application.portfolio_file_url?[{title:"فایل نمونه‌کار",link:application.portfolio_file_url}]:[])]};
+        const body={action:"create",email,name:application.full_name,editorData,applicationId:application.id,adminNote:note};
+        if(application.auth_user_id)body.pendingAuthUserId=application.auth_user_id;else body.password=legacyPassword;
+        const {data:created,error:createError}=await sb.functions.invoke("manage-editors",{body});
         if(createError)throw createError;
         if(!created?.success)throw new Error(created?.error||"ساخت حساب ادیتور ناموفق بود.");
-        const msg=created.alreadyCreated?"حساب ادیتور از قبل ساخته شده بود و به این درخواست متصل شد.":"حساب ادیتور ساخته شد و به فهرست ادیتورها اضافه شد. رمز اولیه را همین حالا برای متقاضی از طریق روبیکا بفرست.";
-        if(!created.alreadyCreated)prompt("حساب ادیتور ساخته شد. رمز اولیه را کپی کن و فقط از طریق روبیکا برای متقاضی بفرست:", "ایمیل: "+email+"\nرمز اولیه: "+password);
-        toast(msg);await load();renderNav();loadMembershipApplications();return;
+        toast(created.alreadyCreated?"حساب قبلی به درخواست متصل شد.":"درخواست تأیید شد؛ پروفایل ادیتور ساخته و حساب ورود فعال شد.");
+        await load();renderNav();loadMembershipApplications();return;
       }
       const {error}=await sb.from("membership_applications").update({status,admin_note:note,reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);
       if(error)throw error;toast("وضعیت درخواست ذخیره شد.");loadMembershipApplications();return;
