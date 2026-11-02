@@ -161,6 +161,21 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 .pf a:hover{border-color:var(--acc)}
 .pf b{font-family:var(--fd);font-weight:400;font-size:28px}
 .pf small{color:var(--mu);font-size:13px}
+.pf-slider{position:relative;overflow:hidden;border:1px solid var(--ln);border-radius:13px;background:var(--s2);padding:14px}
+.pf-slide{display:none;min-height:180px;animation:pfIn .28s ease}
+.pf-slide.active{display:block}
+.pf-slide> b{display:block;margin-bottom:10px}
+.pf-slide img{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:10px;background:#080604}
+.pf-slide video{display:block;width:100%;max-height:420px;border-radius:10px;background:#080604}
+.pf-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.pf-arrow{width:42px;height:42px;border:1px solid var(--ln);border-radius:11px;background:var(--s1);color:var(--acc);font-size:23px;cursor:pointer;transition:.2s}
+.pf-arrow:hover{background:var(--pri);color:white;border-color:var(--pri)}
+.pf-count{color:var(--mu);font-size:13px;direction:ltr}
+.pf-dots{display:flex;align-items:center;justify-content:center;gap:6px;flex:1}
+.pf-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:var(--mu);opacity:.45;cursor:pointer;transition:.2s}
+.pf-dot.active{width:20px;border-radius:8px;background:var(--pri2);opacity:1}
+@keyframes pfIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-width:620px){.pf-slider{padding:10px}.pf-arrow{width:38px;height:38px}}
 .pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .pn a{padding:18px 22px;background:var(--s1);border:1px solid var(--ln);border-radius:12px}
 .pn a:hover{border-color:var(--pri2)}
@@ -718,9 +733,24 @@ function renderEditor(id){
   const prev = EDS[(i - 1 + EDS.length) % EDS.length], next = EDS[(i + 1) % EDS.length];
   const bars = (e.skills || []).map((s, k) => { const v = Math.max(62, 96 - k * 11);
     return `<div class="bar"><div class="h"><span>${esc(s)}</span><span>${fa(v)}٪</span></div><div class="t"><i data-w="${v}"></i></div></div>`; }).join("");
-  const pf = (e.portfolio || []).map(p => p.link
-    ? (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><video class="pf-short-video" data-video-url="${esc(p.link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:12px;margin-top:8px"><source src="${esc(p.link)}"></video></div>` : (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(p.link) ? `<div class="pfmedia"><b>${esc(p.title)}</b><a href="${esc(p.link)}" target="_blank" rel="noopener"><img src="${esc(p.link)}" alt="${esc(p.title)}" loading="lazy" style="display:block;width:100%;max-height:360px;object-fit:contain;border-radius:12px;margin-top:8px"></a></div>` : `<a href="${esc(p.link)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b><small>${esc(T("viewLinkText"))}</small></a>`))
-    : `<span><b>${esc(p.title)}</b><small>${esc(T("soonText"))}</small></span>`).join("");
+  const pfItems = (e.portfolio || []).map(p => {
+    const link = String(p.link || "");
+    let media = "";
+    if (!link) media = `<div class="pf-empty"><small>${esc(T("soonText"))}</small></div>`;
+    else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
+    else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy"></a>`;
+    else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
+    return {title:p.title, media};
+  });
+  const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
+    <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}</article>`).join("")}</div>
+    ${pfItems.length > 1 ? `<div class="pf-controls">
+      <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">›</button>
+      <div class="pf-dots">${pfItems.map((p,k) => `<button type="button" class="pf-dot ${k===0?"active":""}" data-pf-go="${k}" aria-label="رفتن به نمونه‌کار ${k+1}"></button>`).join("")}</div>
+      <span class="pf-count"><span data-pf-current>1</span> / ${pfItems.length}</span>
+      <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">‹</button>
+    </div>` : `<div class="pf-controls"><span class="pf-count">۱ / ۱</span></div>`}
+  </div>` : "";
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
       <div class="field"><label>ایمیل ورود</label><input id="edemail" type="email" autocomplete="username" required></div>
@@ -1020,6 +1050,21 @@ async function uploadEditorPortfolio(input){
    ================================================== */
 document.addEventListener("click", ev => {
   const t = ev.target;
+  const pfControl = t.closest("[data-pf-step], [data-pf-go]");
+  if (pfControl) {
+    const slider = pfControl.closest("[data-pf-slider]");
+    if (slider) {
+      const slides = [...slider.querySelectorAll("[data-pf-slide]")];
+      const current = slides.findIndex(x => x.classList.contains("active"));
+      const requested = pfControl.hasAttribute("data-pf-go") ? Number(pfControl.dataset.pfGo) : current + Number(pfControl.dataset.pfStep);
+      const next = (requested + slides.length) % slides.length;
+      slides.forEach((slide,k) => slide.classList.toggle("active", k === next));
+      slider.querySelectorAll(".pf-dot").forEach((dot,k) => dot.classList.toggle("active", k === next));
+      const counter = slider.querySelector("[data-pf-current]");
+      if (counter) counter.textContent = String(next + 1);
+    }
+    return;
+  }
   const sw = t.closest("[data-sw]");
   if (sw) { FCOLOR = sw.dataset.sw; $$("#sw [data-sw]").forEach(b => b.classList.toggle("on", b === sw)); return; }
   const adm = t.closest("[data-admin-edit]");
