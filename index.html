@@ -808,7 +808,7 @@ function renderEditor(id){
       <div class="inf">
         <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
         <h1>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</h1>
-        <div class="role">${esc(e.role)}</div>
+        <div class="role">${esc(e.role)}</div>${e.username ? `<div class="muted" style="direction:ltr;text-align:right;margin-top:5px">@${esc(e.username)}</div>` : ""}
         <p class="short">${esc(e.short)}</p>
         <div class="chips" style="margin-top:14px">${(e.skills || []).map(s => `<span class="chip" style="cursor:default">${esc(s)}</span>`).join("")}</div>
         ${ROLE === "admin" ? `<div style="margin-top:16px"><a class="btn sm g" href="#/admin/edit/${esc(e.id)}">${esc(T("adminEditLink"))}</a></div>` : ""}
@@ -1427,7 +1427,7 @@ async function runAction(name, btn){
         const {data:application,error:appError}=await sb.from("membership_applications").select("*").eq("id",btn.dataset.id).single();
         if(appError)throw appError;
         const email=String(card.querySelector("[data-membership-email]")?.value||application.email||"").trim().toLowerCase();
-        if(!email||!/^S+@S+.S+$/.test(email))throw new Error("ایمیل معتبر متقاضی لازم است.");
+        if(!email||!email.includes("@")||!email.includes("."))throw new Error("ایمیل معتبر متقاضی لازم است.");
         if(application.auth_user_id&&email!==String(application.email||"").toLowerCase())throw new Error("ایمیل درخواست با حساب ورود ساخته‌شده مطابقت ندارد.");
         const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
         const random=new Uint32Array(24);crypto.getRandomValues(random);
