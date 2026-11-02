@@ -1117,7 +1117,7 @@ async function loadVerificationRequests(){
     const requests=data||[],count=$("#verificationCount");if(count)count.textContent="("+fa(requests.filter(x=>x.status==="pending").length)+" در انتظار)";
     panel.innerHTML='<div class="card"><h3>درخواست‌های تیک آبی</h3><p style="color:var(--mu)">برای اعطای تیک، حساب دقیق ادیتور را انتخاب کن. تأیید درخواست به‌تنهایی تیک را فعال نمی‌کند.</p><div>'+(requests.map(req=>{
       const status=req.status==="pending"?"در انتظار بررسی":req.status==="approved"?"تأیید شده":"رد شده";
-      return '<article class="vreq" data-request="'+esc(req.id)+'"><div class="vreq-head"><b>'+esc(req.full_name)+' · @'+esc(req.username)+'</b><small>'+esc(status)+' · '+esc(req.request_code)+'</small></div><p>ایتا: @'+esc(req.eitaa)+' · فعالیت: '+esc(req.activity)+'</p><p><a href="'+esc(req.portfolio_url)+'" target="_blank" rel="noopener">مشاهده نمونه‌کار ↗</a></p><p>'+esc(req.details||"بدون توضیحات")+'</p><div class="vreq-actions"><select data-target-editor><option value="">انتخاب حساب ادیتور</option>'+EDS.map(e=>'<option value="'+esc(e.id)+'">'+esc(e.name)+' · '+esc(e.id.slice(0,8))+'</option>').join("")+'</select><button class="btn sm" data-act="grantVerification" data-id="'+esc(req.id)+'">تأیید و اعطای تیک</button><button class="btn sm dg" data-act="rejectVerification" data-id="'+esc(req.id)+'">رد درخواست</button></div></article>';
+      return '<article class="vreq" data-request="'+esc(req.id)+'"><div class="vreq-head"><b>'+esc(req.full_name)+' · @'+esc(req.username)+'</b><small>'+esc(status)+' · '+esc(req.request_code)+'</small></div><p>ایتا: @'+esc(req.eitaa)+' · فعالیت: '+esc(req.activity)+'</p><p><a href="'+esc(req.portfolio_url)+'" target="_blank" rel="noopener">مشاهده نمونه‌کار ↗</a></p><p>'+esc(req.details||"بدون توضیحات")+'</p><div class="vreq-actions"><select data-target-editor><option value="">انتخاب حساب ادیتور</option>'+EDS.map(e=>'<option value="'+esc(e.id)+'">'+esc(e.name)+' · '+esc(e.id.slice(0,8))+'</option>').join("")+'</select><button class="btn sm" '+(req.status!=="pending"?"disabled":"")+' data-act="grantVerification" data-id="'+esc(req.id)+'">تأیید و اعطای تیک</button><button class="btn sm dg" '+(req.status!=="pending"?"disabled":"")+' data-act="rejectVerification" data-id="'+esc(req.id)+'">رد درخواست</button></div></article>';
     }).join("")||'<div class="empty">هنوز درخواستی ثبت نشده است.</div>')+'</div></div>';
   }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
 }
@@ -1194,8 +1194,8 @@ async function runAction(name, btn){
       if(ROLE!=="admin")throw new Error("فقط مدیر می‌تواند تیک آبی بدهد.");
       const card=btn.closest("[data-request]"),target=card?.querySelector("[data-target-editor]")?.value;if(!target)throw new Error("اول حساب ادیتور را انتخاب کن.");
       const editor=EDS.find(x=>x.id===target);if(!editor)throw new Error("حساب انتخاب‌شده پیدا نشد.");
-      const {error:re}=await sb.from("verification_requests").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(re)throw re;
       const {error:ee}=await sb.from("editors").update({is_verified:true}).eq("id",target);if(ee)throw ee;
+      const {error:re}=await sb.from("verification_requests").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",btn.dataset.id);if(re)throw re;
       editor.is_verified=true;toast("درخواست تأیید و تیک آبی فعال شد.");setTab("verification");return;
     }
     if(name==="rejectVerification"){
