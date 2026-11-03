@@ -665,7 +665,7 @@ function renderNav(){
 function edRow(e, i){
   return `<article class="erow" style="--c:${esc(e.color)}" data-go="#/editor/${esc(e.id)}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     <span class="ix">${fa(String(i + 1).padStart(2, "0"))}</span>
-    <span class="av">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</span>
+    <span class="av">${e.avatar_emoji ? esc(e.avatar_emoji) : e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy">` : (e.gender==="female"?"👩":"👨")}</span>
     <span class="nm"><b>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
     <span class="tg">${(e.skills || []).slice(0, 3).map(s => `<em>${esc(s)}</em>`).join("")}</span>
     ${ROLE === "admin" ? `<button class="btn sm g" data-admin-edit="${esc(e.id)}">${esc(T("cardAdminBtn"))}</button>` : `<span></span>`}
@@ -736,7 +736,7 @@ function editorForm(e){
   return `<div class="epanel" id="epanel">
     <h3>${esc(T("editorPanelTitle"))}</h3>
     <div class="grid2">
-      ${ROLE === "editor" && MY_ID === e.id ? `<div class="field" style="grid-column:1/-1"><label>تصویر پروفایل</label><input id="avatar_upload" type="file" accept="image/jpeg,image/png,image/webp"><small class="community-note">JPG، PNG یا WEBP · حداکثر ۵ مگابایت</small><div class="err" id="avatarerr"></div></div>` : ""}
+      ${ROLE === "editor" && MY_ID === e.id ? `<div class="field" style="grid-column:1/-1"><label>ایموجی پروفایل</label><div style="display:flex;gap:8px;align-items:center"><input id="p_avatar_emoji" maxlength="8" value="${esc(e.avatar_emoji||"")}" placeholder="مثلاً 🚀 🎮 💻" style="max-width:220px"><button class="btn sm" type="button" data-act="saveAvatarEmoji" data-id="${esc(e.id)}">ذخیره ایموجی</button></div><small class="community-note">با ذخیره ایموجی، ایموجی به‌جای عکس پروفایل نمایش داده می‌شود. برای برگشت به عکس، ایموجی را پاک و ذخیره کن.</small></div><div class="field" style="grid-column:1/-1"><label>تصویر پروفایل</label><input id="avatar_upload" type="file" accept="image/jpeg,image/png,image/webp"><small class="community-note">JPG، PNG یا WEBP · حداکثر ۵ مگابایت</small><div class="err" id="avatarerr"></div></div>` : ""}
       <div class="field"><label>${esc(T("fRole"))}</label><input id="p_role" value="${esc(e.role)}"></div>
       <div class="field"><label>${esc(T("fCity"))}</label><input id="p_city" value="${esc(e.city)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fShort"))}</label><textarea id="p_short">${esc(e.short)}</textarea></div>
@@ -764,8 +764,8 @@ async function uploadEditorAvatar(input){
     const path=MY_ID+"/avatar/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
     const {error}=await sb.storage.from("portfolio-files").upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;
     const {data}=sb.storage.from("portfolio-files").getPublicUrl(path);
-    const {error:updateError}=await sb.from("editors").update({avatar_url:data.publicUrl}).eq("id",MY_ID);if(updateError)throw updateError;
-    const editor=EDS.find(x=>x.id===MY_ID);if(editor)editor.avatar_url=data.publicUrl;
+    const {error:updateError}=await sb.from("editors").update({avatar_url:data.publicUrl,avatar_emoji:""}).eq("id",MY_ID);if(updateError)throw updateError;
+    const editor=EDS.find(x=>x.id===MY_ID);if(editor){editor.avatar_url=data.publicUrl;editor.avatar_emoji="";}
     toast("تصویر پروفایل ذخیره شد.");renderEditor(MY_ID);
   }catch(error){if(errBox)errBox.textContent=error.message||"آپلود تصویر ناموفق بود.";}finally{input.value="";}
 }
@@ -827,7 +827,7 @@ function renderEditor(id){
   <div class="wrap">
     <a class="back" href="#/#editors">${esc(T("backToEditors"))}</a>
     <div class="ph" style="--c:${esc(e.color)}">
-      <div class="big">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="تصویر پروفایل ${esc(e.name)}" loading="lazy" decoding="async">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</div>
+      <div class="big">${e.avatar_emoji ? esc(e.avatar_emoji) : e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="تصویر پروفایل ${esc(e.name)}" loading="lazy" decoding="async">` : (e.gender==="female"?"👩":"👨")}</div>
       <div class="inf">
         <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
         <h1>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</h1>
@@ -1573,6 +1573,16 @@ async function runAction(name, btn){
       toast("درخواست رد شد و اعلان قرمز برای ادیتور ارسال شد.");setTab("verification");return;
     }
     if (name === "closePortfolioDelete") { closeModal(); return; }
+    if (name === "saveAvatarEmoji") {
+      if(ROLE!=="editor"||MY_ID!==btn.dataset.id)throw new Error("فقط صاحب پروفایل می‌تواند ایموجی را تغییر دهد.");
+      const emoji=String($("#p_avatar_emoji")?.value||"").trim();
+      if([...emoji].length>8)throw new Error("ایموجی پروفایل حداکثر ۸ نویسه باشد.");
+      const {data,error}=await sb.from("editors").update({avatar_emoji:emoji}).eq("id",MY_ID).select("id").maybeSingle();
+      if(error)throw error;if(!data)throw new Error("ذخیره انجام نشد؛ دسترسی ویرایش پروفایل را بررسی کن.");
+      const editor=EDS.find(x=>x.id===MY_ID);if(editor)editor.avatar_emoji=emoji;
+      toast(emoji?"ایموجی پروفایل ذخیره شد.":"ایموجی پاک شد؛ عکس یا آواتار پیش‌فرض نمایش داده می‌شود.");
+      renderEditor(MY_ID);return;
+    }
     if (name === "deletePortfolioConfirm") {
       const id = btn.dataset.id;
       if (ROLE !== "editor" || MY_ID !== id) throw new Error("اجازه‌ی حذف این نمونه‌کار را نداری.");
@@ -1585,17 +1595,25 @@ async function runAction(name, btn){
       const link = String(selected.link || "");
       const marker = "/storage/v1/object/public/portfolio-files/";
       const at = link.indexOf(marker);
+      let storagePath = "";
       if (at >= 0) {
-        const path = decodeURIComponent(link.slice(at + marker.length).split(/[?#]/)[0]);
-        if (!path.startsWith(id + "/")) throw new Error("مسیر فایل متعلق به این حساب نیست.");
-        const {error:removeError} = await sb.storage.from("portfolio-files").remove([path]);
-        if (removeError) throw removeError;
+        storagePath = decodeURIComponent(link.slice(at + marker.length).split(/[?#]/)[0]);
+        const ownedCurrentPath = storagePath.startsWith(id + "/");
+        const ownedLegacyPath = storagePath.startsWith("applications/" + id + "/portfolio/");
+        if (!ownedCurrentPath && !ownedLegacyPath) throw new Error("مسیر فایل متعلق به این حساب نیست؛ حذف لغو شد.");
       }
       const portfolio = editor.portfolio.filter((_,i) => i !== Number(choice.value));
-      const {error:updateError} = await sb.from("editors").update({portfolio}).eq("id", id);
+      const {data:updated,error:updateError} = await sb.from("editors").update({portfolio}).eq("id", id).select("id").maybeSingle();
       if (updateError) throw updateError;
+      if (!updated) throw new Error("نمونه‌کار از پروفایل حذف نشد؛ دسترسی ویرایش را بررسی کن.");
       editor.portfolio = portfolio;
-      closeModal(); renderEditor(id); toast("نمونه‌کار حذف شد."); return;
+      closeModal(); renderEditor(id);
+      if(storagePath){
+        const {error:removeError}=await sb.storage.from("portfolio-files").remove([storagePath]);
+        if(removeError)toast("نمونه‌کار از پروفایل حذف شد، اما پاک‌سازی فایل ذخیره‌شده ناموفق بود.");
+        else toast("نمونه‌کار و فایل آن حذف شدند.");
+      }else toast("نمونه‌کار حذف شد.");
+      return;
     }
     if (name === "saveOwn") {
       const id = btn.dataset.id;
