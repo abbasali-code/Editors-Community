@@ -1227,8 +1227,7 @@ async function uploadEditorPortfolio(input){
       const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-").slice(-90) || "portfolio";
       const storageName = file.name.includes(".") ? safeName : safeName + "." + ext;
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + storageName;
-      const codeMimeTypes = {html:"text/html",htm:"text/html",css:"text/css",js:"text/javascript",mjs:"text/javascript",cjs:"text/javascript",ts:"text/plain",tsx:"text/plain",jsx:"text/javascript",php:"application/x-httpd-php",aspx:"text/plain",cs:"text/plain",cpp:"text/plain",py:"text/x-python",go:"text/plain",f:"text/plain",for:"text/plain",f90:"text/plain",f95:"text/plain",f03:"text/plain",f08:"text/plain",fs:"text/plain",fsx:"text/plain",fsi:"text/plain",md:"text/markdown",java:"text/plain"};
-      const contentType = isCode ? (codeMimeTypes[ext] || "text/plain") : (isImage ? imageTypes[ext] : videoTypes[ext]) || file.type || "application/octet-stream";
+      const contentType = isCode ? "text/plain" : (isImage ? imageTypes[ext] : videoTypes[ext]) || file.type || "application/octet-stream";
       const {error} = await sb.storage.from("portfolio-files").upload(path,file,{contentType,upsert:false});
       if(error) throw error;
       uploadedPaths.push(path);
