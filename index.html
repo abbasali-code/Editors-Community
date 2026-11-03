@@ -977,7 +977,7 @@ async function submitComment(button){
   const area=button.closest(".comment-compose,.comment-reply-form")?.querySelector("textarea"),body=area?.value.trim();
   if(!body)throw new Error("متن نظر را بنویس.");if(body.length>2000)throw new Error("نظر حداکثر ۲۰۰۰ کاراکتر باشد.");
   const {error}=await sb.from("comments").insert({author_id:MY_ID,editor_id:editorId,portfolio_link:portfolioLink,parent_id:parentId,body});if(error)throw error;
-  $("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
+  $$("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
   toast(parentId?"پاسخت ثبت شد.":"نظرت منتشر شد.");
 }
 /* ==================================================
@@ -1405,7 +1405,7 @@ function renderEditorNotificationItem(n){
  const card='<div class="editor-notice"><div class="editor-notice-head"><b>'+esc(title)+'</b>'+notificationBadge(n)+'</div><div>'+esc(n.message||"")+'</div>'+copy+'<small>'+new Date(n.created_at).toLocaleString("fa-IR")+'</small></div>';
  return n.target_url?'<a href="'+esc(n.target_url)+'" class="notification-link" style="display:block">'+card+'</a>':card;
 }
-function showBrowserNotification(n){if(!("Notification" in window)||Notification.permission!=="granted"||notificationMuted())return;try{const note=new Notification(n.title||"اعلان جدید",{body:n.message||"",tag:"editor-notification-"+n.id,silent:notificationMuted(),renotify:false});note.onclick=()=>{window.focus();if(n.target_url)location.hash=n.target_url.replace(/^#/,"");note.close();};}catch(error){console.warn("Browser notification unavailable:",error);}}
+function showBrowserNotification(n){if(!("Notification" in window)||Notification.permission!=="granted")return;try{const note=new Notification(n.title||"اعلان جدید",{body:n.message||"",tag:"editor-notification-"+n.id,silent:notificationMuted(),renotify:false});note.onclick=()=>{window.focus();if(n.target_url)location.hash=n.target_url.replace(/^#/,"");note.close();};}catch(error){console.warn("Browser notification unavailable:",error);}}
 async function requestEditorNotificationPermission(){if(!("Notification" in window)||Notification.permission==="denied"){toast("دسترسی اعلان مرورگر مسدود است؛ اعلان‌های سایت همچنان فعال‌اند.");return;}try{const result=await Notification.requestPermission();toast(result==="granted"?"اعلان‌های کروم فعال شدند.":"اعلان‌ها فقط داخل سایت نمایش داده می‌شوند.");}catch(error){toast("امکان فعال‌سازی اعلان مرورگر وجود ندارد.");}if($("#editorNotifications"))loadEditorNotifications(MY_ID);}
 function toggleEditorNotificationMute(){const muted=!notificationMuted();try{localStorage.setItem("ec_notifications_muted_"+MY_ID,muted?"1":"0");}catch{}if($("#editorNotifications"))loadEditorNotifications(MY_ID);toast(muted?"اعلان‌های مرورگر بی‌صدا شدند.":"صدای اعلان‌های مرورگر وصل شد.");}
 function startEditorNotificationRealtime(editorId){if(!editorId||ROLE!=="editor")return;if(editorNotificationChannel)sb.removeChannel(editorNotificationChannel);editorNotificationChannel=sb.channel("editor-notifications-"+editorId).on("postgres_changes",{event:"INSERT",schema:"public",table:"editor_notifications",filter:"editor_id=eq."+editorId},payload=>{const n=payload.new;if(!n||seenEditorNotifications.has(n.id))return;seenEditorNotifications.add(n.id);showBrowserNotification(n);if($("#editorNotifications"))loadEditorNotifications(editorId);else toast("اعلان جدید: "+(n.title||"اعلان حساب"));}).subscribe();}
