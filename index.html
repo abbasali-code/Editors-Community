@@ -184,6 +184,9 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 .pf-code-card small{color:var(--mu)}
 .pf-delete-btn{margin-top:12px;background:transparent;border:1px solid rgba(239,68,68,.45);color:#fca5a5;padding:8px 15px;border-radius:10px;cursor:pointer;font-size:13px}.pf-delete-btn:hover{background:rgba(239,68,68,.12)}.pf-delete-list{display:grid;gap:10px;max-height:58vh;overflow:auto;margin:14px 0}.pf-delete-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--ln);border-radius:12px;background:var(--s2);cursor:pointer}.pf-delete-item:has(input:checked){border-color:var(--pri2);background:var(--s1)}.pf-delete-item input{accent-color:var(--pri);flex:0 0 auto}.pf-delete-preview{width:76px;height:62px;flex:0 0 76px;object-fit:cover;border-radius:8px;background:var(--bg)}.pf-delete-name{min-width:0;overflow-wrap:anywhere;font-size:13px}.pf-delete-modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.76)}.pf-delete-dialog{width:min(520px,100%);max-height:88vh;overflow:auto;padding:20px;border:1px solid var(--ln);border-radius:16px;background:var(--s1);box-shadow:0 20px 70px #0009}.pf-delete-dialog h3{font-size:30px;margin-bottom:5px}.pf-delete-actions{display:flex;gap:10px;flex-wrap:wrap}.pf-delete-actions button{flex:1}@keyframes pfIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(max-width:620px){.pf-slider{padding:10px}.pf-arrow{width:38px;height:38px}}
+.pf-description{margin:12px 0;padding:12px 14px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);white-space:pre-wrap;line-height:1.9;font-size:14px}
+.pf-description-edit{display:grid;gap:8px;margin:10px 0}.pf-description-edit textarea{width:100%;min-height:70px;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;resize:vertical}
+.portfolio-votes{margin:12px 0}.vote-actions{display:flex;gap:8px;align-items:center}.vote-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border:1px solid var(--ln);border-radius:10px;background:var(--s1);color:var(--tx);cursor:pointer;font-size:14px}.vote-btn:hover{border-color:var(--pri2)}.vote-btn.active.like{border-color:#22c55e;background:rgba(34,197,94,.12)}.vote-btn.active.dislike{border-color:#ef4444;background:rgba(239,68,68,.12)}.vote-btn:disabled{opacity:.45;cursor:not-allowed}
 .pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .pn a{padding:18px 22px;background:var(--s1);border:1px solid var(--ln);border-radius:12px}
 .pn a:hover{border-color:var(--pri2)}
@@ -452,12 +455,15 @@ function dbError(error){ throw new Error(error?.message || T("connError")); }
 function portfolioToDb(value){
   const rows = Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
     const parts = line.split("|").map(part => part.trim());
-    return {title:parts[0],link:parts[1]||"",type:parts[2]||"",language:parts[3]||""};
+    return {title:parts[0],link:parts[1]||"",type:parts[2]||"",language:parts[3]||"",id:parts[4]||"",description:parts.slice(5).join(" | ")};
   });
   return rows.map(x => {
     let link = String(x.link || x.url || "").trim();
     if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
     const item = {title:String(x.title || "").trim(),link};
+    const id = String(x.id || "").trim(), description = String(x.description || "").trim().slice(0,1000);
+    if (id) item.id = id;
+    if (description) item.description = description;
     if (x.type === "code" || x.kind === "code") {
       item.type = "code";
       item.language = String(x.language || "").trim().toLowerCase();
@@ -742,7 +748,7 @@ function editorForm(e){
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "") + (p.type === "code" ? " | code | " + (p.language || "") : "")).join("\n"))}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",p.description||""].join(" | ")).join("\n"))}</textarea></div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -787,10 +793,14 @@ function renderEditor(id){
     else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
     else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></a>`;
     else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
-    return {title:p.title, media, link};
+    return {title:p.title, media, link, id:String(p.id || p.link || ""), description:String(p.description || "")};
   });
   const pf = pfItems.length ? `<div class="pf-slider" data-pf-slider>
-    <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}<div class="project-comments" data-comments data-editor-id="${esc(e.id)}" data-portfolio-link="${esc(p.link)}"></div></article>`).join("")}</div>
+    <div class="pf-slides">${pfItems.map((p,k) => `<article class="pf-slide ${k===0?"active":""}" data-pf-slide="${k}"><b>${esc(p.title)}</b>${p.media}
+      <div class="pf-description">${p.description ? esc(p.description) : '<span class="community-note">توضیحی برای این نمونه‌کار ثبت نشده است.</span>'}</div>
+      ${ROLE==="editor" && MY_ID===e.id ? `<div class="pf-description-edit"><textarea maxlength="1000" data-portfolio-description placeholder="توضیح این نمونه‌کار را بنویس...">${esc(p.description)}</textarea><button class="btn sm g" type="button" data-act="savePortfolioDescription" data-id="${esc(e.id)}" data-portfolio-id="${esc(p.id)}">ذخیره توضیحات</button></div>` : ""}
+      <div class="portfolio-votes" data-portfolio-votes data-editor-id="${esc(e.id)}" data-portfolio-id="${esc(p.id)}"></div>
+      <div class="project-comments" data-comments data-editor-id="${esc(e.id)}" data-portfolio-link="${esc(p.link)}"></div></article>`).join("")}</div>
     ${pfItems.length > 1 ? `<div class="pf-controls">
       <button class="pf-arrow" type="button" data-pf-step="-1" aria-label="نمونه‌کار قبلی">‹</button>
       <span class="pf-count"><span data-pf-current>۱</span> از <span data-pf-total>${fa(pfItems.length)}</span></span>
@@ -856,7 +866,8 @@ function renderEditor(id){
   </div>`;
   requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
   if(ROLE === "editor" && MY_ID === e.id) loadEditorNotifications(e.id);
-  $$("[data-comments]").forEach(host => loadComments(host));
+  $("[data-comments]").forEach(host => loadComments(host));
+  $("[data-portfolio-votes]").forEach(host => loadPortfolioVotes(host));
   refreshPortfolioUsage();
 $$(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
@@ -899,6 +910,38 @@ async function signInCommunityWithGoogle(){
   const redirectTo=window.location.origin+window.location.pathname;
   const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
   if(error)throw error;
+}
+async function loadPortfolioVotes(host){
+  if(!host || !host.isConnected) return;
+  const editorId=host.dataset.editorId, portfolioId=host.dataset.portfolioId;
+  host.innerHTML='<span class="community-note">در حال دریافت رأی‌ها...</span>';
+  try{
+    const {data,error}=await sb.rpc("get_portfolio_vote_counts",{p_editor_id:editorId,p_portfolio_id:portfolioId});
+    if(error)throw error;
+    const row=Array.isArray(data)?data[0]:(data||{});
+    const likes=Number(row.likes||0), dislikes=Number(row.dislikes||0), myVote=Number(row.my_vote||0);
+    const own=ROLE==="editor"&&MY_ID===editorId;
+    host.innerHTML='<div class="vote-actions"><button type="button" class="vote-btn '+(myVote===1?'active like':'')+'" data-portfolio-vote="1" aria-label="پسندیدن" '+(own?'disabled':'')+'>👍 <span>'+fa(likes)+'</span></button><button type="button" class="vote-btn '+(myVote===-1?'active dislike':'')+'" data-portfolio-vote="-1" aria-label="نپسندیدن" '+(own?'disabled':'')+'>👎 <span>'+fa(dislikes)+'</span></button></div>';
+  }catch(error){host.innerHTML='<span class="community-note">دریافت رأی‌ها ممکن نشد: '+esc(error.message)+'</span>';}
+}
+async function handlePortfolioVote(button){
+  if(!ROLE){location.hash="#/account";return;}
+  const host=button.closest("[data-portfolio-votes]"),editorId=host?.dataset.editorId,portfolioId=host?.dataset.portfolioId;
+  if(ROLE==="admin")throw new Error("حساب مدیر برای رأی دادن استفاده نمی‌شود.");
+  if(ROLE==="editor"&&MY_ID===editorId)throw new Error("نمی‌توانی به نمونه‌کار خودت رأی بدهی.");
+  const vote=button.classList.contains("active")?0:Number(button.dataset.portfolioVote);
+  button.disabled=true;
+  try{const {error}=await sb.rpc("cast_portfolio_vote",{p_editor_id:editorId,p_portfolio_id:portfolioId,p_vote:vote});if(error)throw error;await loadPortfolioVotes(host);}
+  finally{button.disabled=false;}
+}
+async function savePortfolioDescription(button){
+  if(ROLE!=="editor"||MY_ID!==button.dataset.id)throw new Error("فقط صاحب پروفایل می‌تواند توضیحات نمونه‌کار را ویرایش کند.");
+  const slide=button.closest("[data-pf-slide]"),description=slide?.querySelector("[data-portfolio-description]")?.value.trim()||"";
+  if(description.length>1000)throw new Error("توضیحات حداکثر ۱۰۰۰ کاراکتر باشد.");
+  const editor=EDS.find(e=>e.id===MY_ID);if(!editor)throw new Error("پروفایل ادیتور پیدا نشد.");
+  const portfolio=(editor.portfolio||[]).map(p=>String(p.id||p.link||"")===button.dataset.portfolioId?{...p,description}:p);
+  const {error}=await sb.from("editors").update({portfolio}).eq("id",MY_ID);if(error)throw error;
+  editor.portfolio=portfolio;toast("توضیحات نمونه‌کار ذخیره شد.");renderEditor(MY_ID);
 }
 async function loadComments(host){
   if(!host||!host.isConnected)return;
@@ -1095,7 +1138,7 @@ function openEditor(id){
       <div class="field"><label>${esc(T("fAvail"))}</label><input id="f_avail" value="${v(e && e.availability)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="f_skills" value="${v(e ? (e.skills || []).join(", ") : "")}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fTesti"))}</label><textarea id="f_testi">${v(e && e.testimonial)}</textarea></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="f_pf">${v(e ? (e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n") : "")}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="f_pf">${v(e ? (e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",p.description||""].join(" | ")).join("\n") : "")}</textarea></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fPass"))}</label><input id="f_pass" type="password" autocomplete="new-password" placeholder="${e ? "تغییر رمز از این فرم فعلاً پشتیبانی نمی‌شود" : "حداقل ۱۲ کاراکتر"}" ${e ? "disabled" : "required"}></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fColor"))}</label><div class="sw" id="sw">${COLORS.map(c => `<button type="button" data-sw="${c}" style="background:${c}" class="${c === FCOLOR ? "on" : ""}" aria-label="${c}"></button>`).join("")}</div></div>
     </div>
@@ -1185,7 +1228,7 @@ async function uploadEditorPortfolio(input){
       uploadedPaths.push(path);
       const {data} = sb.storage.from("portfolio-files").getPublicUrl(path,isCode ? {download:true} : undefined);
       const title = file.name.replace(/\.[^.]+$/,"").replace(/[|\n]/g," ").trim() || "نمونه‌کار";
-      newLines.push(title + " | " + data.publicUrl + (isCode ? " | code | " + ext : ""));
+      newLines.push([title,data.publicUrl,isCode?"code":"",isCode?ext:"",crypto.randomUUID(),""].join(" | "));
       usage.bytes += file.size;
       if(isVideo) usage.videoBytes+=file.size;
     }
@@ -1401,6 +1444,8 @@ document.addEventListener("click", ev => {
     }
     return;
   }
+  const voteButton=t.closest("[data-portfolio-vote]");
+  if(voteButton){ev.preventDefault();ev.stopPropagation();handlePortfolioVote(voteButton).catch(e=>toast(e.message));return;}
   const reply=t.closest("[data-comment-reply]");
   if(reply){
     ev.preventDefault();ev.stopPropagation();if(!ROLE){location.hash="#/account";return;}
@@ -1447,6 +1492,7 @@ document.addEventListener("change", ev => {
 
 async function runAction(name, btn){
   try {
+    if(name==="savePortfolioDescription"){await savePortfolioDescription(btn);return;}
     if(name==="membershipStatus"){
       if(ROLE!=="admin")throw new Error("فقط مدیر دسترسی دارد.");
       const card=btn.closest("[data-membership]"),status=card?.querySelector("[data-membership-status]")?.value;
