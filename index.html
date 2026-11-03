@@ -1175,7 +1175,7 @@ async function uploadEditorPortfolio(input){
       if (isVideo && usage.videoBytes + file.size > PORTFOLIO_LIMITS.videoTotal) throw new Error("مجموع حجم ویدیوهای هر حساب نمی‌تواند بیشتر از ۱۰۰ مگابایت باشد.");
       const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-").slice(-90) || "portfolio";
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + safeName;
-      const contentType = file.type || (isCode ? (ext==="json" ? "application/json" : "text/plain") : undefined);
+      const contentType = isCode ? "text/plain" : (file.type || undefined);
       const {error} = await sb.storage.from("portfolio-files").upload(path,file,{contentType,upsert:false});
       if(error) throw error;
       uploadedPaths.push(path);
