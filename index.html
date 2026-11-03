@@ -1155,17 +1155,21 @@ async function uploadEditorPortfolio(input){
     input.value = "";
     return;
   }
-  const imageExt = ["jpg","jpeg","png","webp","gif"];
-  const videoExt = ["mp4","webm","mov","m4v"];
+  const imageTypes = {jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
+  const videoTypes = {mp4:"video/mp4",webm:"video/webm",mov:"video/quicktime",m4v:"video/mp4"};
   const uploadedPaths = [];
+  let field = null;
+  let originalPortfolioText = "";
   try {
     let usage = await getPortfolioUsage();
-    const field = $("#p_pf");
+    field = $("#p_pf");
     if (!field) throw new Error("فرم مدیریت نمونه‌کار پیدا نشد.");
+    originalPortfolioText = field.value;
+    const newLines = [];
     for (const file of files) {
       const ext = file.name.split(".").pop().toLowerCase();
-      const isVideo = file.type.startsWith("video/") || videoExt.includes(ext);
-      const isImage = file.type.startsWith("image/") || imageExt.includes(ext);
+      const isVideo = file.type.startsWith("video/") || Object.prototype.hasOwnProperty.call(videoTypes,ext);
+      const isImage = file.type.startsWith("image/") || Object.prototype.hasOwnProperty.call(imageTypes,ext);
       const isCode = CODE_EXTENSIONS.includes(ext);
       if (!isVideo && !isImage && !isCode) throw new Error("این فرمت پشتیبانی نمی‌شود. تصویر، ویدیو یا فایل کدنویسی مجاز است.");
       if (isVideo && file.size > PORTFOLIO_LIMITS.video) throw new Error("حجم هر ویدیو حداکثر ۵۰ مگابایت است.");
@@ -1175,17 +1179,17 @@ async function uploadEditorPortfolio(input){
       if (isVideo && usage.videoBytes + file.size > PORTFOLIO_LIMITS.videoTotal) throw new Error("مجموع حجم ویدیوهای هر حساب نمی‌تواند بیشتر از ۱۰۰ مگابایت باشد.");
       const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-").slice(-90) || "portfolio";
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + safeName;
-      const contentType = isCode ? "text/plain" : (file.type || undefined);
+      const contentType = isCode ? "text/plain" : (isImage ? imageTypes[ext] : videoTypes[ext]) || file.type || "application/octet-stream";
       const {error} = await sb.storage.from("portfolio-files").upload(path,file,{contentType,upsert:false});
       if(error) throw error;
       uploadedPaths.push(path);
       const {data} = sb.storage.from("portfolio-files").getPublicUrl(path,isCode ? {download:true} : undefined);
       const title = file.name.replace(/\.[^.]+$/,"").replace(/[|\n]/g," ").trim() || "نمونه‌کار";
-      const serialized = title + " | " + data.publicUrl + (isCode ? " | code | " + ext : "");
-      field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + serialized;
+      newLines.push(title + " | " + data.publicUrl + (isCode ? " | code | " + ext : ""));
       usage.bytes += file.size;
       if(isVideo){usage.videos++;usage.videoBytes+=file.size;}
     }
+    field.value = [originalPortfolioText.trim(),...newLines].filter(Boolean).join("\n");
     const portfolio = portfolioToDb(field.value);
     const {error:portfolioError} = await sb.from("editors").update({portfolio}).eq("id",MY_ID);
     if(portfolioError) throw portfolioError;
@@ -1194,6 +1198,7 @@ async function uploadEditorPortfolio(input){
     if(errBox) errBox.textContent = "فایل‌ها آپلود و به نمونه‌کارهای پروفایل اضافه شدند.";
     toast("نمونه‌کارها با موفقیت آپلود شدند.");
   } catch(error) {
+    if(field) field.value = originalPortfolioText;
     if(uploadedPaths.length) await sb.storage.from("portfolio-files").remove(uploadedPaths);
     if(errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
   } finally {
@@ -1201,7 +1206,6 @@ async function uploadEditorPortfolio(input){
     await refreshPortfolioUsage();
   }
 }
-
 /* ==================================================
    رویدادها (تفویض‌شده)
    ================================================== */
