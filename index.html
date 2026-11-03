@@ -802,7 +802,7 @@ function renderEditor(id){
   const portfolioTools = ROLE === "editor" && MY_ID === e.id ? `<div class="portfolio-upload-tools">
     <div id="portfolioUsage" style="padding:10px 12px;border:1px solid var(--ln);border-radius:10px;background:var(--s2);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div>
     <label class="portfolio-upload-btn" for="p_upload"><span aria-hidden="true">＋</span> آپلود نمونه‌کار</label>
-    <input id="p_upload" type="file" hidden multiple accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,.m4v,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.html,.htm,.css,.scss,.sass,.json,.md,.txt,.xml,.yml,.yaml,.toml,.ini,.sql,.java,.c,.h,.cpp,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.dart,.sh,.bash,.bat,.ps1,.vue,.svelte,.astro,.ipynb,.r,.lua,.pl,.ex,.exs,.erl,.hrl,.clj,.cljs,.scala,.gradle,.dockerfile,.makefile,.gitignore,.env">
+    <input id="p_upload" type="file" hidden multiple accept="image/*,video/mp4,video/webm,video/quicktime,text/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,.m4v,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.html,.htm,.css,.scss,.sass,.json,.md,.txt,.xml,.yml,.yaml,.toml,.ini,.sql,.java,.c,.h,.cpp,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.dart,.sh,.bash,.bat,.ps1,.vue,.svelte,.astro,.ipynb,.r,.lua,.pl,.ex,.exs,.erl,.hrl,.clj,.cljs,.scala,.gradle,.dockerfile,.makefile,.gitignore,.env">
     <small class="portfolio-upload-note">سهمیه هر حساب: مجموعاً ۲۰۰ مگابایت. حداکثر ۲ ویدیو، هرکدام تا ۵۰ مگابایت و مجموع ویدیوها تا ۱۰۰ مگابایت. هر فایل کدنویسی حداکثر ۱۰ مگابایت است. آپلود و ثبت نمونه‌کار خودکار انجام می‌شود.</small>
     <div class="err" id="uploaderr"></div>
     <button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>
