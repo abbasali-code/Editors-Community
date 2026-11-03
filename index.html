@@ -864,10 +864,10 @@ function renderEditor(id){
       <a href="#/editor/${esc(next.id)}"><small>${esc(T("nextLabel"))}</small><b>${esc(next.name)}</b></a>
     </div>
   </div>`;
-  requestAnimationFrame(() => $("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
+  requestAnimationFrame(() => $$("[data-w]").forEach(x => x.style.width = x.dataset.w + "%"));
   if(ROLE === "editor" && MY_ID === e.id) loadEditorNotifications(e.id);
-  $("[data-comments]").forEach(host => loadComments(host));
-  $("[data-portfolio-votes]").forEach(host => loadPortfolioVotes(host));
+  $$("[data-comments]").forEach(host => loadComments(host));
+  $$("[data-portfolio-votes]").forEach(host => loadPortfolioVotes(host));
   refreshPortfolioUsage();
 $$(".pf-short-video").forEach(video => {
     video.addEventListener("loadedmetadata", () => {
@@ -971,7 +971,7 @@ async function submitComment(button){
   const area=button.closest(".comment-compose,.comment-reply-form")?.querySelector("textarea"),body=area?.value.trim();
   if(!body)throw new Error("متن نظر را بنویس.");if(body.length>2000)throw new Error("نظر حداکثر ۲۰۰۰ کاراکتر باشد.");
   const {error}=await sb.from("comments").insert({author_id:MY_ID,editor_id:editorId,portfolio_link:portfolioLink,parent_id:parentId,body});if(error)throw error;
-  $$("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
+  $$$("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
   toast(parentId?"پاسخت ثبت شد.":"نظرت منتشر شد.");
 }
 /* ==================================================
