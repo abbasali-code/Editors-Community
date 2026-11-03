@@ -455,7 +455,7 @@ function dbError(error){ throw new Error(error?.message || T("connError")); }
 function portfolioToDb(value){
   const rows = Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
     const parts = line.split("|").map(part => part.trim());
-    return {title:parts[0],link:parts[1]||"",type:parts[2]||"",language:parts[3]||"",id:parts[4]||"",description:parts.slice(5).join(" | ")};
+    return {title:parts[0],link:parts[1]||"",type:parts[2]||"",language:parts[3]||"",id:parts[4]||"",description:(()=>{try{return decodeURIComponent(parts.slice(5).join(" | "))}catch{return parts.slice(5).join(" | ")}})()};
   });
   return rows.map(x => {
     let link = String(x.link || x.url || "").trim();
@@ -748,7 +748,7 @@ function editorForm(e){
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",p.description||""].join(" | ")).join("\n"))}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",encodeURIComponent(p.description||"")].join(" | ")).join("\n"))}</textarea></div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -1138,7 +1138,7 @@ function openEditor(id){
       <div class="field"><label>${esc(T("fAvail"))}</label><input id="f_avail" value="${v(e && e.availability)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="f_skills" value="${v(e ? (e.skills || []).join(", ") : "")}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fTesti"))}</label><textarea id="f_testi">${v(e && e.testimonial)}</textarea></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="f_pf">${v(e ? (e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",p.description||""].join(" | ")).join("\n") : "")}</textarea></div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="f_pf">${v(e ? (e.portfolio || []).map(p => [p.title,p.link||"",p.type==="code"?"code":"",p.language||"",p.id||"",encodeURIComponent(p.description||"")].join(" | ")).join("\n") : "")}</textarea></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fPass"))}</label><input id="f_pass" type="password" autocomplete="new-password" placeholder="${e ? "تغییر رمز از این فرم فعلاً پشتیبانی نمی‌شود" : "حداقل ۱۲ کاراکتر"}" ${e ? "disabled" : "required"}></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fColor"))}</label><div class="sw" id="sw">${COLORS.map(c => `<button type="button" data-sw="${c}" style="background:${c}" class="${c === FCOLOR ? "on" : ""}" aria-label="${c}"></button>`).join("")}</div></div>
     </div>
