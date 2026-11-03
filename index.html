@@ -818,9 +818,11 @@ function renderEditor(id){
     <button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>
   </div>` : "";
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
-      <div class="field"><label>ایمیل ورود</label><input id="edemail" type="email" autocomplete="username" required></div>
-      <div class="field"><label>${esc(T("editorPassLabel"))}</label><input id="edpass" type="password" autocomplete="current-password" required></div>
-      <button class="btn" data-act="editorLogin" data-id="${esc(e.id)}">${esc(T("editorLoginBtn"))}</button>
+      <form id="editorLoginForm" onsubmit="return false">
+        <div class="field"><label>ایمیل ورود</label><input id="edemail" type="email" autocomplete="username" required></div>
+        <div class="field"><label>${esc(T("editorPassLabel"))}</label><input id="edpass" type="password" autocomplete="current-password" required></div>
+      </form>
+      <button type="button" class="btn" data-act="editorLogin" data-id="${esc(e.id)}">${esc(T("editorLoginBtn"))}</button>
       <div class="err" id="eerr"></div></div>` : "";
 
   app().innerHTML = `
@@ -971,7 +973,7 @@ async function submitComment(button){
   const area=button.closest(".comment-compose,.comment-reply-form")?.querySelector("textarea"),body=area?.value.trim();
   if(!body)throw new Error("متن نظر را بنویس.");if(body.length>2000)throw new Error("نظر حداکثر ۲۰۰۰ کاراکتر باشد.");
   const {error}=await sb.from("comments").insert({author_id:MY_ID,editor_id:editorId,portfolio_link:portfolioLink,parent_id:parentId,body});if(error)throw error;
-  $$$("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
+  $("[data-comments]").filter(h=>h.dataset.editorId===editorId&&(h.dataset.portfolioLink||"")===(portfolioLink||"")).forEach(loadComments);
   toast(parentId?"پاسخت ثبت شد.":"نظرت منتشر شد.");
 }
 /* ==================================================
