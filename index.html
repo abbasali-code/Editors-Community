@@ -1285,6 +1285,7 @@ function renderVerificationForm(){
       const full_name=$("#v_fullname").value.trim(),username=$("#v_username").value.trim().replace(/^@/,""),eitaa=$("#v_eitaa").value.trim().replace(/^@/,""),activity=$("#v_activity").value.trim(),portfolio_url=$("#v_portfolio").value.trim(),details=$("#v_details").value.trim();
       const applicant=EDS.find(x=>String(x.name||"").trim().toLowerCase()===username.toLowerCase());
       if(!applicant)throw new Error("حساب ادیتور این نام کاربری پیدا نشد.");
+      if(applicant.is_verified===true)throw new Error("این حساب در حال حاضر تیک آبی فعال دارد و نیازی به ثبت درخواست جدید نیست.");
       if(!/^https?:\/\//i.test(portfolio_url))throw new Error("لینک نمونه‌کار باید با https:// یا http:// شروع شود.");
       const request_code="VR-"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
       const message=[
@@ -1301,7 +1302,7 @@ function renderVerificationForm(){
       result.innerHTML=`<div class="verification-result"><b>درخواستت ثبت شد!</b><p class="muted">کد پیگیری:</p><div class="verification-code">${esc(request_code)}</div><div class="acts" style="margin-top:14px"><button class="btn" type="button" id="copyVerificationMessage">کپی پیام آماده</button><a class="btn g" href="https://eitaa.com/sobhn1890" target="_blank" rel="noopener">رفتن به ایتای ادمین @sobhn1890</a></div><p class="muted">پیام کپی‌شده رو در ایتا ارسال کن. ثبت درخواست به معنی تأیید تیک نیست.</p></div>`;
       $("#copyVerificationMessage").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(message);}catch(e){const ta=document.createElement("textarea");ta.value=message;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}toast("پیام کپی شد.");});
       ev.target.reset();
-    }catch(error){err.textContent=error.code==="23505"||/verification_requests_one_per_username_idx|verification_requests_one_pending_per_username_idx|duplicate key/i.test(error.message||"")?"قبلاً با این نام کاربری درخواست داده شده است":(error.message||"ثبت درخواست ناموفق بود.");}finally{btn.disabled=false;btn.textContent="ثبت درخواست و دریافت کد پیگیری";}
+    }catch(error){err.textContent=error.code==="23505"||/verification_requests_one_per_username_idx|verification_requests_one_pending_per_username_idx|duplicate key/i.test(error.message||"")?"برای این حساب یک درخواست در انتظار بررسی وجود دارد؛ تا مشخص شدن نتیجه، درخواست دیگری ثبت نمی‌شود.":(error.message||"ثبت درخواست ناموفق بود.");}finally{btn.disabled=false;btn.textContent="ثبت درخواست و دریافت کد پیگیری";}
   });
 }
 async function loadEditorNotifications(editorId){
