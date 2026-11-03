@@ -630,13 +630,13 @@ function applyTheme(){
   $("#fQuickT").textContent = T("footerQuick"); $("#fContactT").textContent = T("footerContact");
   $("#fCopy").textContent = "© " + fa(new Date().getFullYear()) + " " + CFG.brand + " — " + CFG.footer.copy;
   $("#fBadge").textContent = T("footerBadge");
-  $("#fContact").innerHTML = `<a href="mailto:${esc(CFG.contact.email)}">${esc(CFG.contact.email)}</a><a href="tel:${esc(CFG.contact.phone.replace(/[^\d+]/g, ""))}">${esc(CFG.contact.phone)}</a>${CFG.contact.rubika ? `<a href="https://rubika.ir/${esc(CFG.contact.rubika.replace(/^@/, ""))}" target="_blank" rel="noopener">روبیکا: ${esc(CFG.contact.rubika)}</a>` : ""}<span style="color:var(--mu);font-size:14px">${esc(CFG.contact.address)}</span>`;
+  $("#fContact").innerHTML = "";
   $("#fContact").insertAdjacentHTML("beforeend", `<a href="https://rubika.ir/Sobhan12546" target="_blank" rel="noopener">پشتیبانی اصلی در روبیکا: @Sobhan12546</a><a href="https://rubika.ir/Mr_Rezu" target="_blank" rel="noopener">پشتیبان دوم در روبیکا: @Mr_Rezu</a><a href="https://eitaa.com/Abbas_agha4933" target="_blank" rel="noopener">پشتیبانی فنی سایت در ایتا: @Abbas_agha4933</a>`);
   document.title = CFG.brand + " | " + CFG.brandSub;
   renderNav();
 }
 function renderNav(){
-  $("#nav").innerHTML = `<div class="nav-head"><strong>منوی انجمن</strong><button class="menu-close" type="button" aria-label="بستن منو" data-menu-close>×</button></div>` + SECS.filter(k => CFG[k] && CFG[k].show).map(k => `<a href="#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/join">درخواست عضویت در انجمن</a>`
+  $("#nav").innerHTML = `<div class="nav-head"><strong>منوی انجمن</strong><button class="menu-close" type="button" aria-label="بستن منو" data-menu-close>×</button></div>` + SECS.filter(k => k !== "contact" && CFG[k] && CFG[k].show).map(k => `<a href="#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/join">درخواست عضویت در انجمن</a>`
     + `<a href="#/verification">درخواست تیک آبی</a>`
     + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود با گوگل"}</a>`
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
@@ -714,12 +714,7 @@ function renderHome(){
     ${c.faq.items.map(f => `<details class="q"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}
   </div></section>` : ""}
 
-  ${c.contact.show ? `<section id="contact"><div class="wrap">
-    <div class="cta"><h2>${esc(c.contact.title)}</h2><p>${esc(c.contact.text)}</p>
-      <div class="acts"><a class="btn gold" href="mailto:${esc(c.contact.email)}">${esc(c.contact.btn)}</a>
-        <a class="btn g" href="tel:${esc(c.contact.phone.replace(/[^\d+]/g, ""))}">${esc(T("callBtn"))}</a></div>
-      <div class="info"><span>✉ ${esc(c.contact.email)}</span><span>☎ ${esc(c.contact.phone)}</span><span>⌖ ${esc(c.contact.address)}</span></div>
-    </div></div></section>` : ""}`;
+`;
   if (c.editors.show) renderList();
 }
 
