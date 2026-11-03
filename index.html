@@ -1572,6 +1572,7 @@ async function runAction(name, btn){
       await checkSession(); renderNav(); renderEditor(id); return;
     }
     if (name === "editorLogout") {
+      if(editorNotificationChannel){sb.removeChannel(editorNotificationChannel);editorNotificationChannel=null;}
       await api("POST", "/api/logout").catch(() => {});
       ROLE = null; MY_ID = null; renderNav(); renderEditor(location.hash.replace("#/editor/", "")); return;
     }
