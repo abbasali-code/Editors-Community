@@ -174,6 +174,14 @@ footer{margin-top:100px;border-top:1px solid var(--ln);background:var(--s1);padd
 .pf-dots{display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:0}
 .pf-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:var(--mu);opacity:.45;cursor:pointer;transition:.2s}
 .pf-dot.active{width:18px;border-radius:8px;background:var(--pri2);opacity:1}
+.portfolio-upload-tools{display:grid;gap:10px;margin-top:18px;padding:16px;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}
+.portfolio-upload-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:100%;padding:10px 20px;border:1px solid transparent;border-radius:11px;background:linear-gradient(120deg,var(--pri),var(--pri2));color:#fff;font-family:var(--fd);font-size:25px;line-height:1.2;cursor:pointer;transition:transform .2s,filter .2s}
+.portfolio-upload-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.portfolio-upload-btn:focus-within{outline:2px solid var(--acc);outline-offset:3px}
+.portfolio-upload-note{color:var(--mu);font-size:12px;line-height:1.9}
+.pf-code-card{display:grid;gap:12px;place-items:center;min-height:180px;padding:24px;border:1px dashed var(--ln);border-radius:12px;background:var(--s1);text-align:center}
+.pf-code-ext{display:inline-flex;align-items:center;justify-content:center;min-width:64px;padding:8px 14px;border:1px solid var(--ln);border-radius:10px;background:var(--s2);color:var(--acc);font:600 20px/1.2 var(--fb);direction:ltr}
+.pf-code-card small{color:var(--mu)}
 .pf-delete-btn{margin-top:12px;background:transparent;border:1px solid rgba(239,68,68,.45);color:#fca5a5;padding:8px 15px;border-radius:10px;cursor:pointer;font-size:13px}.pf-delete-btn:hover{background:rgba(239,68,68,.12)}.pf-delete-list{display:grid;gap:10px;max-height:58vh;overflow:auto;margin:14px 0}.pf-delete-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--ln);border-radius:12px;background:var(--s2);cursor:pointer}.pf-delete-item:has(input:checked){border-color:var(--pri2);background:var(--s1)}.pf-delete-item input{accent-color:var(--pri);flex:0 0 auto}.pf-delete-preview{width:76px;height:62px;flex:0 0 76px;object-fit:cover;border-radius:8px;background:var(--bg)}.pf-delete-name{min-width:0;overflow-wrap:anywhere;font-size:13px}.pf-delete-modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.76)}.pf-delete-dialog{width:min(520px,100%);max-height:88vh;overflow:auto;padding:20px;border:1px solid var(--ln);border-radius:16px;background:var(--s1);box-shadow:0 20px 70px #0009}.pf-delete-dialog h3{font-size:30px;margin-bottom:5px}.pf-delete-actions{display:flex;gap:10px;flex-wrap:wrap}.pf-delete-actions button{flex:1}@keyframes pfIn{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(max-width:620px){.pf-slider{padding:10px}.pf-arrow{width:38px;height:38px}}
 .pn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -442,23 +450,20 @@ const SUPABASE_ANON_KEY = "sb_publishable_veS_CVztSF6t5f1b-TaLwQ_9nXFaHz1";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 function dbError(error){ throw new Error(error?.message || T("connError")); }
 function portfolioToDb(value){
-  return (Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
-    const [title, ...url] = line.split("|");
-    return {title: title.trim(), link: url.join("|").trim()};
-  }))
-  .map(x => {
+  const rows = Array.isArray(value) ? value : String(value || "").split("\n").map(line => {
+    const parts = line.split("|").map(part => part.trim());
+    return {title:parts[0],link:parts[1]||"",type:parts[2]||"",language:parts[3]||""};
+  });
+  return rows.map(x => {
     let link = String(x.link || x.url || "").trim();
-
-    if (link && !/^https?:\/\//i.test(link)) {
-      link = "https://" + link;
+    if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+    const item = {title:String(x.title || "").trim(),link};
+    if (x.type === "code" || x.kind === "code") {
+      item.type = "code";
+      item.language = String(x.language || "").trim().toLowerCase();
     }
-
-    return {
-      title: String(x.title || "").trim(),
-      link
-    };
-  })
-  .filter(x => x.title && x.link);
+    return item;
+  }).filter(x => x.title && x.link);
 }
 function dbEditor(row){
   return {
@@ -737,7 +742,7 @@ function editorForm(e){
       <div class="field"><label>${esc(T("instaLabel"))}</label><input id="p_insta" value="${esc(e.insta)}"></div>
       <div class="field"><label>${esc(T("fProjects"))}</label><input id="p_projects" value="${esc(e.projects)}"></div>
       <div class="field" style="grid-column:1/-1"><label>${esc(T("fSkills"))}</label><input id="p_skills" value="${esc((e.skills || []).join(", "))}"></div>
-      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "")).join("\n"))}</textarea>${ROLE === "editor" && MY_ID === e.id ? `<label style="margin-top:10px">آپلود نمونه‌کار (تصویر یا ویدیو)</label><div id="portfolioUsage" style="margin:8px 0;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div><input id="p_upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple><small style="color:var(--mu)">سهمیه هر ادیتور: ۲۰۰ مگابایت مجموع؛ حداکثر ۲ ویدیو، هر ویدیو تا ۵۰ مگابایت. بعد از آپلود، «ذخیره تغییرات» را بزن.</small><div class="err" id="uploaderr"></div><button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>` : ""}</div>
+      <div class="field" style="grid-column:1/-1"><label>${esc(T("fPortfolio"))}</label><textarea id="p_pf">${esc((e.portfolio || []).map(p => p.title + " | " + (p.link || "") + (p.type === "code" ? " | code | " + (p.language || "") : "")).join("\n"))}</textarea></div>
     </div>
     <div class="err" id="perr"></div>
     <div class="mact"><button class="btn" data-act="saveOwn" data-id="${esc(e.id)}">${esc(T("editorSaveBtn"))}</button><button class="btn g" data-act="editorLogout">${esc(T("editorLogoutBtn"))}</button></div>
@@ -772,8 +777,13 @@ function renderEditor(id){
     return `<div class="bar"><div class="h"><span>${esc(s)}</span><span>${fa(v)}٪</span></div><div class="t"><i data-w="${v}"></i></div></div>`; }).join("");
   const pfItems = (e.portfolio || []).map(p => {
     const link = String(p.link || "");
+    const ext = link.split(/[?#]/)[0].split(".").pop().toLowerCase();
+    const isCode = p.type === "code" || CODE_EXTENSIONS.includes(ext);
     let media = "";
-    if (!link) media = `<div class="pf-empty"><small>${esc(T("soonText"))}</small></div>`;
+    if (isCode) {
+      const language = String(p.language || CODE_LANGUAGE_NAMES[ext] || ext.toUpperCase());
+      media = `<div class="pf-code-card"><span class="pf-code-ext">${esc(ext || "CODE")}</span><small>فایل کدنویسی · ${esc(language)}</small><a class="btn sm" href="${esc(link)}" download target="_blank" rel="noopener">دانلود فایل کدنویسی ↓</a></div>`;
+    } else if (!link) media = `<div class="pf-empty"><small>${esc(T("soonText"))}</small></div>`;
     else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
     else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></a>`;
     else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
@@ -787,8 +797,16 @@ function renderEditor(id){
       <div class="pf-dots">${pfItems.map((p,k) => `<button type="button" class="pf-dot ${k===0?"active":""}" data-pf-go="${k}" aria-label="رفتن به نمونه‌کار ${k+1}"></button>`).join("")}</div>
       <button class="pf-arrow" type="button" data-pf-step="1" aria-label="نمونه‌کار بعدی">›</button>
     </div>` : `<div class="pf-controls"><span class="pf-count">۱ از ۱</span></div>`}
-  </div>` : "";
+  </div>` : `<div class="empty">هنوز نمونه‌کاری ثبت نشده است.</div>`;
   const canEdit = ROLE === "admin" || (ROLE === "editor" && MY_ID === e.id);
+  const portfolioTools = ROLE === "editor" && MY_ID === e.id ? `<div class="portfolio-upload-tools">
+    <div id="portfolioUsage" style="padding:10px 12px;border:1px solid var(--ln);border-radius:10px;background:var(--s2);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div>
+    <label class="portfolio-upload-btn" for="p_upload"><span aria-hidden="true">＋</span> آپلود نمونه‌کار</label>
+    <input id="p_upload" type="file" hidden multiple accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,.m4v,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.html,.htm,.css,.scss,.sass,.json,.md,.txt,.xml,.yml,.yaml,.toml,.ini,.sql,.java,.c,.h,.cpp,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.dart,.sh,.bash,.bat,.ps1,.vue,.svelte,.astro,.ipynb,.r,.lua,.pl,.ex,.exs,.erl,.hrl,.clj,.cljs,.scala,.gradle">
+    <small class="portfolio-upload-note">سهمیه هر حساب: مجموعاً ۲۰۰ مگابایت. حداکثر ۲ ویدیو، هرکدام تا ۵۰ مگابایت و مجموع ویدیوها تا ۱۰۰ مگابایت. هر فایل کدنویسی حداکثر ۱۰ مگابایت است. آپلود و ثبت نمونه‌کار خودکار انجام می‌شود.</small>
+    <div class="err" id="uploaderr"></div>
+    <button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>
+  </div>` : "";
   const loginBox = !canEdit ? `<div class="blk" id="elogin"><h3>${esc(T("editorLoginTitle"))}</h3>
       <div class="field"><label>ایمیل ورود</label><input id="edemail" type="email" autocomplete="username" required></div>
       <div class="field"><label>${esc(T("editorPassLabel"))}</label><input id="edpass" type="password" autocomplete="current-password" required></div>
@@ -825,7 +843,7 @@ function renderEditor(id){
       </div>
       <a class="btn full" style="margin-top:18px" href="mailto:${esc(e.email)}">${esc(T("sendBtn"))}</a>
     </div>
-    ${pf ? `<div class="blk"><h3>${esc(T("portfolioTitle"))}</h3><div class="pf">${pf}</div></div>` : ""}
+    <div class="blk"><h3>${esc(T("portfolioTitle"))}</h3><div class="pf">${pf}</div>${portfolioTools}</div>
     <div class="blk"><div data-comments data-editor-id="${esc(e.id)}" data-portfolio-link=""></div></div>
     ${e.testimonial ? `<div class="blk"><h3>${esc(T("testimonialTitle"))}</h3><p>«${esc(e.testimonial)}»</p></div>` : ""}
     ${ROLE === "editor" && MY_ID === e.id ? `<div class="blk" id="editorNotifications"><h3>اعلان‌های حساب</h3><p style="color:var(--mu)">در حال دریافت اعلان‌ها...</p></div>` : ""}
@@ -1103,14 +1121,17 @@ function openPortfolioDelete(editorId){
   $("#layer").innerHTML = '<div class="pf-delete-modal" id="pfDeleteLayer"><div class="pf-delete-dialog" role="dialog" aria-modal="true"><h3>کدام نمونه‌کار حذف شود؟</h3><p style="color:var(--mu);font-size:13px">یک مورد را انتخاب کن. پیش‌نمایش هر نمونه‌کار کنار عنوانش نمایش داده می‌شود.</p><div class="pf-delete-list">' + rows + '</div><div class="pf-delete-actions"><button class="btn" type="button" data-act="deletePortfolioConfirm" data-id="' + esc(editorId) + '">حذف انتخاب‌شده</button><button class="btn g" type="button" data-act="closePortfolioDelete">انصراف</button></div><div class="err" id="pfDeleteError"></div></div></div>';
 }
 
-const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, video: 50 * 1024 * 1024, videos: 2 };
+const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, video: 50 * 1024 * 1024, videoTotal: 100 * 1024 * 1024, videos: 2, code: 10 * 1024 * 1024 };
+const CODE_EXTENSIONS = ["js","mjs","cjs","ts","tsx","jsx","py","html","htm","css","scss","sass","json","md","txt","xml","yml","yaml","toml","ini","sql","java","c","h","cpp","hpp","cs","php","rb","go","rs","swift","kt","dart","sh","bash","bat","ps1","vue","svelte","astro","ipynb","r","lua","pl","ex","exs","erl","hrl","clj","cljs","scala","gradle"];
+const CODE_LANGUAGE_NAMES = {js:"JavaScript",mjs:"JavaScript",cjs:"JavaScript",ts:"TypeScript",tsx:"TSX",jsx:"JSX",py:"Python",html:"HTML",htm:"HTML",css:"CSS",scss:"SCSS",sass:"Sass",json:"JSON",md:"Markdown",txt:"Text",xml:"XML",yml:"YAML",yaml:"YAML",sql:"SQL",java:"Java",c:"C",cpp:"C++",cs:"C#",php:"PHP",rb:"Ruby",go:"Go",rs:"Rust",swift:"Swift",kt:"Kotlin",dart:"Dart",sh:"Shell",ps1:"PowerShell",vue:"Vue",svelte:"Svelte",astro:"Astro",ipynb:"Jupyter Notebook",r:"R",lua:"Lua",scala:"Scala"};
 async function getPortfolioUsage(){
   const {data,error} = await sb.storage.from("portfolio-files").list(MY_ID,{limit:1000,offset:0});
   if(error) throw error;
   const files = (data || []).filter(x => x.name && x.id);
   const bytes = files.reduce((sum,x) => sum + Number(x.metadata?.size || 0),0);
-  const videos = files.filter(x => String(x.metadata?.mimetype || "").startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(x.name)).length;
-  return {bytes,videos};
+  const videos = files.filter(x => String(x.metadata?.mimetype || "").startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(x.name));
+  const videoBytes = videos.reduce((sum,x) => sum + Number(x.metadata?.size || 0),0);
+  return {bytes,videos:videos.length,videoBytes};
 }
 function formatFileSize(bytes){
   return (bytes / (1024*1024)).toLocaleString("fa-IR",{maximumFractionDigits:1}) + " مگابایت";
@@ -1120,7 +1141,7 @@ async function refreshPortfolioUsage(){
   if(!box || ROLE !== "editor" || !MY_ID) return;
   try{
     const usage = await getPortfolioUsage();
-    box.textContent = `فضای مصرف‌شده: ${formatFileSize(usage.bytes)} از ۲۰۰ مگابایت · ویدیو: ${usage.videos} از ۲`;
+    box.textContent = `فضای مصرف‌شده: ${formatFileSize(usage.bytes)} از ۲۰۰ مگابایت · ویدیو: ${usage.videos} از ۲ · حجم ویدیوها: ${formatFileSize(usage.videoBytes)} از ۱۰۰ مگابایت`;
   }catch(error){
     box.textContent = "نمایش سهمیه ممکن نیست؛ محدودیت‌های آپلود همچنان در سرور بررسی می‌شوند.";
   }
@@ -1130,42 +1151,53 @@ async function uploadEditorPortfolio(input){
   const files = [...(input.files || [])];
   if (!files.length) return;
   if (ROLE !== "editor" || !MY_ID) {
-    if (errBox) errBox.textContent = "آپلود از پنل حساب خود ادیتور انجام می‌شود.";
+    if (errBox) errBox.textContent = "آپلود فقط از پروفایل و حساب خود ادیتور امکان‌پذیر است.";
     input.value = "";
     return;
   }
-  const allowed = ["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm","video/quicktime"];
+  const imageExt = ["jpg","jpeg","png","webp","gif"];
+  const videoExt = ["mp4","webm","mov","m4v"];
+  const uploadedPaths = [];
   try {
     let usage = await getPortfolioUsage();
+    const field = $("#p_pf");
+    if (!field) throw new Error("فرم مدیریت نمونه‌کار پیدا نشد.");
     for (const file of files) {
-      if (!allowed.includes(file.type)) throw new Error("فرمت فایل پشتیبانی نمی‌شود. JPG، PNG، WEBP، GIF، MP4، WEBM و MOV مجازند.");
-      const isVideo = file.type.startsWith("video/");
+      const ext = file.name.split(".").pop().toLowerCase();
+      const isVideo = file.type.startsWith("video/") || videoExt.includes(ext);
+      const isImage = file.type.startsWith("image/") || imageExt.includes(ext);
+      const isCode = CODE_EXTENSIONS.includes(ext);
+      if (!isVideo && !isImage && !isCode) throw new Error("این فرمت پشتیبانی نمی‌شود. تصویر، ویدیو یا فایل کدنویسی مجاز است.");
       if (isVideo && file.size > PORTFOLIO_LIMITS.video) throw new Error("حجم هر ویدیو حداکثر ۵۰ مگابایت است.");
-      if (usage.bytes + file.size > PORTFOLIO_LIMITS.total) throw new Error("سهمیه ۲۰۰ مگابایتی نمونه‌کار شما پر می‌شود؛ ابتدا بعضی فایل‌ها را حذف کنید.");
+      if (isCode && file.size > PORTFOLIO_LIMITS.code) throw new Error("حجم هر فایل کدنویسی حداکثر ۱۰ مگابایت است.");
+      if (usage.bytes + file.size > PORTFOLIO_LIMITS.total) throw new Error("سهمیه کل نمونه‌کار شما ۲۰۰ مگابایت است؛ ابتدا بعضی فایل‌ها را حذف کنید.");
       if (isVideo && usage.videos >= PORTFOLIO_LIMITS.videos) throw new Error("هر ادیتور حداکثر می‌تواند ۲ ویدیو داشته باشد.");
-      const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g, "-").slice(-90) || "portfolio";
+      if (isVideo && usage.videoBytes + file.size > PORTFOLIO_LIMITS.videoTotal) throw new Error("مجموع حجم ویدیوهای هر حساب نمی‌تواند بیشتر از ۱۰۰ مگابایت باشد.");
+      const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-").slice(-90) || "portfolio";
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + safeName;
-      const {error} = await sb.storage.from("portfolio-files").upload(path, file, {contentType:file.type, upsert:false});
-      if (error) throw error;
-      const {data} = sb.storage.from("portfolio-files").getPublicUrl(path);
-      const title = file.name.replace(/\.[^.]+$/, "").replace(/[|\n]/g, " ").trim() || "نمونه‌کار";
-      const field = $("#p_pf");
-      field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + title + " | " + data.publicUrl;
+      const contentType = file.type || (isCode ? (ext==="json" ? "application/json" : "text/plain") : undefined);
+      const {error} = await sb.storage.from("portfolio-files").upload(path,file,{contentType,upsert:false});
+      if(error) throw error;
+      uploadedPaths.push(path);
+      const {data} = sb.storage.from("portfolio-files").getPublicUrl(path,isCode ? {download:true} : undefined);
+      const title = file.name.replace(/\.[^.]+$/,"").replace(/[|\n]/g," ").trim() || "نمونه‌کار";
+      const item = {title,link:data.publicUrl};
+      if(isCode){item.type="code";item.language: ext;}
+      const serialized = title + " | " + data.publicUrl + (isCode ? " | code | " + ext : "");
+      field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + serialized;
       usage.bytes += file.size;
-      if(isVideo) usage.videos++;
+      if(isVideo){usage.videos++;usage.videoBytes+=file.size;}
     }
-    // ثبت فوری فهرست نمونه‌کارها در دیتابیس؛ تا با رندر/ذخیره بعدی از دست نروند
-    const portfolioField = $("#p_pf");
-    const portfolio = portfolioToDb(portfolioField ? portfolioField.value : "");
-    const {error: portfolioError} = await sb.from("editors").update({portfolio}).eq("id", MY_ID);
-    if (portfolioError) throw portfolioError;
-    const ownEditor = EDS.find(x => x.id === MY_ID);
-    if (ownEditor) ownEditor.portfolio = portfolio;
-
-    if (errBox) errBox.textContent = "آپلود و ثبت نمونه‌کارها با موفقیت انجام شد.";
-    toast("فایل‌ها آپلود و ثبت شدند.");
-  } catch (error) {
-    if (errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
+    const portfolio = portfolioToDb(field.value);
+    const {error:portfolioError} = await sb.from("editors").update({portfolio}).eq("id",MY_ID);
+    if(portfolioError) throw portfolioError;
+    const ownEditor = EDS.find(x=>x.id===MY_ID);
+    if(ownEditor) ownEditor.portfolio = portfolio;
+    if(errBox) errBox.textContent = "فایل‌ها آپلود و به نمونه‌کارهای پروفایل اضافه شدند.";
+    toast("نمونه‌کارها با موفقیت آپلود شدند.");
+  } catch(error) {
+    if(uploadedPaths.length) await sb.storage.from("portfolio-files").remove(uploadedPaths);
+    if(errBox) errBox.textContent = error.message || "آپلود ناموفق بود.";
   } finally {
     input.value = "";
     await refreshPortfolioUsage();
