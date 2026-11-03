@@ -378,6 +378,7 @@ const ORANGE_THEME = {bg:"#100b07",surface:"#1c130d",surface2:"#2a1a10",primary:
 const FALLBACK_CFG = {
   brand:"انجمن ادیتوران", brandSub:"جامعه‌ی ادیتورهای حرفه‌ای ایران",
   fonts:{display:"Jomhuria",body:"Vazirmatn"},
+  customFonts:[],
   colors:{...ORANGE_THEME},
   effects:{grain:false,aurora:false,reveal:true},
   nav:{about:"درباره",editors:"ادیتورها",services:"خدمات",process:"روند کار",testimonials:"نظرات",faq:"سوالات",contact:"تماس"},
@@ -621,6 +622,8 @@ async function load(){
   const d = await api("GET", "/api/state");
   CFG = d.config || clone(FALLBACK_CFG); EDS = d.editors || [];
   CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+  CFG.customFonts = Array.isArray(CFG.customFonts) ? CFG.customFonts : [];
+  CFG.fonts = Object.assign({display:"Jomhuria",body:"Vazirmatn"}, CFG.fonts || {});
 }
 async function checkSession(){
   try { const me = await api("GET", "/api/me"); ROLE = me.role; MY_ID = me.id || null; }
@@ -634,11 +637,18 @@ async function checkSession(){
    ================================================== */
 function applyTheme(){
   CFG.colors = {...ORANGE_THEME};
+  CFG.customFonts = Array.isArray(CFG.customFonts) ? CFG.customFonts : [];
+  CFG.fonts = Object.assign({display:"Jomhuria",body:"Vazirmatn"}, CFG.fonts || {});
   const c = CFG.colors, f = CFG.fonts, s = document.documentElement.style;
+  const customStyle = document.getElementById("ec-custom-font-faces") || document.createElement("style");
+  customStyle.id = "ec-custom-font-faces";
+  customStyle.textContent = CFG.customFonts.filter(x => x && /^EC_[A-Za-z0-9_-]+$/.test(x.family) && /^https:\/\//.test(x.url || "")).map(x => `@font-face{font-family:"${x.family}";src:url(${JSON.stringify(x.url)}) format("${({woff2:"woff2",woff:"woff",ttf:"truetype",otf:"opentype"})[x.format] || "woff2"}");font-display:swap}`).join("\n");
+  document.head.appendChild(customStyle);
+  const resolveFont = value => { const item = CFG.customFonts.find(x => value === "custom:" + x.family); return item ? item.family : value; };
   s.setProperty("--bg", c.bg); s.setProperty("--s1", c.surface); s.setProperty("--s2", c.surface2);
   s.setProperty("--pri", c.primary); s.setProperty("--pri2", c.primary2); s.setProperty("--acc", c.accent);
   s.setProperty("--tx", c.text); s.setProperty("--mu", c.muted);
-  s.setProperty("--fd", `"${f.display}",Tahoma,sans-serif`); s.setProperty("--fb", `"${f.body}",Tahoma,Arial,sans-serif`);
+  s.setProperty("--fd", `"${resolveFont(f.display)}",Tahoma,sans-serif`); s.setProperty("--fb", `"${resolveFont(f.body)}",Tahoma,Arial,sans-serif`);
   document.querySelector('meta[name="theme-color"]').content = c.bg;
   $("#brand").textContent = CFG.brand; $("#brandSub").textContent = CFG.brandSub;
   $("#fBrand").textContent = CFG.brand; $("#fAbout").textContent = CFG.footer.about;
@@ -1057,9 +1067,49 @@ function setTab(name){
     panel.innerHTML = ""; build(DRAFT, panel, "", ["colors", "fonts", "effects"]);
   } else {
     if (bar) bar.classList.remove("hide");
+    DRAFT.customFonts = Array.isArray(DRAFT.customFonts) ? DRAFT.customFonts : [];
     panel.innerHTML = ""; build({fonts: DRAFT.fonts}, panel, ""); build({colors: DRAFT.colors}, panel, ""); build({effects: DRAFT.effects}, panel, "");
+    const fontBox = el("fieldset", "grp");
+    fontBox.innerHTML = `<legend>فونت‌های دلخواه</legend>
+      <p style="color:var(--mu);font-size:13px;margin:0 0 12px">فایل فونت را آپلود کن تا به فهرست فونت تیتر و متن اضافه شود. فرمت‌های WOFF2، WOFF، TTF و OTF؛ حداکثر ۸ مگابایت.</p>
+      <div class="field"><label for="custom_font_upload">انتخاب فایل فونت</label><input id="custom_font_upload" type="file" accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf"></div>
+      <div id="fontUploadStatus" class="muted" style="font-size:13px;margin-top:8px"></div>
+      <div class="arr" style="margin-top:12px"><div class="arr-h"><strong>فونت‌های آپلودشده</strong><span>${fa(DRAFT.customFonts.length)} فونت</span></div>
+      ${DRAFT.customFonts.length ? DRAFT.customFonts.map(x => `<div class="item" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span>${esc(x.name)}</span><span class="muted" style="font-size:12px">${esc(x.format || "")}</span></div>`).join("") : `<p class="muted" style="font-size:13px">هنوز فونتی آپلود نشده است.</p>`}</div>`;
+    panel.appendChild(fontBox);
+    $("#custom_font_upload").addEventListener("change", ev => uploadSiteFont(ev.target));
   }
   markState();
+}
+async function uploadSiteFont(input){
+  const file = input.files?.[0], status = $("#fontUploadStatus");
+  if (!file) return;
+  if (ROLE !== "admin" || !MY_ID) { if(status)status.textContent="فقط مدیر سایت می‌تواند فونت آپلود کند."; input.value=""; return; }
+  try {
+    const ext = file.name.split(".").pop().toLowerCase();
+    const mime = {woff2:"font/woff2",woff:"font/woff",ttf:"font/ttf",otf:"font/otf"};
+    if (!mime[ext]) throw new Error("فرمت مجاز نیست؛ فقط WOFF2، WOFF، TTF یا OTF.");
+    if (file.size > 8 * 1024 * 1024) throw new Error("حجم فونت نباید بیشتر از ۸ مگابایت باشد.");
+    const head = new Uint8Array(await file.slice(0,4).arrayBuffer());
+    const signature = String.fromCharCode(...head);
+    const valid = ext==="woff2" ? signature==="wOF2" : ext==="woff" ? signature==="wOFF" : ext==="otf" ? signature==="OTTO" : signature==="\\u0000\\u0001\\u0000\\u0000" || signature==="true";
+    if (!valid) throw new Error("محتوای فایل با پسوند فونت مطابقت ندارد.");
+    if(status)status.textContent="در حال آپلود فونت...";
+    const base = file.name.replace(/\\.[^.]+$/,"").normalize("NFKD").replace(/[^a-zA-Z0-9_-]/g,"_").slice(0,32) || "Font";
+    const family = "EC_" + base + "_" + crypto.randomUUID().slice(0,8).replace(/-/g,"");
+    const path = MY_ID + "/" + crypto.randomUUID() + "." + ext;
+    const {error} = await sb.storage.from("site-fonts").upload(path,file,{contentType:mime[ext],upsert:false,cacheControl:"31536000"});
+    if(error)throw error;
+    const {data} = sb.storage.from("site-fonts").getPublicUrl(path);
+    DRAFT.customFonts = Array.isArray(DRAFT.customFonts) ? DRAFT.customFonts : [];
+    DRAFT.customFonts.push({name:file.name,family,url:data.publicUrl,path,format:ext});
+    markDirty();
+    setTab("look");
+    toast("فونت آپلود شد؛ حالا از فهرست فونت تیتر یا متن انتخابش کن و تغییرات را ذخیره کن.");
+  } catch(error) {
+    if(status)status.textContent=error.message || "آپلود فونت ناموفق بود.";
+    else toast(error.message || "آپلود فونت ناموفق بود.");
+  } finally { input.value=""; }
 }
 function markDirty(){ DIRTY = true; markState(); }
 function markState(){
@@ -1108,6 +1158,7 @@ function build(obj, host, group, skip){
       } else if (gk === "fonts.display" || gk === "fonts.body") {
         inp = el("select");
         FONTS.forEach(f => { const o = el("option"); o.value = f; o.textContent = f; o.selected = f === v; inp.appendChild(o); });
+        (DRAFT.customFonts || []).forEach(f => { const o = el("option"); o.value = "custom:" + f.family; o.textContent = "آپلودشده: " + f.name; o.selected = o.value === v; inp.appendChild(o); });
         inp.onchange = () => { obj[k] = inp.value; markDirty(); };
       } else if (LONG.includes(k) || String(v).length > 70) {
         inp = el("textarea"); inp.value = v;
