@@ -1181,8 +1181,6 @@ async function uploadEditorPortfolio(input){
       uploadedPaths.push(path);
       const {data} = sb.storage.from("portfolio-files").getPublicUrl(path,isCode ? {download:true} : undefined);
       const title = file.name.replace(/\.[^.]+$/,"").replace(/[|\n]/g," ").trim() || "نمونه‌کار";
-      const item = {title,link:data.publicUrl};
-      if(isCode){item.type="code";item.language: ext;}
       const serialized = title + " | " + data.publicUrl + (isCode ? " | code | " + ext : "");
       field.value = (field.value.trim() ? field.value.trim() + "\n" : "") + serialized;
       usage.bytes += file.size;
