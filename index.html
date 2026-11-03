@@ -353,6 +353,15 @@ details.q summary::after{font-size:30px}
   }
 }
 
+
+/* Membership application portfolio items */
+.membership-portfolio-list{display:grid;gap:12px;margin:10px 0}
+.membership-portfolio-item{padding:14px;border:1px solid var(--ln);border-radius:12px;background:var(--s1)}
+.membership-portfolio-head,.membership-portfolio-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.membership-portfolio-item .field{margin-bottom:9px}
+.membership-portfolio-item .field:last-child{margin-bottom:0}
+.membership-admin-portfolio{margin:12px 0;padding:12px;border:1px solid var(--ln);border-radius:10px;background:var(--s1)}
+.membership-admin-portfolio p{margin:7px 0}
 </style>
 </head>
 <body>
@@ -1416,23 +1425,56 @@ function renderMembershipForm(){
         </div><small class="muted">عکس انتخاب کنی، عکس استفاده می‌شود؛ در غیر این صورت ایموجی یا آواتار پیش‌فرض نمایش داده می‌شود.</small>
       </div>
       <div class="field full"><label for="m_bio">بیوگرافی (اختیاری)</label><textarea id="m_bio" maxlength="2000" rows="4" placeholder="کمی درباره خودت و مهارت‌هایت..."></textarea></div>
-      <div class="field"><label for="m_portfolio">لینک نمونه‌کار</label><input id="m_portfolio" type="url" maxlength="1000" placeholder="https://..."></div>
-      <div class="field"><label for="m_portfolio_file">یا فایل نمونه‌کار</label><input id="m_portfolio_file" type="file" accept="image/*,video/mp4,video/webm,application/pdf"><small class="muted">حداقل یکی از لینک یا فایل اجباری است. فایل حداکثر ۲۰ مگابایت.</small></div>
+      <div class="field full"><label>نمونه‌کارها (۵ تا ۸ مورد)</label><p class="muted">برای هر نمونه‌کار، فقط یکی از لینک یا فایل را وارد کن. هر فایل حداکثر ۲۰ مگابایت.</p><div id="m_portfolio_items" class="membership-portfolio-list"></div><div class="membership-portfolio-controls"><span id="m_portfolio_count" class="muted"></span><button type="button" class="btn sm g" id="m_add_portfolio">＋ افزودن نمونه‌کار</button></div></div>
       <div class="field full"><button class="btn full" id="m_submit" type="submit">ثبت درخواست عضویت</button><div class="err" id="m_error"></div></div>
     </form><div id="m_result"></div>
   </div></div>`;
   let selectedEmoji = "";
+  let portfolioItemCount = 0;
+  const portfolioHost = $("#m_portfolio_items");
+  const updatePortfolioCount = () => {
+    $("#m_portfolio_count").textContent = fa(portfolioItemCount) + " از ۸ نمونه‌کار";
+    $("#m_add_portfolio").disabled = portfolioItemCount >= 8;
+  };
+  const addPortfolioRow = () => {
+    if (portfolioItemCount >= 8) return;
+    portfolioItemCount++;
+    const row = document.createElement("div");
+    row.className = "membership-portfolio-item";
+    row.setAttribute("data-portfolio-item", "");
+    row.innerHTML = '<div class="membership-portfolio-head"><b data-portfolio-title>نمونه‌کار ' + fa(portfolioItemCount) + '</b><button type="button" class="btn sm g" data-remove-portfolio>حذف</button></div><div class="field"><label>لینک نمونه‌کار</label><input type="url" data-portfolio-url maxlength="1000" placeholder="https://..."></div><div class="field"><label>یا فایل نمونه‌کار</label><input type="file" data-portfolio-file accept="image/*,video/mp4,video/webm,application/pdf"><small class="muted">تصویر، ویدیو یا PDF</small></div>';
+    portfolioHost.appendChild(row);
+    updatePortfolioCount();
+  };
+  for (let i = 0; i < 5; i++) addPortfolioRow();
+  $("#m_add_portfolio").addEventListener("click", addPortfolioRow);
+  portfolioHost.addEventListener("click", ev => {
+    const remove = ev.target.closest("[data-remove-portfolio]");
+    if (!remove || portfolioItemCount <= 5) return;
+    remove.closest("[data-portfolio-item]").remove();
+    portfolioItemCount--;
+    [...portfolioHost.querySelectorAll("[data-portfolio-item]")].forEach((row, index) => {
+      row.querySelector("[data-portfolio-title]").textContent = "نمونه‌کار " + fa(index + 1);
+    });
+    updatePortfolioCount();
+  });
   $("#m_avatar").addEventListener("change",()=>{$("#m_avatar_name").textContent=$("#m_avatar").files[0]?.name||"عکسی انتخاب نشده";});
   $("#m_emoji_picker").addEventListener("click",ev=>{const btn=ev.target.closest("[data-emoji]");if(!btn)return;selectedEmoji=btn.dataset.emoji;$("#m_emoji_picker").querySelectorAll(".emoji-option").forEach(x=>x.classList.toggle("active",x===btn));});
   $("#membershipForm").addEventListener("submit",async ev=>{
     ev.preventDefault();
     const btn=$("#m_submit"),err=$("#m_error"),result=$("#m_result");err.textContent="";result.innerHTML="";
     const email=$("#m_email").value.trim().toLowerCase(),password=$("#m_password").value;
-    const avatarFile=$("#m_avatar").files[0],portfolioFile=$("#m_portfolio_file").files[0],portfolioLink=$("#m_portfolio").value.trim();
+    const avatarFile=$("#m_avatar").files[0];
+    const portfolioRows=[...portfolioHost.querySelectorAll("[data-portfolio-item]")];
+    const portfolioEntries=portfolioRows.map((row,index)=>({index,url:row.querySelector("[data-portfolio-url]").value.trim(),file:row.querySelector("[data-portfolio-file]").files[0]}));
     if(password.length<7){err.textContent="رمز عبور باید حداقل ۷ کاراکتر باشد.";return;}
-    if(!portfolioFile&&!portfolioLink){err.textContent="لطفاً لینک نمونه‌کار یا فایل آن را وارد کن.";return;}
+    if(portfolioEntries.length<5||portfolioEntries.length>8){err.textContent="باید بین ۵ تا ۸ نمونه‌کار ارسال کنی.";return;}
+    for(const item of portfolioEntries){
+      if(Boolean(item.url)===Boolean(item.file)){err.textContent="برای نمونه‌کار "+fa(item.index+1)+" دقیقاً یکی از لینک یا فایل را وارد کن.";return;}
+      if(item.url){try{const parsed=new URL(item.url);if(!["http:","https:"].includes(parsed.protocol))throw new Error();}catch{err.textContent="لینک نمونه‌کار "+fa(item.index+1)+" معتبر نیست.";return;}}
+      if(item.file&&(!(item.file.type.startsWith("image/")||["video/mp4","video/webm","application/pdf"].includes(item.file.type))||item.file.size>20*1024*1024)){err.textContent="فایل نمونه‌کار "+fa(item.index+1)+" باید تصویر، MP4، WebM یا PDF و حداکثر ۲۰ مگابایت باشد.";return;}
+    }
     if(avatarFile&&(!["image/jpeg","image/png","image/webp"].includes(avatarFile.type)||avatarFile.size>5*1024*1024)){err.textContent="عکس پروفایل باید JPG، PNG یا WEBP و حداکثر ۵ مگابایت باشد.";return;}
-    if(portfolioFile&&portfolioFile.size>20*1024*1024){err.textContent="حجم فایل نمونه‌کار نباید بیشتر از ۲۰ مگابایت باشد.";return;}
     btn.disabled=true;btn.textContent="در حال ثبت درخواست...";
     let createdUserId=null;
     try{
@@ -1453,9 +1495,16 @@ function renderMembershipForm(){
         return sb.storage.from("portfolio-files").getPublicUrl(path).data.publicUrl;
       };
       const avatarUrl=await uploadPublic(avatarFile,"avatar");
-      const portfolioFileUrl=await uploadPublic(portfolioFile,"portfolio");
+      const portfolioItems=[];
+      for(let i=0;i<portfolioEntries.length;i++){
+        const item=portfolioEntries[i];
+        const url=item.file?await uploadPublic(item.file,"portfolio"):item.url;
+        portfolioItems.push({title:item.file?item.file.name:"نمونه‌کار "+(i+1),url,kind:item.file?"file":"link"});
+      }
+      const firstPortfolioFile=portfolioItems.find(item=>item.kind==="file")?.url||"";
+      const firstPortfolioLink=portfolioItems.find(item=>item.kind==="link")?.url||"";
       const gender=$("#m_gender").value;
-      const payload={full_name:$("#m_fullname").value.trim(),username,gender,email,auth_user_id:createdUserId,avatar_url:avatarUrl,avatar_emoji:selectedEmoji,portfolio_file_url:portfolioFileUrl,phone:$("#m_phone").value.trim(),rubika:$("#m_rubika").value.trim().replace(/^@/,""),city:$("#m_city").value.trim(),activity:$("#m_activity").value.trim(),portfolio_url:portfolioLink,details:$("#m_bio").value.trim(),status:"pending",admin_note:""};
+      const payload={full_name:$("#m_fullname").value.trim(),username,gender,email,auth_user_id:createdUserId,avatar_url:avatarUrl,avatar_emoji:selectedEmoji,portfolio_file_url:firstPortfolioFile,portfolio_items:portfolioItems,phone:$("#m_phone").value.trim(),rubika:$("#m_rubika").value.trim().replace(/^@/,""),city:$("#m_city").value.trim(),activity:$("#m_activity").value.trim(),portfolio_url:firstPortfolioLink,details:$("#m_bio").value.trim(),status:"pending",admin_note:""};
       const {error}=await sb.from("membership_applications").insert(payload);
       if(error)throw error;
       $("#membershipForm").reset();selectedEmoji="";$("#m_avatar_name").textContent="بدون عکس؛ آواتار پیش‌فرض جنسیت انتخاب می‌شود.";
@@ -1470,7 +1519,7 @@ async function loadMembershipApplications(){
   const panel=$("#panel");if(!panel)return;panel.innerHTML='<div class="card"><h3>درخواست‌های عضویت</h3><p>در حال دریافت...</p></div>';
   try{const {data,error}=await sb.from("membership_applications").select("*").eq("dismissed",false).order("created_at",{ascending:false}).limit(100);if(error)throw error;const list=data||[],count=$("#membershipCount");if(count)count.textContent="("+fa(list.filter(x=>x.status==="pending").length)+" در انتظار)";
     const labels={pending:"در انتظار بررسی",contact_requested:"تماس اولیه",portfolio_requested:"درخواست نمونه‌کار",reviewing:"در حال بررسی",approved:"تأیید عضویت",rejected:"رد درخواست"};
-    panel.innerHTML='<div class="card"><h3>درخواست‌های عضویت ('+fa(list.length)+')</h3><p class="community-note">پس از بررسی، از طریق روبیکا با متقاضی تماس بگیر و وضعیت را تغییر بده.</p>'+(list.length?list.map(x=>'<article class="vreq" data-membership="'+esc(x.id)+'"><div class="vreq-head"><b>'+esc(x.full_name)+'</b><small>'+new Date(x.created_at).toLocaleString("fa-IR")+'</small>'+(x.status==="rejected"?'<button class="vreq-dismiss" type="button" title="حذف از فهرست" aria-label="حذف درخواست" data-act="dismissMembership" data-id="'+esc(x.id)+'">×</button>':"")+'</div><p>ایمیل: <input class="vreq-email" type="email" data-membership-email value="'+esc(x.email||"") +'" placeholder="email@example.com" autocomplete="off"></p><p>تلفن: <a href="tel:'+esc(x.phone.replace(/[^\\d+]/g,""))+'">'+esc(x.phone)+'</a> · شهر: '+esc(x.city)+'</p><p>روبیکا: <a href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">@'+esc(x.rubika.replace(/^@/,""))+'</a></p><p>نام کاربری: <b>'+esc(x.username||"—")+'</b> · جنسیت: '+(x.gender==="female"?"زن":"مرد")+'</p>'+(x.avatar_url?'<p><a href="'+esc(x.avatar_url)+'" target="_blank" rel="noopener">مشاهده عکس پروفایل ↗</a></p>':'<p>آواتار: '+esc(x.avatar_emoji||(x.gender==="female"?"👩":"👨"))+'</p>')+'<p>حوزه فعالیت: '+esc(x.activity)+'</p>'+(x.portfolio_url?'<p><a href="'+esc(x.portfolio_url)+'" target="_blank" rel="noopener">مشاهده لینک نمونه‌کار ↗</a></p>':'')+(x.portfolio_file_url?'<p><a href="'+esc(x.portfolio_file_url)+'" target="_blank" rel="noopener">مشاهده فایل نمونه‌کار ↗</a></p>':'')+'<p>'+esc(x.details||"بدون بیوگرافی")+'</p><div class="vreq-actions"><select data-membership-status>'+Object.keys(labels).map(k=>'<option value="'+k+'" '+(x.status===k?'selected':'')+'>'+labels[k]+'</option>').join("")+'</select></div><textarea data-membership-note maxlength="1000" placeholder="یادداشت داخلی مدیر">'+esc(x.admin_note||"")+'</textarea><div class="vreq-actions"><button class="btn sm" data-act="membershipStatus" data-id="'+esc(x.id)+'">ذخیره وضعیت</button><a class="btn sm g" href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">پیام در روبیکا</a></div></article>').join(""):'<p class="community-note">هنوز درخواستی ثبت نشده است.</p>')+'</div>';
+    panel.innerHTML='<div class="card"><h3>درخواست‌های عضویت ('+fa(list.length)+')</h3><p class="community-note">پس از بررسی، از طریق روبیکا با متقاضی تماس بگیر و وضعیت را تغییر بده.</p>'+(list.length?list.map(x=>'<article class="vreq" data-membership="'+esc(x.id)+'"><div class="vreq-head"><b>'+esc(x.full_name)+'</b><small>'+new Date(x.created_at).toLocaleString("fa-IR")+'</small>'+(x.status==="rejected"?'<button class="vreq-dismiss" type="button" title="حذف از فهرست" aria-label="حذف درخواست" data-act="dismissMembership" data-id="'+esc(x.id)+'">×</button>':"")+'</div><p>ایمیل: <input class="vreq-email" type="email" data-membership-email value="'+esc(x.email||"") +'" placeholder="email@example.com" autocomplete="off"></p><p>تلفن: <a href="tel:'+esc(x.phone.replace(/[^\\d+]/g,""))+'">'+esc(x.phone)+'</a> · شهر: '+esc(x.city)+'</p><p>روبیکا: <a href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">@'+esc(x.rubika.replace(/^@/,""))+'</a></p><p>نام کاربری: <b>'+esc(x.username||"—")+'</b> · جنسیت: '+(x.gender==="female"?"زن":"مرد")+'</p>'+(x.avatar_url?'<p><a href="'+esc(x.avatar_url)+'" target="_blank" rel="noopener">مشاهده عکس پروفایل ↗</a></p>':'<p>آواتار: '+esc(x.avatar_emoji||(x.gender==="female"?"👩":"👨"))+'</p>')+'<p>حوزه فعالیت: '+esc(x.activity)+'</p>'+(Array.isArray(x.portfolio_items)&&x.portfolio_items.length?'<div class="membership-admin-portfolio"><b>نمونه‌کارها ('+fa(x.portfolio_items.length)+')</b>'+x.portfolio_items.map((item,i)=>'<p>نمونه‌کار '+fa(i+1)+': <a href="'+esc(item.url)+'" target="_blank" rel="noopener">'+(item.kind==="file"?"مشاهده فایل":"مشاهده لینک")+' ↗</a></p>').join("")+'</div>':(x.portfolio_url?'<p><a href="'+esc(x.portfolio_url)+'" target="_blank" rel="noopener">مشاهده لینک نمونه‌کار ↗</a></p>':'')+(x.portfolio_file_url?'<p><a href="'+esc(x.portfolio_file_url)+'" target="_blank" rel="noopener">مشاهده فایل نمونه‌کار ↗</a></p>':''))+'<p>'+esc(x.details||"بدون بیوگرافی")+'</p><div class="vreq-actions"><select data-membership-status>'+Object.keys(labels).map(k=>'<option value="'+k+'" '+(x.status===k?'selected':'')+'>'+labels[k]+'</option>').join("")+'</select></div><textarea data-membership-note maxlength="1000" placeholder="یادداشت داخلی مدیر">'+esc(x.admin_note||"")+'</textarea><div class="vreq-actions"><button class="btn sm" data-act="membershipStatus" data-id="'+esc(x.id)+'">ذخیره وضعیت</button><a class="btn sm g" href="https://rubika.ir/'+encodeURIComponent(x.rubika.replace(/^@/,""))+'" target="_blank" rel="noopener">پیام در روبیکا</a></div></article>').join(""):'<p class="community-note">هنوز درخواستی ثبت نشده است.</p>')+'</div>';
   }catch(error){panel.innerHTML='<div class="card"><h3>خطا</h3><p class="err">'+esc(error.message)+'</p></div>';}
 }
 
