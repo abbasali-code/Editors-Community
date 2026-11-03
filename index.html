@@ -1614,7 +1614,9 @@ async function runAction(name, btn){
     if(name==="communityLogout"){const {error}=await sb.auth.signOut();if(error)throw error;ROLE=null;MY_ID=null;renderNav();toast("از حساب خارج شدی.");location.hash="#/";return;}
     if (name === "login") {
       await api("POST", "/api/login", {email: $("#adminemail").value, password: $("#pw").value});
-      ROLE = "admin"; MY_ID = null; renderNav(); renderAdmin(); return;
+      await checkSession();
+      if (ROLE !== "admin" || !MY_ID) throw new Error("ورود مدیر انجام شد اما شناسه حساب دریافت نشد؛ صفحه را تازه‌سازی کن.");
+      renderNav(); renderAdmin(); return;
     }
     if (name === "logout") {
       await api("POST", "/api/logout").catch(() => {});
