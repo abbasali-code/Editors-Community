@@ -330,6 +330,29 @@ details.q summary::after{font-size:30px}
   .welc .mbox h3{font-size:40px}
 }
 
+/* Subtle scroll reveal: content fades in as it enters the viewport */
+[data-scroll-reveal]{
+  opacity:0;
+  transform:translate3d(0,16px,0);
+  filter:blur(2px);
+  transition:opacity .48s ease,transform .48s cubic-bezier(.2,.7,.2,1),filter .48s ease;
+  will-change:opacity,transform;
+}
+[data-scroll-reveal].is-visible{
+  opacity:1;
+  transform:translate3d(0,0,0);
+  filter:blur(0);
+}
+@media(prefers-reduced-motion:reduce){
+  [data-scroll-reveal],[data-scroll-reveal].is-visible{
+    opacity:1;
+    transform:none;
+    filter:none;
+    transition:none;
+    will-change:auto;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1820,6 +1843,50 @@ async function runAction(name, btn){
     if (target) target.textContent = err.message; else toast(err.message);
   }
 }
+
+/* ==================================================
+   افکت سبک نمایش محتوا هنگام اسکرول
+   ================================================== */
+(function initScrollReveal(){
+  const selector = [
+    "#app h1","#app h2","#app h3","#app h4","#app p",
+    "#app .eyebrow","#app .stat","#app .erow","#app .srow",
+    "#app .step","#app .tcard","#app details.q","#app .cta",
+    "#app .ph","#app .blk","#app .pf","#app .pn","#app .arr-h",
+    "#app .arow","#app .pill","#app .chip",
+    "footer .fg > div","footer .copy"
+  ].join(",");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!("IntersectionObserver" in window)) return;
+
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      entry.target.classList.toggle("is-visible", entry.isIntersecting);
+    });
+  }, { threshold: 0.04, rootMargin: "0px 0px -5% 0px" });
+
+  function scan(root){
+    if (!root || root.nodeType !== 1) return;
+    if (root.matches(selector) && !root.hasAttribute("data-scroll-reveal")) {
+      root.setAttribute("data-scroll-reveal", "");
+      revealObserver.observe(root);
+    }
+    root.querySelectorAll(selector).forEach(el => {
+      if (el.hasAttribute("data-scroll-reveal")) return;
+      el.setAttribute("data-scroll-reveal", "");
+      revealObserver.observe(el);
+    });
+  }
+
+  scan(document.querySelector("#app"));
+  scan(document.querySelector("footer"));
+  const appRoot = document.querySelector("#app");
+  if (appRoot) new MutationObserver(records => {
+    records.forEach(record => record.addedNodes.forEach(node => {
+      if (node.nodeType === 1) scan(node);
+    }));
+  }).observe(appRoot, { childList:true, subtree:true });
+})();
 
 /* ==================================================
    مسیریابی
