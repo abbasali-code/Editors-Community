@@ -665,7 +665,7 @@ function renderNav(){
 function edRow(e, i){
   return `<article class="erow" style="--c:${esc(e.color)}" data-go="#/editor/${esc(e.id)}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     <span class="ix">${fa(String(i + 1).padStart(2, "0"))}</span>
-    <span class="av">${e.avatar_emoji ? esc(e.avatar_emoji) : e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy">` : (e.gender==="female"?"👩":"👨")}</span>
+    <span class="av">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</span>
     <span class="nm"><b>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
     <span class="tg">${(e.skills || []).slice(0, 3).map(s => `<em>${esc(s)}</em>`).join("")}</span>
     ${ROLE === "admin" ? `<button class="btn sm g" data-admin-edit="${esc(e.id)}">${esc(T("cardAdminBtn"))}</button>` : `<span></span>`}
@@ -827,7 +827,7 @@ function renderEditor(id){
   <div class="wrap">
     <a class="back" href="#/#editors">${esc(T("backToEditors"))}</a>
     <div class="ph" style="--c:${esc(e.color)}">
-      <div class="big">${e.avatar_emoji ? esc(e.avatar_emoji) : e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="تصویر پروفایل ${esc(e.name)}" loading="lazy" decoding="async">` : (e.gender==="female"?"👩":"👨")}</div>
+      <div class="big">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="تصویر پروفایل ${esc(e.name)}" loading="lazy" decoding="async">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</div>
       <div class="inf">
         <span class="eyebrow" style="font-size:13px">${esc(T("editorWord"))} ${fa(String(i + 1).padStart(2, "0"))} ${esc(T("ofWord"))} ${fa(EDS.length)}</span>
         <h1>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</h1>
@@ -1577,9 +1577,15 @@ async function runAction(name, btn){
       if(ROLE!=="editor"||MY_ID!==btn.dataset.id)throw new Error("فقط صاحب پروفایل می‌تواند ایموجی را تغییر دهد.");
       const emoji=String($("#p_avatar_emoji")?.value||"").trim();
       if([...emoji].length>8)throw new Error("ایموجی پروفایل حداکثر ۸ نویسه باشد.");
-      const {data,error}=await sb.from("editors").update({avatar_emoji:emoji}).eq("id",MY_ID).select("id").maybeSingle();
+      const editor=EDS.find(x=>x.id===MY_ID);if(!editor)throw new Error("پروفایل ادیتور پیدا نشد.");
+      const oldAvatar=editor.avatar_url||"";
+      const {data,error}=await sb.from("editors").update({avatar_emoji:emoji,avatar_url:emoji?"":oldAvatar}).eq("id",MY_ID).select("id").maybeSingle();
       if(error)throw error;if(!data)throw new Error("ذخیره انجام نشد؛ دسترسی ویرایش پروفایل را بررسی کن.");
-      const editor=EDS.find(x=>x.id===MY_ID);if(editor)editor.avatar_emoji=emoji;
+      editor.avatar_emoji=emoji;editor.avatar_url=emoji?"":oldAvatar;
+      if(emoji&&oldAvatar.includes("/storage/v1/object/public/portfolio-files/")){
+        const oldPath=decodeURIComponent(oldAvatar.split("/storage/v1/object/public/portfolio-files/")[1].split(/[?#]/)[0]);
+        if(oldPath.startsWith(MY_ID+"/avatar/"))await sb.storage.from("portfolio-files").remove([oldPath]);
+      }
       toast(emoji?"ایموجی پروفایل ذخیره شد.":"ایموجی پاک شد؛ عکس یا آواتار پیش‌فرض نمایش داده می‌شود.");
       renderEditor(MY_ID);return;
     }
