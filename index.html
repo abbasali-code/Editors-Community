@@ -803,7 +803,7 @@ function renderEditor(id){
     <div id="portfolioUsage" style="padding:10px 12px;border:1px solid var(--ln);border-radius:10px;background:var(--s2);font-size:13px;color:var(--mu)">در حال بررسی فضای مصرف‌شده...</div>
     <label class="portfolio-upload-btn" for="p_upload"><span aria-hidden="true">＋</span> آپلود نمونه‌کار</label>
     <input id="p_upload" type="file" hidden multiple accept="image/*,video/mp4,video/webm,video/quicktime,text/*,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov,.m4v,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.html,.htm,.css,.scss,.sass,.json,.md,.txt,.xml,.yml,.yaml,.toml,.ini,.sql,.java,.c,.h,.cpp,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.dart,.sh,.bash,.bat,.ps1,.vue,.svelte,.astro,.ipynb,.r,.lua,.pl,.ex,.exs,.erl,.hrl,.clj,.cljs,.scala,.gradle,.dockerfile,.makefile,.gitignore,.env">
-    <small class="portfolio-upload-note">سهمیه هر حساب: مجموعاً ۲۰۰ مگابایت. حداکثر ۲ ویدیو، هرکدام تا ۵۰ مگابایت و مجموع ویدیوها تا ۱۰۰ مگابایت. هر فایل کدنویسی حداکثر ۱۰ مگابایت است. آپلود و ثبت نمونه‌کار خودکار انجام می‌شود.</small>
+    <small class="portfolio-upload-note">سهمیه هر حساب: مجموعاً ۲۰۰ مگابایت. تعداد ویدیو محدود نیست؛ مجموع حجم همه ویدیوها حداکثر ۱۰۰ مگابایت است. هر فایل کدنویسی حداکثر ۱۰ مگابایت است. آپلود و ثبت نمونه‌کار خودکار انجام می‌شود.</small>
     <div class="err" id="uploaderr"></div>
     <button class="pf-delete-btn" type="button" data-pf-delete-open="${esc(e.id)}">حذف نمونه‌کار</button>
   </div>` : "";
@@ -1121,7 +1121,7 @@ function openPortfolioDelete(editorId){
   $("#layer").innerHTML = '<div class="pf-delete-modal" id="pfDeleteLayer"><div class="pf-delete-dialog" role="dialog" aria-modal="true"><h3>کدام نمونه‌کار حذف شود؟</h3><p style="color:var(--mu);font-size:13px">یک مورد را انتخاب کن. پیش‌نمایش هر نمونه‌کار کنار عنوانش نمایش داده می‌شود.</p><div class="pf-delete-list">' + rows + '</div><div class="pf-delete-actions"><button class="btn" type="button" data-act="deletePortfolioConfirm" data-id="' + esc(editorId) + '">حذف انتخاب‌شده</button><button class="btn g" type="button" data-act="closePortfolioDelete">انصراف</button></div><div class="err" id="pfDeleteError"></div></div></div>';
 }
 
-const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, video: 50 * 1024 * 1024, videoTotal: 100 * 1024 * 1024, videos: 2, code: 10 * 1024 * 1024 };
+const PORTFOLIO_LIMITS = { total: 200 * 1024 * 1024, videoTotal: 100 * 1024 * 1024, code: 10 * 1024 * 1024 };
 const CODE_EXTENSIONS = ["js","mjs","cjs","ts","tsx","jsx","py","html","htm","css","scss","sass","json","md","txt","xml","yml","yaml","toml","ini","sql","java","c","h","cpp","hpp","cs","php","rb","go","rs","swift","kt","dart","sh","bash","bat","ps1","vue","svelte","astro","ipynb","r","lua","pl","ex","exs","erl","hrl","clj","cljs","scala","gradle","dockerfile","makefile","gitignore","env"];
 const CODE_LANGUAGE_NAMES = {js:"JavaScript",mjs:"JavaScript",cjs:"JavaScript",ts:"TypeScript",tsx:"TSX",jsx:"JSX",py:"Python",html:"HTML",htm:"HTML",css:"CSS",scss:"SCSS",sass:"Sass",json:"JSON",md:"Markdown",txt:"Text",xml:"XML",yml:"YAML",yaml:"YAML",sql:"SQL",java:"Java",c:"C",cpp:"C++",cs:"C#",php:"PHP",rb:"Ruby",go:"Go",rs:"Rust",swift:"Swift",kt:"Kotlin",dart:"Dart",sh:"Shell",ps1:"PowerShell",vue:"Vue",svelte:"Svelte",astro:"Astro",ipynb:"Jupyter Notebook",r:"R",lua:"Lua",scala:"Scala",dockerfile:"Dockerfile",makefile:"Makefile",gitignore:"Git Ignore",env:"ENV"};
 async function getPortfolioUsage(){
@@ -1131,7 +1131,7 @@ async function getPortfolioUsage(){
   const bytes = files.reduce((sum,x) => sum + Number(x.metadata?.size || 0),0);
   const videos = files.filter(x => String(x.metadata?.mimetype || "").startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(x.name));
   const videoBytes = videos.reduce((sum,x) => sum + Number(x.metadata?.size || 0),0);
-  return {bytes,videos:videos.length,videoBytes};
+  return {bytes,videoBytes};
 }
 function formatFileSize(bytes){
   return (bytes / (1024*1024)).toLocaleString("fa-IR",{maximumFractionDigits:1}) + " مگابایت";
@@ -1141,7 +1141,7 @@ async function refreshPortfolioUsage(){
   if(!box || ROLE !== "editor" || !MY_ID) return;
   try{
     const usage = await getPortfolioUsage();
-    box.textContent = `فضای مصرف‌شده: ${formatFileSize(usage.bytes)} از ۲۰۰ مگابایت · ویدیو: ${usage.videos} از ۲ · حجم ویدیوها: ${formatFileSize(usage.videoBytes)} از ۱۰۰ مگابایت`;
+    box.textContent = `فضای مصرف‌شده: ${formatFileSize(usage.bytes)} از ۲۰۰ مگابایت · فضای ویدیوها: ${formatFileSize(usage.videoBytes)} از ۱۰۰ مگابایت`;
   }catch(error){
     box.textContent = "نمایش سهمیه ممکن نیست؛ محدودیت‌های آپلود همچنان در سرور بررسی می‌شوند.";
   }
@@ -1172,11 +1172,9 @@ async function uploadEditorPortfolio(input){
       const isImage = file.type.startsWith("image/") || Object.prototype.hasOwnProperty.call(imageTypes,ext);
       const isCode = CODE_EXTENSIONS.includes(ext);
       if (!isVideo && !isImage && !isCode) throw new Error("این فرمت پشتیبانی نمی‌شود. تصویر، ویدیو یا فایل کدنویسی مجاز است.");
-      if (isVideo && file.size > PORTFOLIO_LIMITS.video) throw new Error("حجم هر ویدیو حداکثر ۵۰ مگابایت است.");
       if (isCode && file.size > PORTFOLIO_LIMITS.code) throw new Error("حجم هر فایل کدنویسی حداکثر ۱۰ مگابایت است.");
       if (usage.bytes + file.size > PORTFOLIO_LIMITS.total) throw new Error("سهمیه کل نمونه‌کار شما ۲۰۰ مگابایت است؛ ابتدا بعضی فایل‌ها را حذف کنید.");
-      if (isVideo && usage.videos >= PORTFOLIO_LIMITS.videos) throw new Error("هر ادیتور حداکثر می‌تواند ۲ ویدیو داشته باشد.");
-      if (isVideo && usage.videoBytes + file.size > PORTFOLIO_LIMITS.videoTotal) throw new Error("مجموع حجم ویدیوهای هر حساب نمی‌تواند بیشتر از ۱۰۰ مگابایت باشد.");
+      if (isVideo && usage.videoBytes + file.size > PORTFOLIO_LIMITS.videoTotal) throw new Error("فضای باقی‌مانده برای ویدیوها کافی نیست؛ سهمیه ویدیو ۱۰۰ مگابایت است.");
       const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-").slice(-90) || "portfolio";
       const storageName = file.name.includes(".") ? safeName : safeName + "." + ext;
       const path = MY_ID + "/" + crypto.randomUUID() + "-" + storageName;
@@ -1188,7 +1186,7 @@ async function uploadEditorPortfolio(input){
       const title = file.name.replace(/\.[^.]+$/,"").replace(/[|\n]/g," ").trim() || "نمونه‌کار";
       newLines.push(title + " | " + data.publicUrl + (isCode ? " | code | " + ext : ""));
       usage.bytes += file.size;
-      if(isVideo){usage.videos++;usage.videoBytes+=file.size;}
+      if(isVideo) usage.videoBytes+=file.size;
     }
     field.value = [originalPortfolioText.trim(),...newLines].filter(Boolean).join("\n");
     const portfolio = portfolioToDb(field.value);
