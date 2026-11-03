@@ -649,7 +649,7 @@ function applyTheme(){
 function renderNav(){
   $("#nav").innerHTML = `<div class="nav-head"><strong>منوی انجمن</strong><button class="menu-close" type="button" aria-label="بستن منو" data-menu-close>×</button></div>` + SECS.filter(k => k !== "contact" && CFG[k] && CFG[k].show).map(k => `<a href="#${k}" data-sec="${k}">${esc(CFG.nav[k] || k)}</a>`).join("") + `<a href="#/join">درخواست عضویت در انجمن</a>`
     + `<a href="#/verification">درخواست تیک آبی</a>`
-    + `<a href="#/account">${ROLE === "community_user" ? "حساب من" : "ورود با گوگل"}</a>`
+    + `<a href="#/account">${ROLE === "community_user" || ROLE === "editor" ? "حساب من" : "ورود با گوگل"}</a>`
     + (ROLE === "community_user" ? `<a href="#/" data-act="communityLogout">خروج</a>` : "")
     + (ROLE === "editor" ? `<a href="#/editor/${esc(MY_ID)}">پروفایل و پنل من</a>` : "")
     + `<a class="admlink" href="#/admin">${ROLE === "admin" ? T("navAdminIn") : T("navAdmin")}</a>`
@@ -903,7 +903,7 @@ function renderCommunityAuth(){
     });
     return;
   }
-  if(ROLE==="editor"||ROLE==="admin"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب انجمن</h2><p>حساب ادیتور و مدیر جداست. برای ثبت نظر با یک حساب گوگل عمومی وارد شو.</p></div></div>';return;}
+  if(ROLE==="editor"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب انجمن ادیتور</h2><p>با حساب ادیتوری خودت وارد شدی؛ نیازی به ورود گوگل نیست.</p><p class="community-note">می‌تونی زیر پروفایل ادیتورهای دیگر و زیر نمونه‌کارهایشان نظر ثبت کنی، پاسخ بدهی و نمونه‌کارهایشان را لایک یا دیسلایک کنی. روی نمونه‌کارهای خودت امکان رأی دادن نداری.</p><a class="btn" href="#/editor/'+encodeURIComponent(MY_ID)+'">رفتن به پروفایل من</a></div></div>';return;} if(ROLE==="admin"){app().innerHTML='<div class="wrap community-auth"><div class="card"><h2>حساب مدیریت</h2><p>حساب مدیر برای مدیریت انجمن است و امکان ثبت رأی یا نظر عمومی ندارد.</p></div></div>';return;}
   app().innerHTML='<div class="wrap community-auth"><a class="back" href="#/">بازگشت</a><div class="card"><span class="eyebrow">حساب کاربری انجمن</span><h2>ورود یا عضویت با گوگل</h2><p class="community-note">برای ثبت نظر و پاسخ، فقط با حساب گوگل وارد شو. نام و ایمیل حساب گوگل برای ساخت پروفایل استفاده می‌شود؛ شماره موبایل لازم نیست.</p><button class="btn full" data-act="communityGoogleLogin"><span style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#4285f4;font:700 20px Arial">G</span> ورود با گوگل</button><div class="err" id="cu_error"></div><p class="community-note" style="margin-top:14px">با ورود، حساب کاربری انجمن به‌صورت خودکار ساخته می‌شود.</p></div></div>';
 }
 async function signInCommunityWithGoogle(){
@@ -921,7 +921,7 @@ async function loadPortfolioVotes(host){
     const row=Array.isArray(data)?data[0]:(data||{});
     const likes=Number(row.likes||0), dislikes=Number(row.dislikes||0), myVote=Number(row.my_vote||0);
     const own=ROLE==="editor"&&MY_ID===editorId;
-    host.innerHTML='<div class="vote-actions"><button type="button" class="vote-btn '+(myVote===1?'active like':'')+'" data-portfolio-vote="1" aria-label="پسندیدن" '+(own?'disabled':'')+'>👍 <span>'+fa(likes)+'</span></button><button type="button" class="vote-btn '+(myVote===-1?'active dislike':'')+'" data-portfolio-vote="-1" aria-label="نپسندیدن" '+(own?'disabled':'')+'>👎 <span>'+fa(dislikes)+'</span></button></div>';
+    host.innerHTML=(own?'<p class="community-note">این نمونه‌کار متعلق به خودته؛ برای آثار ادیتورهای دیگر می‌تونی رأی ثبت کنی.</p>':'')+'<div class="vote-actions"><button type="button" class="vote-btn '+(myVote===1?'active like':'')+'" data-portfolio-vote="1" aria-label="پسندیدن" '+(own?'disabled':'')+'>👍 <span>'+fa(likes)+'</span></button><button type="button" class="vote-btn '+(myVote===-1?'active dislike':'')+'" data-portfolio-vote="-1" aria-label="نپسندیدن" '+(own?'disabled':'')+'>👎 <span>'+fa(dislikes)+'</span></button></div>';
   }catch(error){host.innerHTML='<span class="community-note">دریافت رأی‌ها ممکن نشد: '+esc(error.message)+'</span>';}
 }
 async function handlePortfolioVote(button){
