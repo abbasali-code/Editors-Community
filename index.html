@@ -7,7 +7,10 @@
 <meta name="description" content="انجمن ادیتوران؛ معرفی ادیتورهای حرفه‌ای ویدیو، عکس، صدا و موشن‌گرافیک با نمونه‌کار و پروفایل کامل.">
 <meta name="theme-color" content="#0f0b08">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f97316'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white'%3E✦%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://vtjgszcsmlwjtmebwqnp.supabase.co" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jomhuria&family=Lalezar&family=Rakkas&family=Mirza:wght@400;700&family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&family=Vazirmatn:wght@300..900&display=swap">
 <style>
 :root{
@@ -334,14 +337,11 @@ details.q summary::after{font-size:30px}
 [data-scroll-reveal]{
   opacity:0;
   transform:translate3d(0,16px,0);
-  filter:blur(2px);
-  transition:opacity .48s ease,transform .48s cubic-bezier(.2,.7,.2,1),filter .48s ease;
-  will-change:opacity,transform;
+  transition:opacity .36s ease,transform .36s cubic-bezier(.2,.7,.2,1);
 }
 [data-scroll-reveal].is-visible{
   opacity:1;
   transform:translate3d(0,0,0);
-  filter:blur(0);
 }
 @media(prefers-reduced-motion:reduce){
   [data-scroll-reveal],[data-scroll-reveal].is-visible{
@@ -767,7 +767,7 @@ function renderNav(){
 function edRow(e, i){
   return `<article class="erow" style="--c:${esc(e.color)}" data-go="#/editor/${esc(e.id)}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     <span class="ix">${fa(String(i + 1).padStart(2, "0"))}</span>
-    <span class="av">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</span>
+    <span class="av">${e.avatar_url ? `<img src="${esc(e.avatar_url)}" alt="" loading="lazy" decoding="async">` : esc(e.avatar_emoji || (e.gender==="female"?"👩":"👨"))}</span>
     <span class="nm"><b>${esc(e.name)} ${e.is_verified ? '<span class="verified-badge" title="هویت تأیید شده">✓</span>' : ''}</b><i>${esc(e.role)}</i><small>${esc(e.short)}</small></span>
     <span class="tg">${(e.skills || []).slice(0, 3).map(s => `<em>${esc(s)}</em>`).join("")}</span>
     ${ROLE === "admin" ? `<button class="btn sm g" data-admin-edit="${esc(e.id)}">${esc(T("cardAdminBtn"))}</button>` : `<span></span>`}
@@ -892,7 +892,7 @@ function renderEditor(id){
       const language = String(p.language || CODE_LANGUAGE_NAMES[ext] || ext.toUpperCase());
       media = `<div class="pf-code-card"><span class="pf-code-ext">${esc(ext || "CODE")}</span><small>فایل کدنویسی · ${esc(language)}</small><a class="btn sm" href="${esc(link)}" download target="_blank" rel="noopener">دانلود فایل کدنویسی ↓</a></div>`;
     } else if (!link) media = `<div class="pf-empty"><small>${esc(T("soonText"))}</small></div>`;
-    else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="metadata" playsinline><source src="${esc(link)}"></video>`;
+    else if (/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(link)) media = `<video class="pf-short-video" data-video-url="${esc(link)}" data-video-title="${esc(p.title)}" controls preload="none" playsinline><source src="${esc(link)}"></video>`;
     else if (/\.(jpe?g|png|webp|gif)(?:[?#].*)?$/i.test(link)) media = `<a href="${esc(link)}" target="_blank" rel="noopener"><img src="${esc(link)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></a>`;
     else media = `<a class="pf-open-link" href="${esc(link)}" target="_blank" rel="noopener"><small>${esc(T("viewLinkText"))}</small></a>`;
     return {title:p.title, media, link, id:String(p.id || p.link || ""), description:String(p.description || "")};
@@ -1691,8 +1691,13 @@ document.addEventListener("keydown", ev => {
   if (ev.key === "Enter" && ev.target.id === "edpass") runAction("editorLogin", document.querySelector('[data-act="editorLogin"]'));
   if (ev.key === "Enter" && ev.target.classList && ev.target.classList.contains("erow")) location.hash = ev.target.dataset.go;
 });
+let searchRenderTimer = 0;
 document.addEventListener("input", ev => {
-  if (ev.target.id === "q") { FILTER.q = ev.target.value; renderList(); }
+  if (ev.target.id === "q") {
+    FILTER.q = ev.target.value;
+    clearTimeout(searchRenderTimer);
+    searchRenderTimer = setTimeout(renderList, 100);
+  }
 });
 document.addEventListener("change", ev => {
   if (ev.target.id === "p_upload") uploadEditorPortfolio(ev.target);
@@ -1988,13 +1993,12 @@ addEventListener("scroll", () => {
    شروع
    ================================================== */
 (async function init(){
-  try { await load(); }
-  catch (e) {
+  const stateTask = load().catch(() => {
     OFFLINE = true;
     CFG = clone(FALLBACK_CFG); EDS = [];
     CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
-  }
-  await checkSession();
+  });
+  await Promise.all([stateTask, checkSession()]);
   applyTheme();
   await route();
   if (!OFFLINE && CFG.popup && CFG.popup.show && !location.hash.startsWith("#/admin")) {
