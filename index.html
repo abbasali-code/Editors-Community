@@ -27,6 +27,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 ::selection{background:var(--pri2);color:#fff}
 h1,h2,h3,h4{font-family:var(--fd);font-weight:400;line-height:1.25;margin:0}
 .wrap{width:92%;max-width:1180px;margin:0 auto}
+#app{min-height:100vh}
 .hide{display:none!important}
 .bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 500px at 90% -10%,rgba(249,115,22,.22),transparent 60%),radial-gradient(700px 420px at -10% 110%,rgba(251,146,60,.14),transparent 60%)}
 .notice{background:#9a3412;color:#fff;padding:10px 14px;text-align:center;font-size:14px;line-height:1.8}
@@ -1993,6 +1994,14 @@ addEventListener("scroll", () => {
    شروع
    ================================================== */
 (async function init(){
+  // رندر فوری نسخه‌ی پایه؛ منتظر پاسخ API نمی‌مانیم تا صفحه از حالت خالی نپرد.
+  CFG = clone(FALLBACK_CFG);
+  CFG.ui = Object.assign({}, UI_DEFAULT, CFG.ui || {});
+  CFG.customFonts = Array.isArray(CFG.customFonts) ? CFG.customFonts : [];
+  CFG.fonts = Object.assign({display:"Jomhuria",body:"Vazirmatn"}, CFG.fonts || {});
+  applyTheme();
+  if (!location.hash || location.hash === "#/") renderHome();
+
   const stateTask = load().catch(() => {
     OFFLINE = true;
     CFG = clone(FALLBACK_CFG); EDS = [];
@@ -2000,6 +2009,8 @@ addEventListener("scroll", () => {
   });
   await Promise.all([stateTask, checkSession()]);
   applyTheme();
+  // صفحه‌ی خانگی را با داده‌ی واقعی تازه‌سازی می‌کنیم.
+  VIEW = "";
   await route();
   if (!OFFLINE && CFG.popup && CFG.popup.show && !location.hash.startsWith("#/admin")) {
     try { if (sessionStorage.getItem("ea_welcome")) return; } catch (e) {}
