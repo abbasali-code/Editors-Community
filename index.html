@@ -11,7 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://vtjgszcsmlwjtmebwqnp.supabase.co" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jomhuria&family=Lalezar&family=Rakkas&family=Mirza:wght@400;700&family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&family=Vazirmatn:wght@300..900&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Jomhuria&family=Vazirmatn:wght@300..900&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jomhuria&family=Vazirmatn:wght@300..900&display=swap"></noscript>
 <style>
 :root{
   --bg:#100b07; --s1:#1c130d; --s2:#2a1a10; --pri:#f97316; --pri2:#fb923c; --acc:#fdba74;
@@ -732,11 +733,33 @@ async function checkSession(){
 /* ==================================================
    اعمال تنظیمات روی صفحه
    ================================================== */
+const GOOGLE_FONT_QUERIES = {
+  Jomhuria:"Jomhuria",
+  Vazirmatn:"Vazirmatn:wght@300..900",
+  Lalezar:"Lalezar",
+  Rakkas:"Rakkas",
+  Mirza:"Mirza:wght@400;700",
+  Amiri:"Amiri:wght@400;700",
+  "Reem Kufi":"Reem+Kufi:wght@400;700"
+};
+function ensureGoogleFont(name){
+  const query = GOOGLE_FONT_QUERIES[name];
+  if (!query) return;
+  const id = "google-font-" + name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(query) + "&display=swap";
+  document.head.appendChild(link);
+}
+
 function applyTheme(){
   CFG.colors = {...ORANGE_THEME};
   CFG.customFonts = Array.isArray(CFG.customFonts) ? CFG.customFonts : [];
   CFG.fonts = Object.assign({display:"Jomhuria",body:"Vazirmatn"}, CFG.fonts || {});
   const c = CFG.colors, f = CFG.fonts, s = document.documentElement.style;
+  ensureGoogleFont(f.display); ensureGoogleFont(f.body);
   const customStyle = document.getElementById("ec-custom-font-faces") || document.createElement("style");
   customStyle.id = "ec-custom-font-faces";
   customStyle.textContent = CFG.customFonts.filter(x => x && /^EC_[A-Za-z0-9_-]+$/.test(x.family) && String(x.url || "").startsWith("https://vtjgszcsmlwjtmebwqnp.supabase.co/storage/v1/object/public/site-fonts/")).map(x => `@font-face{font-family:"${x.family}";src:url(${JSON.stringify(x.url)}) format("${({woff2:"woff2",woff:"woff",ttf:"truetype",otf:"opentype"})[x.format] || "woff2"}");font-display:swap}`).join("\n");
