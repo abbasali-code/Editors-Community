@@ -354,6 +354,14 @@ details.q summary::after{font-size:30px}
   }
 }
 
+/* Keep the first-screen hero visible immediately; preserve reveal effects elsewhere. */
+.hero [data-scroll-reveal],
+.hero [data-scroll-reveal].is-visible{
+  opacity:1;
+  transform:none;
+  transition:none;
+}
+
 
 /* Membership application portfolio items */
 .membership-portfolio-list{display:grid;gap:12px;margin:10px 0}
